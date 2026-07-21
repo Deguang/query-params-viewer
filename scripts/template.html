@@ -330,7 +330,6 @@
   .hint-warn { color: var(--warning); }
   .hint-risk { color: var(--critical); }
 
-  .share-card { margin-bottom: 16px; }
 
   #empty-state {
     text-align: center;
@@ -511,6 +510,7 @@
   }
   .copy-btn:hover { color: var(--text-primary); border-color: var(--series-1); }
   .copy-btn.copied { color: var(--success); border-color: var(--success); }
+  .btn.copied { color: var(--success); border-color: var(--success); }
 
   .edit-input {
     width: 100%;
@@ -577,9 +577,26 @@
     border: 1px solid var(--border);
     white-space: nowrap;
   }
-  .status-same { color: var(--success); border-color: var(--success); }
-  .status-diff { color: var(--critical); border-color: var(--critical); }
-  .status-only { color: var(--text-muted); }
+  /* Four distinct hues so status never relies on the badge text alone:
+     same = green, changed = amber, only in A (dropped) = red, only in B
+     (added) = blue. Blue rather than green for "added" keeps it clearly
+     apart from the green "same" badge. */
+  .status-same  { color: var(--success);  border-color: var(--success); }
+  .status-diff  { color: var(--warning);  border-color: var(--warning); }
+  .status-onlyA { color: var(--critical); border-color: var(--critical); }
+  .status-onlyB { color: var(--series-1); border-color: var(--series-1); }
+
+  /* Only rows needing attention are tinted -- unchanged rows stay clean, so a
+     long diff can be scanned without reading the status column. The left
+     accent carries the same signal for anyone who cannot separate the tints,
+     and still renders where color-mix() is unsupported. */
+  #compareTable tbody tr.row-diff  { background: color-mix(in srgb, var(--warning)  12%, transparent); }
+  #compareTable tbody tr.row-onlyA { background: color-mix(in srgb, var(--critical) 12%, transparent); }
+  #compareTable tbody tr.row-onlyB { background: color-mix(in srgb, var(--series-1) 12%, transparent); }
+  #compareTable tbody td:first-child { box-shadow: inset 3px 0 0 transparent; }
+  #compareTable tbody tr.row-diff  td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+  #compareTable tbody tr.row-onlyA td:first-child { box-shadow: inset 3px 0 0 var(--critical); }
+  #compareTable tbody tr.row-onlyB td:first-child { box-shadow: inset 3px 0 0 var(--series-1); }
 
   footer {
     text-align: center;
@@ -677,15 +694,6 @@
           </div>
         </section>
 
-        <section class="card share-card" id="shareCard" hidden>
-          <h2 class="section-title" id="shareHeadingText" style="margin:0 0 8px;">__SHARE_HEADING__</h2>
-          <div class="full-url-row">
-            <input type="text" id="shareUrlOutput" readonly>
-            <button class="btn btn-ghost" id="copyShareUrlBtn" type="button">__COPY__</button>
-          </div>
-          <p class="hint" id="shareLenHint"></p>
-        </section>
-
         <section class="card">
           <div class="table-card-header">
             <h2 class="section-title" id="tableTitleText" style="margin:0;">__TABLE_TITLE__</h2>
@@ -696,6 +704,7 @@
               <button class="btn btn-ghost" id="copyJsonBtn" type="button">__COPY_JSON_BTN__</button>
             </div>
           </div>
+          <p class="hint" id="shareLenHint" hidden></p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -722,8 +731,12 @@
           <button class="btn btn-primary" id="compareBtn" type="button">__COMPARE_BTN__</button>
           <button class="btn btn-ghost" id="compareShareBtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg> <span id="compareShareBtnLabel">__SHARE_BTN__</span></button>
         </div>
+        <p class="hint" id="compareShareLenHint" hidden></p>
+      </section>
+
+      <section class="card" id="compareResultCard" hidden>
         <div class="table-wrap">
-          <table id="compareTable" hidden>
+          <table id="compareTable">
             <thead>
               <tr>
                 <th>Key</th>
@@ -735,15 +748,6 @@
             <tbody id="compareTableBody"></tbody>
           </table>
         </div>
-      </section>
-
-      <section class="card share-card" id="compareShareCard" hidden>
-        <h2 class="section-title" id="compareShareHeadingText" style="margin:0 0 8px;">__SHARE_HEADING__</h2>
-        <div class="full-url-row">
-          <input type="text" id="compareShareUrlOutput" readonly>
-          <button class="btn btn-ghost" id="copyCompareShareUrlBtn" type="button">__COPY__</button>
-        </div>
-        <p class="hint" id="compareShareLenHint"></p>
       </section>
     </div>
   </main>
@@ -799,12 +803,8 @@
   var baseUrlInput = document.getElementById("baseUrlInput");
   var fullUrlOutput = document.getElementById("fullUrlOutput");
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
-  var shareCard = document.getElementById("shareCard");
-  var shareHeadingEl = document.getElementById("shareHeadingText");
   var shareBtn = document.getElementById("shareBtn");
   var shareBtnLabel = document.getElementById("shareBtnLabel");
-  var shareUrlOutput = document.getElementById("shareUrlOutput");
-  var copyShareUrlBtn = document.getElementById("copyShareUrlBtn");
   var shareLenHint = document.getElementById("shareLenHint");
   var tabParseBtn = document.getElementById("tabParseBtn");
   var tabCompareBtn = document.getElementById("tabCompareBtn");
@@ -816,14 +816,10 @@
   var compareInputA = document.getElementById("compareInputA");
   var compareInputB = document.getElementById("compareInputB");
   var compareBtn = document.getElementById("compareBtn");
-  var compareTable = document.getElementById("compareTable");
+  var compareResultCard = document.getElementById("compareResultCard");
   var compareTableBody = document.getElementById("compareTableBody");
-  var compareShareCard = document.getElementById("compareShareCard");
-  var compareShareHeadingEl = document.getElementById("compareShareHeadingText");
   var compareShareBtn = document.getElementById("compareShareBtn");
   var compareShareBtnLabel = document.getElementById("compareShareBtnLabel");
-  var compareShareUrlOutput = document.getElementById("compareShareUrlOutput");
-  var copyCompareShareUrlBtn = document.getElementById("copyCompareShareUrlBtn");
   var compareShareLenHint = document.getElementById("compareShareLenHint");
 
   var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=&redirect=https%3A%2F%2Fapp.example.com%2Fcallback%3Ftoken%3Dabc123%26next%3D%2Fdashboard&filter=status%3Dactive%26owner%3Dme';
@@ -976,10 +972,9 @@
 
   function render(entries) {
     currentEntries = entries;
-    // Any re-render means the params changed, so a previously generated
-    // share link no longer matches what is on screen — drop it rather than
-    // leave a stale link sitting there to be copied.
-    shareCard.hidden = true;
+    // Any re-render means the params changed, so a length warning about the
+    // previously shared link no longer describes what is on screen.
+    clearShareHint(shareLenHint);
 
     if (!entries.length) {
       results.hidden = true;
@@ -1106,8 +1101,8 @@
   function updateFullUrlPreview() {
     var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
     fullUrlOutput.value = buildFullUrl(baseUrlInput.value.trim(), currentStyle, currentFragment, cleaned);
-    // Editing a param invalidates any share link generated before the edit.
-    shareCard.hidden = true;
+    // Editing a param invalidates any warning shown for an earlier share.
+    clearShareHint(shareLenHint);
   }
 
   function enterEditMode() {
@@ -1166,6 +1161,19 @@
     return Promise.resolve();
   }
 
+  // Buttons carrying an icon must flash only their label element: assigning
+  // textContent on the button itself would wipe out the inline <svg>, and the
+  // "original" captured for restore is text only, so the icon never comes back.
+  function flashCopiedLabel(btn, labelEl) {
+    var original = labelEl.textContent;
+    labelEl.textContent = t("copied");
+    btn.classList.add("copied");
+    setTimeout(function () {
+      labelEl.textContent = original;
+      btn.classList.remove("copied");
+    }, 1200);
+  }
+
   function flashCopied(btn, label) {
     var original = btn.textContent;
     btn.textContent = label || t("copied");
@@ -1197,13 +1205,40 @@
     return "risk";
   }
 
-  function setShareLenHint(hintEl, url) {
-    var n = url.length;
-    var cls = classifyShareLen(n);
-    var key = cls === "ok" ? "shareLenOk" : cls === "warn" ? "shareLenWarn" : "shareLenRisk";
-    hintEl.textContent = t(key).replace("{n}", n);
-    hintEl.classList.remove("hint-ok", "hint-warn", "hint-risk");
+  // Sharing copies straight to the clipboard, so the only thing left to say is
+  // whether the link is long enough to be at risk in transit. A link in the
+  // safe tier says nothing at all -- the button's "copied" flash is the
+  // confirmation. The length is parked on the element so a language switch can
+  // re-translate a visible warning without regenerating the link.
+  function setShareHint(hintEl, len) {
+    hintEl.classList.remove("hint-warn", "hint-risk");
+    var cls = classifyShareLen(len);
+    if (cls === "ok") {
+      clearShareHint(hintEl);
+      return;
+    }
+    hintEl.hidden = false;
+    hintEl.setAttribute("data-len", len);
     hintEl.classList.add("hint-" + cls);
+    hintEl.textContent = t(cls === "warn" ? "shareLenWarn" : "shareLenRisk").replace("{n}", len);
+  }
+
+  function clearShareHint(hintEl) {
+    hintEl.hidden = true;
+    hintEl.textContent = "";
+    hintEl.removeAttribute("data-len");
+    hintEl.classList.remove("hint-warn", "hint-risk");
+  }
+
+  // Must be captured before any re-render, because the re-render clears the
+  // hint (including the length parked on it) as part of invalidating it.
+  function captureShareHints() {
+    return [shareLenHint.getAttribute("data-len"), compareShareLenHint.getAttribute("data-len")];
+  }
+
+  function restoreShareHints(snapshot) {
+    if (snapshot[0]) setShareHint(shareLenHint, Number(snapshot[0]));
+    if (snapshot[1]) setShareHint(compareShareLenHint, Number(snapshot[1]));
   }
 
   function getShareableUrl() {
@@ -1258,56 +1293,42 @@
     return CANONICALS[currentLang] + "#p=" + encodeURIComponent(JSON.stringify(payload));
   }
 
-  function finalizeShareLink(link, hintEl, outputEl, cardEl, view, compressed, silent) {
-    outputEl.value = link;
-    setShareLenHint(hintEl, link);
-    cardEl.hidden = false;
-    if (!silent) track("share_link_generate", { view: view, len: link.length, compressed: !!compressed });
+  function finalizeShare(link, hintEl, btn, labelEl, view, compressed) {
+    setShareHint(hintEl, link.length);
+    track("share_link_generate", { view: view, len: link.length, compressed: !!compressed });
+    copyToClipboard(link).then(function () { flashCopiedLabel(btn, labelEl); });
   }
 
   // Compression is a win on repetitive params but a loss on high-entropy ones
   // (tokens, JWTs, hashes): gzip cannot shrink them and base64url then adds
-  // ~33%, making ?z= longer than plain ?u=. So build both and keep whichever
-  // is actually shorter — the link is never worse than the uncompressed form.
-  function makeShareLink(payload, hintEl, outputEl, cardEl, view, silent) {
+  // ~33%, making #s= longer than plain #p=. So build both and keep whichever
+  // is actually shorter -- the link is never worse than the uncompressed form.
+  function makeShareLink(payload, hintEl, btn, labelEl, view) {
     var plain = buildPlainShareLink(payload);
     if (!HAS_COMPRESSION) {
-      finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+      finalizeShare(plain, hintEl, btn, labelEl, view, false);
       return;
     }
     compressToParam(JSON.stringify(payload)).then(function (z) {
       var compressed = CANONICALS[currentLang] + "#s=" + z;
-      if (compressed.length < plain.length) {
-        finalizeShareLink(compressed, hintEl, outputEl, cardEl, view, true, silent);
-      } else {
-        finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
-      }
+      var win = compressed.length < plain.length;
+      finalizeShare(win ? compressed : plain, hintEl, btn, labelEl, view, win);
     }).catch(function () {
-      finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+      finalizeShare(plain, hintEl, btn, labelEl, view, false);
     });
   }
 
   shareBtn.addEventListener("click", function () {
     var target = getShareableUrl();
     if (!target) return;
-    makeShareLink({ t: "u", v: target }, shareLenHint, shareUrlOutput, shareCard, "parse");
-  });
-
-  copyShareUrlBtn.addEventListener("click", function () {
-    track("copy_share_url", { view: "parse" });
-    copyToClipboard(shareUrlOutput.value).then(function () { flashCopied(copyShareUrlBtn); });
+    makeShareLink({ t: "u", v: target }, shareLenHint, shareBtn, shareBtnLabel, "parse");
   });
 
   compareShareBtn.addEventListener("click", function () {
     var a = compareInputA.value.trim();
     var b = compareInputB.value.trim();
     if (!a && !b) return;
-    makeShareLink({ t: "c", a: a, b: b }, compareShareLenHint, compareShareUrlOutput, compareShareCard, "compare");
-  });
-
-  copyCompareShareUrlBtn.addEventListener("click", function () {
-    track("copy_share_url", { view: "compare" });
-    copyToClipboard(compareShareUrlOutput.value).then(function () { flashCopied(copyCompareShareUrlBtn); });
+    makeShareLink({ t: "c", a: a, b: b }, compareShareLenHint, compareShareBtn, compareShareBtnLabel, "compare");
   });
 
   tableBody.addEventListener("click", function (ev) {
@@ -1458,24 +1479,24 @@
   }
 
   function renderCompare() {
-    // Same reasoning as render(): a new diff invalidates the old share link.
-    compareShareCard.hidden = true;
+    // Same reasoning as render(): a new diff invalidates the old warning.
+    clearShareHint(compareShareLenHint);
 
     var entriesA = parseEntries(compareInputA.value);
     var entriesB = parseEntries(compareInputB.value);
     var rows = buildDiffRows(entriesA, entriesB);
 
     var statusMeta = {
-      same:  { icon: "✓", cls: "status-same", label: t("statusSame") },
-      diff:  { icon: "≠", cls: "status-diff", label: t("statusDiff") },
-      onlyA: { icon: "A",      cls: "status-only", label: t("statusOnlyA") },
-      onlyB: { icon: "B",      cls: "status-only", label: t("statusOnlyB") }
+      same:  { icon: "✓", cls: "status-same",  row: "",           label: t("statusSame") },
+      diff:  { icon: "≠", cls: "status-diff",  row: "row-diff",   label: t("statusDiff") },
+      onlyA: { icon: "A", cls: "status-onlyA", row: "row-onlyA",  label: t("statusOnlyA") },
+      onlyB: { icon: "B", cls: "status-onlyB", row: "row-onlyB",  label: t("statusOnlyB") }
     };
 
     compareTableBody.innerHTML = rows.map(function (r) {
       var meta = statusMeta[r.status];
       return (
-        '<tr>' +
+        '<tr class="' + meta.row + '">' +
           '<td class="key-cell">' + escapeHtml(r.key) + '</td>' +
           '<td class="val-cell">' + renderValueList(r.valuesA) + '</td>' +
           '<td class="val-cell">' + renderValueList(r.valuesB) + '</td>' +
@@ -1484,7 +1505,7 @@
       );
     }).join("");
 
-    compareTable.hidden = rows.length === 0;
+    compareResultCard.hidden = rows.length === 0;
   }
 
   function switchView(view) {
@@ -1600,18 +1621,12 @@
     compareHeadingEl.textContent = dict.compareHeading;
     compareBtn.textContent = dict.compareBtn;
 
-    shareHeadingEl.textContent = dict.shareHeading;
     shareBtnLabel.textContent = dict.shareBtn;
-    compareShareHeadingEl.textContent = dict.shareHeading;
     compareShareBtnLabel.textContent = dict.shareBtn;
 
     refreshLangHrefs(lang);
 
-    // Captured up front: the re-renders below intentionally hide the share
-    // cards (a re-render normally means the state changed), but a language
-    // switch leaves the state alone, so the cards are restored afterwards.
-    var shareWasOpen = !shareCard.hidden;
-    var compareShareWasOpen = !compareShareCard.hidden;
+    var shareHintSnapshot = captureShareHints();
 
     if (editMode) {
       renderEditTable();
@@ -1619,23 +1634,11 @@
     } else if (currentEntries.length) {
       render(currentEntries);
     }
-    if (!compareTable.hidden) renderCompare();
+    if (!compareResultCard.hidden) renderCompare();
 
-    // currentLang is already reassigned above, so re-running makeShareLink
-    // rebuilds the link against the new language's canonical URL. Tracking is
-    // suppressed — this is a language switch, not a new share.
-    if (shareWasOpen) {
-      var reshareTarget = getShareableUrl();
-      if (reshareTarget) {
-        makeShareLink({ t: "u", v: reshareTarget }, shareLenHint, shareUrlOutput, shareCard, "parse", true);
-      }
-    }
-    if (compareShareWasOpen) {
-      makeShareLink(
-        { t: "c", a: compareInputA.value.trim(), b: compareInputB.value.trim() },
-        compareShareLenHint, compareShareUrlOutput, compareShareCard, "compare", true
-      );
-    }
+    // The re-renders above clear any visible length warning; restore it in the
+    // new language. The link itself was already copied, so nothing to rebuild.
+    restoreShareHints(shareHintSnapshot);
   }
 
   function detectLangFromPath() {

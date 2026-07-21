@@ -330,7 +330,6 @@
   .hint-warn { color: var(--warning); }
   .hint-risk { color: var(--critical); }
 
-  .share-card { margin-bottom: 16px; }
 
   #empty-state {
     text-align: center;
@@ -511,6 +510,7 @@
   }
   .copy-btn:hover { color: var(--text-primary); border-color: var(--series-1); }
   .copy-btn.copied { color: var(--success); border-color: var(--success); }
+  .btn.copied { color: var(--success); border-color: var(--success); }
 
   .edit-input {
     width: 100%;
@@ -577,9 +577,26 @@
     border: 1px solid var(--border);
     white-space: nowrap;
   }
-  .status-same { color: var(--success); border-color: var(--success); }
-  .status-diff { color: var(--critical); border-color: var(--critical); }
-  .status-only { color: var(--text-muted); }
+  /* Four distinct hues so status never relies on the badge text alone:
+     same = green, changed = amber, only in A (dropped) = red, only in B
+     (added) = blue. Blue rather than green for "added" keeps it clearly
+     apart from the green "same" badge. */
+  .status-same  { color: var(--success);  border-color: var(--success); }
+  .status-diff  { color: var(--warning);  border-color: var(--warning); }
+  .status-onlyA { color: var(--critical); border-color: var(--critical); }
+  .status-onlyB { color: var(--series-1); border-color: var(--series-1); }
+
+  /* Only rows needing attention are tinted -- unchanged rows stay clean, so a
+     long diff can be scanned without reading the status column. The left
+     accent carries the same signal for anyone who cannot separate the tints,
+     and still renders where color-mix() is unsupported. */
+  #compareTable tbody tr.row-diff  { background: color-mix(in srgb, var(--warning)  12%, transparent); }
+  #compareTable tbody tr.row-onlyA { background: color-mix(in srgb, var(--critical) 12%, transparent); }
+  #compareTable tbody tr.row-onlyB { background: color-mix(in srgb, var(--series-1) 12%, transparent); }
+  #compareTable tbody td:first-child { box-shadow: inset 3px 0 0 transparent; }
+  #compareTable tbody tr.row-diff  td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+  #compareTable tbody tr.row-onlyA td:first-child { box-shadow: inset 3px 0 0 var(--critical); }
+  #compareTable tbody tr.row-onlyB td:first-child { box-shadow: inset 3px 0 0 var(--series-1); }
 
   footer {
     text-align: center;
@@ -683,15 +700,6 @@
           </div>
         </section>
 
-        <section class="card share-card" id="shareCard" hidden>
-          <h2 class="section-title" id="shareHeadingText" style="margin:0 0 8px;">Share Link</h2>
-          <div class="full-url-row">
-            <input type="text" id="shareUrlOutput" readonly>
-            <button class="btn btn-ghost" id="copyShareUrlBtn" type="button">Copy</button>
-          </div>
-          <p class="hint" id="shareLenHint"></p>
-        </section>
-
         <section class="card">
           <div class="table-card-header">
             <h2 class="section-title" id="tableTitleText" style="margin:0;">Parameter Details</h2>
@@ -702,6 +710,7 @@
               <button class="btn btn-ghost" id="copyJsonBtn" type="button">Copy as JSON</button>
             </div>
           </div>
+          <p class="hint" id="shareLenHint" hidden></p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -728,8 +737,12 @@
           <button class="btn btn-primary" id="compareBtn" type="button">Compare</button>
           <button class="btn btn-ghost" id="compareShareBtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg> <span id="compareShareBtnLabel">Share</span></button>
         </div>
+        <p class="hint" id="compareShareLenHint" hidden></p>
+      </section>
+
+      <section class="card" id="compareResultCard" hidden>
         <div class="table-wrap">
-          <table id="compareTable" hidden>
+          <table id="compareTable">
             <thead>
               <tr>
                 <th>Key</th>
@@ -741,15 +754,6 @@
             <tbody id="compareTableBody"></tbody>
           </table>
         </div>
-      </section>
-
-      <section class="card share-card" id="compareShareCard" hidden>
-        <h2 class="section-title" id="compareShareHeadingText" style="margin:0 0 8px;">Share Link</h2>
-        <div class="full-url-row">
-          <input type="text" id="compareShareUrlOutput" readonly>
-          <button class="btn btn-ghost" id="copyCompareShareUrlBtn" type="button">Copy</button>
-        </div>
-        <p class="hint" id="compareShareLenHint"></p>
       </section>
     </div>
   </main>
@@ -771,7 +775,7 @@
     if (typeof gtag === "function") gtag("event", name, params || {});
   }
 
-  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","themeAuto":"跟随系统","themeLight":"浅色","themeDark":"深色","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyUrlBtn":"复制完整链接","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"预览","baseUrlPlaceholder":"Base URL（域名 + 路径）","tabParse":"解析","tabCompare":"对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","shareBtn":"分享","shareHeading":"分享链接","shareLenOk":"链接长度 {n} 字符，大多数平台都能正常打开","shareLenWarn":"链接长度 {n} 字符，聊天软件或邮件客户端可能会折行/截断，建议精简参数后再分享","shareLenRisk":"链接长度 {n} 字符，已超出部分浏览器能处理的 URL 长度上限，可能无法打开","shareUnsupported":"这是一个压缩过的分享链接，但当前浏览器不支持解压所需的 CompressionStream API。请改用较新版本的 Chrome / Edge / Firefox / Safari 打开。","shareLinkBroken":"这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","themeAuto":"System","themeLight":"Light","themeDark":"Dark","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyUrlBtn":"Copy Full URL","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"Preview","baseUrlPlaceholder":"Base URL (domain + path)","tabParse":"Parse","tabCompare":"Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","shareBtn":"Share","shareHeading":"Share Link","shareLenOk":"{n} characters — should open fine on most platforms","shareLenWarn":"{n} characters — chat and email clients may wrap or truncate a link this long; consider trimming params before sharing","shareLenRisk":"{n} characters — this exceeds the URL length some browsers can handle and may fail to open","shareUnsupported":"This is a compressed share link, but this browser lacks the CompressionStream API needed to unpack it. Try a recent version of Chrome, Edge, Firefox or Safari.","shareLinkBroken":"This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","themeAuto":"システムに合わせる","themeLight":"ライト","themeDark":"ダーク","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyUrlBtn":"完全な URL をコピー","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"プレビュー","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","tabParse":"解析","tabCompare":"比較","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","shareBtn":"共有","shareHeading":"共有リンク","shareLenOk":"{n} 文字 — ほとんどの環境で問題なく開けます","shareLenWarn":"{n} 文字 — チャットやメールのクライアントで折り返し・切り詰めが起きる可能性があります。パラメータを減らしてから共有してください","shareLenRisk":"{n} 文字 — 一部のブラウザが扱える URL 長の上限を超えており、開けない可能性があります","shareUnsupported":"これは圧縮された共有リンクですが、このブラウザには展開に必要な CompressionStream API がありません。新しいバージョンの Chrome / Edge / Firefox / Safari でお試しください。","shareLinkBroken":"この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
+  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","themeAuto":"跟随系统","themeLight":"浅色","themeDark":"深色","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyUrlBtn":"复制完整链接","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"预览","baseUrlPlaceholder":"Base URL（域名 + 路径）","tabParse":"解析","tabCompare":"对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","shareBtn":"分享","shareLenWarn":"链接长度 {n} 字符，聊天软件或邮件客户端可能会折行/截断，建议精简参数后再分享","shareLenRisk":"链接长度 {n} 字符，已超出部分浏览器能处理的 URL 长度上限，可能无法打开","shareUnsupported":"这是一个压缩过的分享链接，但当前浏览器不支持解压所需的 CompressionStream API。请改用较新版本的 Chrome / Edge / Firefox / Safari 打开。","shareLinkBroken":"这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","themeAuto":"System","themeLight":"Light","themeDark":"Dark","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyUrlBtn":"Copy Full URL","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"Preview","baseUrlPlaceholder":"Base URL (domain + path)","tabParse":"Parse","tabCompare":"Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","shareBtn":"Share","shareLenWarn":"{n} characters — chat and email clients may wrap or truncate a link this long; consider trimming params before sharing","shareLenRisk":"{n} characters — this exceeds the URL length some browsers can handle and may fail to open","shareUnsupported":"This is a compressed share link, but this browser lacks the CompressionStream API needed to unpack it. Try a recent version of Chrome, Edge, Firefox or Safari.","shareLinkBroken":"This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","themeAuto":"システムに合わせる","themeLight":"ライト","themeDark":"ダーク","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyUrlBtn":"完全な URL をコピー","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"プレビュー","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","tabParse":"解析","tabCompare":"比較","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","shareBtn":"共有","shareLenWarn":"{n} 文字 — チャットやメールのクライアントで折り返し・切り詰めが起きる可能性があります。パラメータを減らしてから共有してください","shareLenRisk":"{n} 文字 — 一部のブラウザが扱える URL 長の上限を超えており、開けない可能性があります","shareUnsupported":"これは圧縮された共有リンクですが、このブラウザには展開に必要な CompressionStream API がありません。新しいバージョンの Chrome / Edge / Firefox / Safari でお試しください。","shareLinkBroken":"この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
   var CANONICALS = {"zh":"https://app.lideguang.com/query-params-viewer/","en":"https://app.lideguang.com/query-params-viewer/en/","ja":"https://app.lideguang.com/query-params-viewer/ja/"};
   var currentLang = "en";
 
@@ -805,12 +809,8 @@
   var baseUrlInput = document.getElementById("baseUrlInput");
   var fullUrlOutput = document.getElementById("fullUrlOutput");
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
-  var shareCard = document.getElementById("shareCard");
-  var shareHeadingEl = document.getElementById("shareHeadingText");
   var shareBtn = document.getElementById("shareBtn");
   var shareBtnLabel = document.getElementById("shareBtnLabel");
-  var shareUrlOutput = document.getElementById("shareUrlOutput");
-  var copyShareUrlBtn = document.getElementById("copyShareUrlBtn");
   var shareLenHint = document.getElementById("shareLenHint");
   var tabParseBtn = document.getElementById("tabParseBtn");
   var tabCompareBtn = document.getElementById("tabCompareBtn");
@@ -822,14 +822,10 @@
   var compareInputA = document.getElementById("compareInputA");
   var compareInputB = document.getElementById("compareInputB");
   var compareBtn = document.getElementById("compareBtn");
-  var compareTable = document.getElementById("compareTable");
+  var compareResultCard = document.getElementById("compareResultCard");
   var compareTableBody = document.getElementById("compareTableBody");
-  var compareShareCard = document.getElementById("compareShareCard");
-  var compareShareHeadingEl = document.getElementById("compareShareHeadingText");
   var compareShareBtn = document.getElementById("compareShareBtn");
   var compareShareBtnLabel = document.getElementById("compareShareBtnLabel");
-  var compareShareUrlOutput = document.getElementById("compareShareUrlOutput");
-  var copyCompareShareUrlBtn = document.getElementById("copyCompareShareUrlBtn");
   var compareShareLenHint = document.getElementById("compareShareLenHint");
 
   var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=&redirect=https%3A%2F%2Fapp.example.com%2Fcallback%3Ftoken%3Dabc123%26next%3D%2Fdashboard&filter=status%3Dactive%26owner%3Dme';
@@ -982,10 +978,9 @@
 
   function render(entries) {
     currentEntries = entries;
-    // Any re-render means the params changed, so a previously generated
-    // share link no longer matches what is on screen — drop it rather than
-    // leave a stale link sitting there to be copied.
-    shareCard.hidden = true;
+    // Any re-render means the params changed, so a length warning about the
+    // previously shared link no longer describes what is on screen.
+    clearShareHint(shareLenHint);
 
     if (!entries.length) {
       results.hidden = true;
@@ -1112,8 +1107,8 @@
   function updateFullUrlPreview() {
     var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
     fullUrlOutput.value = buildFullUrl(baseUrlInput.value.trim(), currentStyle, currentFragment, cleaned);
-    // Editing a param invalidates any share link generated before the edit.
-    shareCard.hidden = true;
+    // Editing a param invalidates any warning shown for an earlier share.
+    clearShareHint(shareLenHint);
   }
 
   function enterEditMode() {
@@ -1172,6 +1167,19 @@
     return Promise.resolve();
   }
 
+  // Buttons carrying an icon must flash only their label element: assigning
+  // textContent on the button itself would wipe out the inline <svg>, and the
+  // "original" captured for restore is text only, so the icon never comes back.
+  function flashCopiedLabel(btn, labelEl) {
+    var original = labelEl.textContent;
+    labelEl.textContent = t("copied");
+    btn.classList.add("copied");
+    setTimeout(function () {
+      labelEl.textContent = original;
+      btn.classList.remove("copied");
+    }, 1200);
+  }
+
   function flashCopied(btn, label) {
     var original = btn.textContent;
     btn.textContent = label || t("copied");
@@ -1203,13 +1211,40 @@
     return "risk";
   }
 
-  function setShareLenHint(hintEl, url) {
-    var n = url.length;
-    var cls = classifyShareLen(n);
-    var key = cls === "ok" ? "shareLenOk" : cls === "warn" ? "shareLenWarn" : "shareLenRisk";
-    hintEl.textContent = t(key).replace("{n}", n);
-    hintEl.classList.remove("hint-ok", "hint-warn", "hint-risk");
+  // Sharing copies straight to the clipboard, so the only thing left to say is
+  // whether the link is long enough to be at risk in transit. A link in the
+  // safe tier says nothing at all -- the button's "copied" flash is the
+  // confirmation. The length is parked on the element so a language switch can
+  // re-translate a visible warning without regenerating the link.
+  function setShareHint(hintEl, len) {
+    hintEl.classList.remove("hint-warn", "hint-risk");
+    var cls = classifyShareLen(len);
+    if (cls === "ok") {
+      clearShareHint(hintEl);
+      return;
+    }
+    hintEl.hidden = false;
+    hintEl.setAttribute("data-len", len);
     hintEl.classList.add("hint-" + cls);
+    hintEl.textContent = t(cls === "warn" ? "shareLenWarn" : "shareLenRisk").replace("{n}", len);
+  }
+
+  function clearShareHint(hintEl) {
+    hintEl.hidden = true;
+    hintEl.textContent = "";
+    hintEl.removeAttribute("data-len");
+    hintEl.classList.remove("hint-warn", "hint-risk");
+  }
+
+  // Must be captured before any re-render, because the re-render clears the
+  // hint (including the length parked on it) as part of invalidating it.
+  function captureShareHints() {
+    return [shareLenHint.getAttribute("data-len"), compareShareLenHint.getAttribute("data-len")];
+  }
+
+  function restoreShareHints(snapshot) {
+    if (snapshot[0]) setShareHint(shareLenHint, Number(snapshot[0]));
+    if (snapshot[1]) setShareHint(compareShareLenHint, Number(snapshot[1]));
   }
 
   function getShareableUrl() {
@@ -1264,56 +1299,42 @@
     return CANONICALS[currentLang] + "#p=" + encodeURIComponent(JSON.stringify(payload));
   }
 
-  function finalizeShareLink(link, hintEl, outputEl, cardEl, view, compressed, silent) {
-    outputEl.value = link;
-    setShareLenHint(hintEl, link);
-    cardEl.hidden = false;
-    if (!silent) track("share_link_generate", { view: view, len: link.length, compressed: !!compressed });
+  function finalizeShare(link, hintEl, btn, labelEl, view, compressed) {
+    setShareHint(hintEl, link.length);
+    track("share_link_generate", { view: view, len: link.length, compressed: !!compressed });
+    copyToClipboard(link).then(function () { flashCopiedLabel(btn, labelEl); });
   }
 
   // Compression is a win on repetitive params but a loss on high-entropy ones
   // (tokens, JWTs, hashes): gzip cannot shrink them and base64url then adds
-  // ~33%, making ?z= longer than plain ?u=. So build both and keep whichever
-  // is actually shorter — the link is never worse than the uncompressed form.
-  function makeShareLink(payload, hintEl, outputEl, cardEl, view, silent) {
+  // ~33%, making #s= longer than plain #p=. So build both and keep whichever
+  // is actually shorter -- the link is never worse than the uncompressed form.
+  function makeShareLink(payload, hintEl, btn, labelEl, view) {
     var plain = buildPlainShareLink(payload);
     if (!HAS_COMPRESSION) {
-      finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+      finalizeShare(plain, hintEl, btn, labelEl, view, false);
       return;
     }
     compressToParam(JSON.stringify(payload)).then(function (z) {
       var compressed = CANONICALS[currentLang] + "#s=" + z;
-      if (compressed.length < plain.length) {
-        finalizeShareLink(compressed, hintEl, outputEl, cardEl, view, true, silent);
-      } else {
-        finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
-      }
+      var win = compressed.length < plain.length;
+      finalizeShare(win ? compressed : plain, hintEl, btn, labelEl, view, win);
     }).catch(function () {
-      finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+      finalizeShare(plain, hintEl, btn, labelEl, view, false);
     });
   }
 
   shareBtn.addEventListener("click", function () {
     var target = getShareableUrl();
     if (!target) return;
-    makeShareLink({ t: "u", v: target }, shareLenHint, shareUrlOutput, shareCard, "parse");
-  });
-
-  copyShareUrlBtn.addEventListener("click", function () {
-    track("copy_share_url", { view: "parse" });
-    copyToClipboard(shareUrlOutput.value).then(function () { flashCopied(copyShareUrlBtn); });
+    makeShareLink({ t: "u", v: target }, shareLenHint, shareBtn, shareBtnLabel, "parse");
   });
 
   compareShareBtn.addEventListener("click", function () {
     var a = compareInputA.value.trim();
     var b = compareInputB.value.trim();
     if (!a && !b) return;
-    makeShareLink({ t: "c", a: a, b: b }, compareShareLenHint, compareShareUrlOutput, compareShareCard, "compare");
-  });
-
-  copyCompareShareUrlBtn.addEventListener("click", function () {
-    track("copy_share_url", { view: "compare" });
-    copyToClipboard(compareShareUrlOutput.value).then(function () { flashCopied(copyCompareShareUrlBtn); });
+    makeShareLink({ t: "c", a: a, b: b }, compareShareLenHint, compareShareBtn, compareShareBtnLabel, "compare");
   });
 
   tableBody.addEventListener("click", function (ev) {
@@ -1464,24 +1485,24 @@
   }
 
   function renderCompare() {
-    // Same reasoning as render(): a new diff invalidates the old share link.
-    compareShareCard.hidden = true;
+    // Same reasoning as render(): a new diff invalidates the old warning.
+    clearShareHint(compareShareLenHint);
 
     var entriesA = parseEntries(compareInputA.value);
     var entriesB = parseEntries(compareInputB.value);
     var rows = buildDiffRows(entriesA, entriesB);
 
     var statusMeta = {
-      same:  { icon: "✓", cls: "status-same", label: t("statusSame") },
-      diff:  { icon: "≠", cls: "status-diff", label: t("statusDiff") },
-      onlyA: { icon: "A",      cls: "status-only", label: t("statusOnlyA") },
-      onlyB: { icon: "B",      cls: "status-only", label: t("statusOnlyB") }
+      same:  { icon: "✓", cls: "status-same",  row: "",           label: t("statusSame") },
+      diff:  { icon: "≠", cls: "status-diff",  row: "row-diff",   label: t("statusDiff") },
+      onlyA: { icon: "A", cls: "status-onlyA", row: "row-onlyA",  label: t("statusOnlyA") },
+      onlyB: { icon: "B", cls: "status-onlyB", row: "row-onlyB",  label: t("statusOnlyB") }
     };
 
     compareTableBody.innerHTML = rows.map(function (r) {
       var meta = statusMeta[r.status];
       return (
-        '<tr>' +
+        '<tr class="' + meta.row + '">' +
           '<td class="key-cell">' + escapeHtml(r.key) + '</td>' +
           '<td class="val-cell">' + renderValueList(r.valuesA) + '</td>' +
           '<td class="val-cell">' + renderValueList(r.valuesB) + '</td>' +
@@ -1490,7 +1511,7 @@
       );
     }).join("");
 
-    compareTable.hidden = rows.length === 0;
+    compareResultCard.hidden = rows.length === 0;
   }
 
   function switchView(view) {
@@ -1606,18 +1627,12 @@
     compareHeadingEl.textContent = dict.compareHeading;
     compareBtn.textContent = dict.compareBtn;
 
-    shareHeadingEl.textContent = dict.shareHeading;
     shareBtnLabel.textContent = dict.shareBtn;
-    compareShareHeadingEl.textContent = dict.shareHeading;
     compareShareBtnLabel.textContent = dict.shareBtn;
 
     refreshLangHrefs(lang);
 
-    // Captured up front: the re-renders below intentionally hide the share
-    // cards (a re-render normally means the state changed), but a language
-    // switch leaves the state alone, so the cards are restored afterwards.
-    var shareWasOpen = !shareCard.hidden;
-    var compareShareWasOpen = !compareShareCard.hidden;
+    var shareHintSnapshot = captureShareHints();
 
     if (editMode) {
       renderEditTable();
@@ -1625,23 +1640,11 @@
     } else if (currentEntries.length) {
       render(currentEntries);
     }
-    if (!compareTable.hidden) renderCompare();
+    if (!compareResultCard.hidden) renderCompare();
 
-    // currentLang is already reassigned above, so re-running makeShareLink
-    // rebuilds the link against the new language's canonical URL. Tracking is
-    // suppressed — this is a language switch, not a new share.
-    if (shareWasOpen) {
-      var reshareTarget = getShareableUrl();
-      if (reshareTarget) {
-        makeShareLink({ t: "u", v: reshareTarget }, shareLenHint, shareUrlOutput, shareCard, "parse", true);
-      }
-    }
-    if (compareShareWasOpen) {
-      makeShareLink(
-        { t: "c", a: compareInputA.value.trim(), b: compareInputB.value.trim() },
-        compareShareLenHint, compareShareUrlOutput, compareShareCard, "compare", true
-      );
-    }
+    // The re-renders above clear any visible length warning; restore it in the
+    // new language. The link itself was already copied, so nothing to rebuild.
+    restoreShareHints(shareHintSnapshot);
   }
 
   function detectLangFromPath() {
