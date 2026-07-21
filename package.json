@@ -1,0 +1,12 @@
+{
+  "name": "query-params-viewer",
+  "private": true,
+  "description": "Build and regression tests for the query-params-viewer static pages. The generated pages themselves have no runtime dependencies; jsdom is used only to exercise them in tests.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node scripts/build.js && node scripts/test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

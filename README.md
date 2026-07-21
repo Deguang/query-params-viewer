@@ -25,6 +25,8 @@ scripts/         构建脚本，三个页面由此生成，不要直接改 index
   template.html  共享的 HTML/CSS/JS 模板，翻译文案用 __TOKEN__ 占位
   i18n.js        三种语言的翻译文案 + TDK（title/description/keywords）
   build.js       读取 template.html + i18n.js，生成上面三个 index.html
+  test.js        回归测试，用 jsdom 跑生成产物
+package.json     只有构建/测试脚本；jsdom 是 devDependency，不进产物
 ```
 
 `index.html`、`en/index.html`、`ja/index.html` 都是**生成产物**（文件顶部有注释标注），
@@ -33,6 +35,24 @@ scripts/         构建脚本，三个页面由此生成，不要直接改 index
 ```
 node scripts/build.js
 ```
+
+## 测试
+
+```
+npm install    # 只装 jsdom，仅测试用
+npm test       # 先构建，再跑 scripts/test.js
+```
+
+测试直接在 jsdom 里**驱动生成好的 HTML**，而不是对模板做文本匹配。这么做是因为踩过的坑
+（分享卡片被渲染到长表格下方看不见、复制时的 `textContent` 把内联 `<svg>` 图标永久抹掉、
+长度警告在能被重译之前就被清掉、`?a=1&b=2` 这类常见参数被误判成分享链接）**静态检查一个都发现不了**，
+只有页面真跑起来才会暴露。
+
+覆盖：分享链接往返还原（解析 / 对比两种模式）、点击落在图标上仍能触发、复制闪烁后图标还在、
+长度警告分档与跨语言重译、query string 不被当作分享链接、畸形分享链接不中断初始化、
+主题三档循环与存储、diff 行着色、语言切换路径不累积、三个页面无未替换 token 且 i18n key 齐全。
+
+jsdom 没有 `CompressionStream`，测试会注入 Node 的原生实现，以便覆盖压缩分支。
 
 ## 使用
 
