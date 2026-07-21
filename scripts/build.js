@@ -85,6 +85,8 @@ for (const lang of Object.keys(PAGES)) {
     __COPY__: dict.copy,
     __EDIT_PARAMS__: dict.editParams,
     __FULL_URL_HEADING__: dict.fullUrlHeading,
+    __BASE_URL_LABEL__: escapeAttr(dict.baseUrlLabel),
+    __FULL_URL_PREVIEW_LABEL__: escapeAttr(dict.fullUrlPreviewLabel),
     __BASE_URL_PLACEHOLDER__: escapeAttr(dict.baseUrlPlaceholder),
     __TAB_PARSE__: dict.tabParse,
     __TAB_COMPARE__: dict.tabCompare,

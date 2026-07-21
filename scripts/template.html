@@ -508,10 +508,21 @@
   .full-url-card { margin-bottom: 16px; }
   .full-url-row {
     display: flex;
+    align-items: center;
     gap: 8px;
     margin-top: 8px;
   }
   .full-url-row:first-of-type { margin-top: 0; }
+  .full-url-label {
+    flex: none;
+    width: 52px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
   .full-url-row input[type="text"] {
     flex: 1;
     min-width: 0;
@@ -603,9 +614,11 @@
         <section class="card full-url-card" id="fullUrlCard" hidden>
           <h2 class="section-title" id="fullUrlHeadingText" style="margin:0 0 8px;">__FULL_URL_HEADING__</h2>
           <div class="full-url-row">
+            <span class="full-url-label" id="baseUrlLabelText">__BASE_URL_LABEL__</span>
             <input type="text" id="baseUrlInput" placeholder="__BASE_URL_PLACEHOLDER__" autocomplete="off" spellcheck="false">
           </div>
           <div class="full-url-row">
+            <span class="full-url-label" id="fullUrlPreviewLabelText">__FULL_URL_PREVIEW_LABEL__</span>
             <input type="text" id="fullUrlOutput" readonly>
             <button class="btn btn-ghost" id="copyFullUrlBtn" type="button">__COPY__</button>
           </div>
@@ -707,6 +720,8 @@
   var editModeLabel = document.getElementById("editModeLabel");
   var fullUrlCard = document.getElementById("fullUrlCard");
   var fullUrlHeadingEl = document.getElementById("fullUrlHeadingText");
+  var baseUrlLabelEl = document.getElementById("baseUrlLabelText");
+  var fullUrlPreviewLabelEl = document.getElementById("fullUrlPreviewLabelText");
   var baseUrlInput = document.getElementById("baseUrlInput");
   var fullUrlOutput = document.getElementById("fullUrlOutput");
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
@@ -1321,6 +1336,8 @@
 
     editModeLabel.textContent = editMode ? dict.doneEditing : dict.editParams;
     fullUrlHeadingEl.textContent = dict.fullUrlHeading;
+    baseUrlLabelEl.textContent = dict.baseUrlLabel;
+    fullUrlPreviewLabelEl.textContent = dict.fullUrlPreviewLabel;
     baseUrlInput.placeholder = dict.baseUrlPlaceholder;
     copyFullUrlBtn.textContent = dict.copy;
 
