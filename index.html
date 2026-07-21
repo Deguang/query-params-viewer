@@ -137,6 +137,25 @@
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+
+  /* Icons are <use> references into the inline sprite at the top of <body>.
+     Stroke/fill live on the <symbol> as presentation attributes (CSS
+     selectors cannot reach into a <use> shadow tree) and resolve to
+     currentColor, so an icon always matches the text it sits next to —
+     including the white label of a selected tab. */
+  .icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -0.18em;
+    flex: none;
+  }
+  .icon-lg {
+    width: 40px;
+    height: 40px;
+    vertical-align: 0;
+    color: var(--text-muted);
+  }
+  .theme-toggle .icon { width: 16px; height: 16px; vertical-align: -0.22em; }
   body {
     background-color: var(--page);
     background-image:
@@ -243,7 +262,6 @@
     cursor: pointer;
     transition: background-color .15s ease, color .15s ease;
   }
-  .view-tab-icon { font-size: 13px; }
   .view-tab:hover { color: var(--text-primary); }
   .view-tab[aria-selected="true"] {
     background: var(--series-1);
@@ -579,6 +597,27 @@
 </style>
 </head>
 <body>
+<!-- Inline icon sprite. Icons are from Lucide (https://lucide.dev), ISC
+     licensed, inlined rather than linked so each page stays a self-contained
+     single file with no external requests. Shared stroke attributes sit on
+     each <symbol> and inherit into the <use> instances. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+  </symbol>
+  <symbol id="i-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>
+  </symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
+  </symbol>
+  <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/>
+  </symbol>
+  <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12z" fill="currentColor" stroke="none"/>
+  </symbol>
+</defs></svg>
 <div class="app">
   <header>
     <div class="brand">
@@ -596,14 +635,14 @@
         <span class="sep">·</span>
         <a href="ja/" data-lang="ja">日本語</a>
       </nav>
-      <button class="theme-toggle" id="themeToggle" type="button" title="切换主题" aria-label="切换主题">◐</button>
+      <button class="theme-toggle" id="themeToggle" type="button" title="切换主题" aria-label="切换主题"><svg class="icon" aria-hidden="true"><use href="#i-contrast"/></svg></button>
     </div>
   </header>
 
   <main>
     <div class="view-tabs" role="tablist">
-      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse"><span class="view-tab-icon" aria-hidden="true">🔍</span><span id="tabParseLabel">解析</span></button>
-      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare"><span class="view-tab-icon" aria-hidden="true">⇄</span><span id="tabCompareLabel">对比</span></button>
+      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span id="tabParseLabel">解析</span></button>
+      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare"><svg class="icon" aria-hidden="true"><use href="#i-compare"/></svg><span id="tabCompareLabel">对比</span></button>
     </div>
 
     <div id="parseView">
@@ -618,7 +657,7 @@
       </section>
 
       <section id="empty-state">
-        <div class="big">🔎</div>
+        <div class="big"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-search"/></svg></div>
         <div id="emptyText">还没有解析任何 URL。粘贴一个链接，或点击"示例"看看效果。</div>
       </section>
 
@@ -651,8 +690,8 @@
           <div class="table-card-header">
             <h2 class="section-title" id="tableTitleText" style="margin:0;">参数明细</h2>
             <div class="table-actions">
-              <button class="btn btn-primary" id="editModeBtn" type="button"><span aria-hidden="true">✎</span> <span id="editModeLabel">编辑参数</span></button>
-              <button class="btn btn-ghost" id="shareBtn" type="button"><span aria-hidden="true">🔗</span> <span id="shareBtnLabel">分享</span></button>
+              <button class="btn btn-primary" id="editModeBtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-pencil"/></svg> <span id="editModeLabel">编辑参数</span></button>
+              <button class="btn btn-ghost" id="shareBtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg> <span id="shareBtnLabel">分享</span></button>
               <button class="btn btn-ghost" id="copyUrlBtn" type="button">复制完整链接</button>
               <button class="btn btn-ghost" id="copyJsonBtn" type="button">复制为 JSON</button>
             </div>
@@ -681,7 +720,7 @@
           <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
           <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
           <button class="btn btn-primary" id="compareBtn" type="button">对比</button>
-          <button class="btn btn-ghost" id="compareShareBtn" type="button"><span aria-hidden="true">🔗</span> <span id="compareShareBtnLabel">分享</span></button>
+          <button class="btn btn-ghost" id="compareShareBtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg> <span id="compareShareBtnLabel">分享</span></button>
         </div>
         <div class="table-wrap">
           <table id="compareTable" hidden>
