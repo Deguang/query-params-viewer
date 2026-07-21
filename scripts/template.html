@@ -146,7 +146,7 @@
   .icon {
     width: 14px;
     height: 14px;
-    vertical-align: -0.18em;
+    vertical-align: -0.18em; /* only applies outside the flex contexts above */
     flex: none;
   }
   .icon-lg {
@@ -224,6 +224,9 @@
   }
   .lang-switch .sep { color: var(--border); }
   .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid var(--border);
     background: var(--surface-1);
     color: var(--text-secondary);
@@ -296,6 +299,13 @@
     outline-offset: -1px;
   }
   .btn {
+    /* Flex rather than relying on vertical-align: keeps a button's icon and
+       label centred on each other at any font size, and lets the mobile rules
+       stretch buttons without their content drifting off-centre. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     border: 1px solid var(--border);
     background: var(--page);
     color: var(--text-primary);
@@ -593,6 +603,16 @@
   #compareTable tbody tr.row-diff  { background: color-mix(in srgb, var(--warning)  12%, transparent); }
   #compareTable tbody tr.row-onlyA { background: color-mix(in srgb, var(--critical) 12%, transparent); }
   #compareTable tbody tr.row-onlyB { background: color-mix(in srgb, var(--series-1) 12%, transparent); }
+  /* Fixed layout so A and B are always exactly the same width: with auto
+     layout a long value on one side widens that column and the two sides stop
+     lining up, which defeats the point of a side-by-side diff. */
+  #compareTable { table-layout: fixed; }
+  #compareTable th:nth-child(1) { width: 22%; }
+  #compareTable th:nth-child(2),
+  #compareTable th:nth-child(3) { width: 30%; }
+  #compareTable th:nth-child(4) { width: 18%; }
+  #compareTable td { word-break: break-all; }
+
   #compareTable tbody td:first-child { box-shadow: inset 3px 0 0 transparent; }
   #compareTable tbody tr.row-diff  td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
   #compareTable tbody tr.row-onlyA td:first-child { box-shadow: inset 3px 0 0 var(--critical); }
@@ -609,7 +629,43 @@
   [hidden] { display: none !important; }
 
   @media (max-width: 560px) {
-    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+    .app { padding: 16px 12px 48px; }
+
+    /* Let the brand take the full width and drop the controls onto their own
+       line, rather than squeezing the title against them. */
+    header { flex-wrap: wrap; row-gap: 10px; }
+    .brand { flex: 1 1 100%; }
+    header h1 { font-size: 18px; }
+    .header-actions { margin-left: auto; }
+
+    .view-tabs { display: flex; width: 100%; }
+    .view-tab { flex: 1; justify-content: center; padding: 10px 8px; }
+
+    /* One input per line -- two URL fields side by side at this width leaves
+       neither readable -- with the buttons sharing the row below them. */
+    .input-row input[type="text"] { flex: 1 1 100%; }
+    .input-row .btn { flex: 1 1 0; min-height: 40px; }
+
+    .table-card-header { row-gap: 10px; }
+    .table-actions { flex-wrap: wrap; width: 100%; }
+    .table-actions .btn { flex: 1 1 auto; min-height: 40px; justify-content: center; }
+
+    .full-url-row { flex-wrap: wrap; }
+    .full-url-row input[type="text"] { flex: 1 1 160px; }
+
+    /* Scoped to the params table: the shared rule used to hit every table, and
+       the compare table's third column is B, so the diff lost a whole side. */
+    #paramsTable th:nth-child(3), #paramsTable td:nth-child(3) { display: none; }
+
+    /* The row tint and left accent already carry the outcome, so the badge can
+       drop to its glyph and give the width back to A and B. */
+    #compareTable .status-text { display: none; }
+    #compareTable th:nth-child(1) { width: 24%; }
+    #compareTable th:nth-child(2),
+    #compareTable th:nth-child(3) { width: 32%; }
+    #compareTable th:nth-child(4) { width: 12%; }
+    #compareTable thead th, #compareTable tbody td { padding-left: 6px; padding-right: 6px; }
+    .val-cell pre { font-size: 11px; padding: 5px 6px; }
   }
 </style>
 </head>
@@ -706,7 +762,7 @@
           </div>
           <p class="hint" id="shareLenHint" hidden></p>
           <div class="table-wrap">
-            <table>
+            <table id="paramsTable">
               <thead>
                 <tr>
                   <th>Key</th>
@@ -1500,7 +1556,7 @@
           '<td class="key-cell">' + escapeHtml(r.key) + '</td>' +
           '<td class="val-cell">' + renderValueList(r.valuesA) + '</td>' +
           '<td class="val-cell">' + renderValueList(r.valuesB) + '</td>' +
-          '<td><span class="status-badge ' + meta.cls + '">' + meta.icon + ' ' + escapeHtml(meta.label) + '</span></td>' +
+          '<td><span class="status-badge ' + meta.cls + '">' + meta.icon + '<span class="status-text">' + escapeHtml(meta.label) + '</span></span></td>' +
         '</tr>'
       );
     }).join("");

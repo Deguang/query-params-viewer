@@ -273,6 +273,80 @@ async function testCompareRowTinting() {
   eq("[diff] only-in-B badge", byKey.onlyB.badge, "status-onlyB");
 }
 
+// jsdom does no layout, so these read the stylesheet rather than measuring.
+// That is enough to guard the regressions that actually happened: a column
+// rule written without a table selector, and A/B widths drifting apart.
+function cssRules(win) {
+  const sheet = [...win.document.styleSheets].find((s) => s.cssRules.length);
+  const base = [];
+  const mobile = [];
+  for (const r of sheet.cssRules) {
+    if (r.media && r.conditionText && r.conditionText.includes("560px")) {
+      mobile.push(...r.cssRules);
+    } else if (r.selectorText) {
+      base.push(r);
+    }
+  }
+  return { base, mobile };
+}
+
+function compareColWidths(rules) {
+  const widths = {};
+  for (const r of rules) {
+    if (!r.selectorText || !r.style || !r.style.width) continue;
+    for (const sel of r.selectorText.split(",").map((x) => x.trim())) {
+      const m = sel.match(/^#compareTable th:nth-child\((\d)\)$/);
+      if (m) widths[m[1]] = r.style.width;
+    }
+  }
+  return widths;
+}
+
+async function testResponsiveRules() {
+  const p = load(SITE);
+  const { base, mobile } = cssRules(p.window);
+  ok("[mobile] a max-width:560px block exists", mobile.length > 0);
+
+  // The original rule was unscoped, so it also hid the compare table's third
+  // column -- which is B -- wiping out half the diff on every phone.
+  const unscopedHide = mobile.filter((r) =>
+    r.selectorText &&
+    /(^|,)\s*(thead th|tbody td):nth-child\(3\)/.test(r.selectorText) &&
+    r.style.display === "none");
+  eq("[mobile] no unscoped nth-child(3) hiding rule", unscopedHide.length, 0);
+
+  const paramsHide = mobile.some((r) =>
+    r.selectorText && r.selectorText.includes("#paramsTable") && r.style.display === "none");
+  ok("[mobile] the params table still hides its Type column", paramsHide);
+
+  const compareHidden = mobile.some((r) =>
+    r.selectorText && /#compareTable (th|td):nth-child\(3\)/.test(r.selectorText) &&
+    r.style.display === "none");
+  eq("[mobile] the compare table never hides column B", compareHidden, false);
+
+  const fixed = base.some((r) =>
+    r.selectorText === "#compareTable" && r.style.tableLayout === "fixed");
+  ok("[compare] table-layout is fixed so columns cannot drift", fixed);
+
+  const wide = compareColWidths(base);
+  const narrow = compareColWidths(mobile);
+  ok("[compare] A and B share a width on desktop", wide["2"] && wide["2"] === wide["3"],
+    JSON.stringify(wide));
+  ok("[compare] A and B share a width on mobile", narrow["2"] && narrow["2"] === narrow["3"],
+    JSON.stringify(narrow));
+
+  // The mobile rule hides this span, so the markup has to actually emit it.
+  p.click(p.$("tabCompareBtn"));
+  p.$("compareInputA").value = "https://e.com/a?k=1";
+  p.$("compareInputB").value = "https://e.com/b?k=2";
+  p.click(p.$("compareBtn"));
+  ok("[compare] status badges wrap their label for the mobile rule to hide",
+    !!p.$("compareTableBody").querySelector(".status-badge .status-text"));
+  ok("[compare] status badge keeps a glyph outside that label",
+    p.$("compareTableBody").querySelector(".status-badge").textContent.trim().length >
+    p.$("compareTableBody").querySelector(".status-text").textContent.trim().length);
+}
+
 async function testLanguagePathsDoNotAccumulate() {
   // Switching language repeatedly used to stack /en/ja/en/ onto the path.
   for (const [file, url] of [
@@ -306,7 +380,8 @@ async function testLanguagePathsDoNotAccumulate() {
     testBrokenShareLink,
     testThemeCycle,
     testCompareRowTinting,
-    testLanguagePathsDoNotAccumulate
+    testLanguagePathsDoNotAccumulate,
+    testResponsiveRules
   ];
 
   for (const t of tests) {
