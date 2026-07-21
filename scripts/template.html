@@ -617,6 +617,12 @@
   <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12z" fill="currentColor" stroke="none"/>
   </symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+  </symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+  </symbol>
 </defs></svg>
 <div class="app">
   <header>
@@ -629,7 +635,7 @@
     </div>
     <div class="header-actions">
       __LANG_SWITCH__
-      <button class="theme-toggle" id="themeToggle" type="button" title="__THEME_TOGGLE_LABEL__" aria-label="__THEME_TOGGLE_LABEL__"><svg class="icon" aria-hidden="true"><use href="#i-contrast"/></svg></button>
+      <button class="theme-toggle" id="themeToggle" type="button" title="__THEME_TOGGLE_LABEL__" aria-label="__THEME_TOGGLE_LABEL__"><svg class="icon" aria-hidden="true"><use id="themeToggleIcon" href="#i-contrast"/></svg></button>
     </div>
   </header>
 
@@ -783,6 +789,7 @@
   var copyJsonBtn = document.getElementById("copyJsonBtn");
   var copyUrlBtn = document.getElementById("copyUrlBtn");
   var themeToggle = document.getElementById("themeToggle");
+  var themeToggleIcon = document.getElementById("themeToggleIcon");
   var editModeBtn = document.getElementById("editModeBtn");
   var editModeLabel = document.getElementById("editModeLabel");
   var fullUrlCard = document.getElementById("fullUrlCard");
@@ -1499,25 +1506,46 @@
   compareInputB.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { track("compare_run"); renderCompare(); } });
 
   // theme toggle
+  // Three states rather than two, so "follow the system" stays reachable: the
+  // auto state removes data-theme entirely and lets the prefers-color-scheme
+  // media query drive, which also means the page keeps tracking the system
+  // live if it changes while open. Only an explicit light/dark choice is
+  // persisted; auto is represented by the absence of a stored value.
   var THEME_KEY = "qpv-theme";
-  function applyTheme(theme) {
-    if (theme === "light" || theme === "dark") {
-      document.documentElement.setAttribute("data-theme", theme);
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-    }
+  var THEME_CYCLE = ["auto", "light", "dark"];
+  var THEME_ICON = { auto: "#i-contrast", light: "#i-sun", dark: "#i-moon" };
+  var THEME_LABEL = { auto: "themeAuto", light: "themeLight", dark: "themeDark" };
+  var currentTheme = "auto";
+
+  function renderThemeToggle() {
+    themeToggleIcon.setAttribute("href", THEME_ICON[currentTheme]);
+    var label = t("themeToggleLabel") + ": " + t(THEME_LABEL[currentTheme]);
+    themeToggle.title = label;
+    themeToggle.setAttribute("aria-label", label);
   }
+
+  function applyTheme(theme) {
+    currentTheme = theme === "light" || theme === "dark" ? theme : "auto";
+    if (currentTheme === "auto") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", currentTheme);
+    }
+    renderThemeToggle();
+  }
+
   var savedTheme = null;
   try { savedTheme = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
   applyTheme(savedTheme);
+
   themeToggle.addEventListener("click", function () {
-    var current = document.documentElement.getAttribute("data-theme");
-    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var effectiveDark = current ? current === "dark" : prefersDark;
-    var next = effectiveDark ? "light" : "dark";
+    var next = THEME_CYCLE[(THEME_CYCLE.indexOf(currentTheme) + 1) % THEME_CYCLE.length];
     applyTheme(next);
     track("theme_toggle", { theme: next });
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+    try {
+      if (next === "auto") localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, next);
+    } catch (e) { /* ignore */ }
   });
 
   // language switch: progressive enhancement over the plain <a href> links —
@@ -1558,8 +1586,7 @@
     copyJsonBtn.textContent = dict.copyJsonBtn;
     copyUrlBtn.textContent = dict.copyUrlBtn;
     footerEl.textContent = dict.footer;
-    themeToggle.title = dict.themeToggleLabel;
-    themeToggle.setAttribute("aria-label", dict.themeToggleLabel);
+    renderThemeToggle();
 
     editModeLabel.textContent = editMode ? dict.doneEditing : dict.editParams;
     fullUrlHeadingEl.textContent = dict.fullUrlHeading;

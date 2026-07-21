@@ -617,6 +617,12 @@
   <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12z" fill="currentColor" stroke="none"/>
   </symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+  </symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+  </symbol>
 </defs></svg>
 <div class="app">
   <header>
@@ -635,7 +641,7 @@
         <span class="sep">·</span>
         <a href="../ja/" data-lang="ja">日本語</a>
       </nav>
-      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle theme" aria-label="Toggle theme"><svg class="icon" aria-hidden="true"><use href="#i-contrast"/></svg></button>
+      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle theme" aria-label="Toggle theme"><svg class="icon" aria-hidden="true"><use id="themeToggleIcon" href="#i-contrast"/></svg></button>
     </div>
   </header>
 
@@ -765,7 +771,7 @@
     if (typeof gtag === "function") gtag("event", name, params || {});
   }
 
-  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyUrlBtn":"复制完整链接","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"预览","baseUrlPlaceholder":"Base URL（域名 + 路径）","tabParse":"解析","tabCompare":"对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","shareBtn":"分享","shareHeading":"分享链接","shareLenOk":"链接长度 {n} 字符，大多数平台都能正常打开","shareLenWarn":"链接长度 {n} 字符，聊天软件或邮件客户端可能会折行/截断，建议精简参数后再分享","shareLenRisk":"链接长度 {n} 字符，已超出部分浏览器能处理的 URL 长度上限，可能无法打开","shareUnsupported":"这是一个压缩过的分享链接，但当前浏览器不支持解压所需的 CompressionStream API。请改用较新版本的 Chrome / Edge / Firefox / Safari 打开。","shareLinkBroken":"这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyUrlBtn":"Copy Full URL","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"Preview","baseUrlPlaceholder":"Base URL (domain + path)","tabParse":"Parse","tabCompare":"Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","shareBtn":"Share","shareHeading":"Share Link","shareLenOk":"{n} characters — should open fine on most platforms","shareLenWarn":"{n} characters — chat and email clients may wrap or truncate a link this long; consider trimming params before sharing","shareLenRisk":"{n} characters — this exceeds the URL length some browsers can handle and may fail to open","shareUnsupported":"This is a compressed share link, but this browser lacks the CompressionStream API needed to unpack it. Try a recent version of Chrome, Edge, Firefox or Safari.","shareLinkBroken":"This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyUrlBtn":"完全な URL をコピー","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"プレビュー","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","tabParse":"解析","tabCompare":"比較","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","shareBtn":"共有","shareHeading":"共有リンク","shareLenOk":"{n} 文字 — ほとんどの環境で問題なく開けます","shareLenWarn":"{n} 文字 — チャットやメールのクライアントで折り返し・切り詰めが起きる可能性があります。パラメータを減らしてから共有してください","shareLenRisk":"{n} 文字 — 一部のブラウザが扱える URL 長の上限を超えており、開けない可能性があります","shareUnsupported":"これは圧縮された共有リンクですが、このブラウザには展開に必要な CompressionStream API がありません。新しいバージョンの Chrome / Edge / Firefox / Safari でお試しください。","shareLinkBroken":"この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
+  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","themeAuto":"跟随系统","themeLight":"浅色","themeDark":"深色","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyUrlBtn":"复制完整链接","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"预览","baseUrlPlaceholder":"Base URL（域名 + 路径）","tabParse":"解析","tabCompare":"对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","shareBtn":"分享","shareHeading":"分享链接","shareLenOk":"链接长度 {n} 字符，大多数平台都能正常打开","shareLenWarn":"链接长度 {n} 字符，聊天软件或邮件客户端可能会折行/截断，建议精简参数后再分享","shareLenRisk":"链接长度 {n} 字符，已超出部分浏览器能处理的 URL 长度上限，可能无法打开","shareUnsupported":"这是一个压缩过的分享链接，但当前浏览器不支持解压所需的 CompressionStream API。请改用较新版本的 Chrome / Edge / Firefox / Safari 打开。","shareLinkBroken":"这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","themeAuto":"System","themeLight":"Light","themeDark":"Dark","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyUrlBtn":"Copy Full URL","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"Preview","baseUrlPlaceholder":"Base URL (domain + path)","tabParse":"Parse","tabCompare":"Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","shareBtn":"Share","shareHeading":"Share Link","shareLenOk":"{n} characters — should open fine on most platforms","shareLenWarn":"{n} characters — chat and email clients may wrap or truncate a link this long; consider trimming params before sharing","shareLenRisk":"{n} characters — this exceeds the URL length some browsers can handle and may fail to open","shareUnsupported":"This is a compressed share link, but this browser lacks the CompressionStream API needed to unpack it. Try a recent version of Chrome, Edge, Firefox or Safari.","shareLinkBroken":"This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","themeAuto":"システムに合わせる","themeLight":"ライト","themeDark":"ダーク","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyUrlBtn":"完全な URL をコピー","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlLabel":"Base","fullUrlPreviewLabel":"プレビュー","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","tabParse":"解析","tabCompare":"比較","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","shareBtn":"共有","shareHeading":"共有リンク","shareLenOk":"{n} 文字 — ほとんどの環境で問題なく開けます","shareLenWarn":"{n} 文字 — チャットやメールのクライアントで折り返し・切り詰めが起きる可能性があります。パラメータを減らしてから共有してください","shareLenRisk":"{n} 文字 — 一部のブラウザが扱える URL 長の上限を超えており、開けない可能性があります","shareUnsupported":"これは圧縮された共有リンクですが、このブラウザには展開に必要な CompressionStream API がありません。新しいバージョンの Chrome / Edge / Firefox / Safari でお試しください。","shareLinkBroken":"この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
   var CANONICALS = {"zh":"https://app.lideguang.com/query-params-viewer/","en":"https://app.lideguang.com/query-params-viewer/en/","ja":"https://app.lideguang.com/query-params-viewer/ja/"};
   var currentLang = "en";
 
@@ -789,6 +795,7 @@
   var copyJsonBtn = document.getElementById("copyJsonBtn");
   var copyUrlBtn = document.getElementById("copyUrlBtn");
   var themeToggle = document.getElementById("themeToggle");
+  var themeToggleIcon = document.getElementById("themeToggleIcon");
   var editModeBtn = document.getElementById("editModeBtn");
   var editModeLabel = document.getElementById("editModeLabel");
   var fullUrlCard = document.getElementById("fullUrlCard");
@@ -1505,25 +1512,46 @@
   compareInputB.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { track("compare_run"); renderCompare(); } });
 
   // theme toggle
+  // Three states rather than two, so "follow the system" stays reachable: the
+  // auto state removes data-theme entirely and lets the prefers-color-scheme
+  // media query drive, which also means the page keeps tracking the system
+  // live if it changes while open. Only an explicit light/dark choice is
+  // persisted; auto is represented by the absence of a stored value.
   var THEME_KEY = "qpv-theme";
-  function applyTheme(theme) {
-    if (theme === "light" || theme === "dark") {
-      document.documentElement.setAttribute("data-theme", theme);
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-    }
+  var THEME_CYCLE = ["auto", "light", "dark"];
+  var THEME_ICON = { auto: "#i-contrast", light: "#i-sun", dark: "#i-moon" };
+  var THEME_LABEL = { auto: "themeAuto", light: "themeLight", dark: "themeDark" };
+  var currentTheme = "auto";
+
+  function renderThemeToggle() {
+    themeToggleIcon.setAttribute("href", THEME_ICON[currentTheme]);
+    var label = t("themeToggleLabel") + ": " + t(THEME_LABEL[currentTheme]);
+    themeToggle.title = label;
+    themeToggle.setAttribute("aria-label", label);
   }
+
+  function applyTheme(theme) {
+    currentTheme = theme === "light" || theme === "dark" ? theme : "auto";
+    if (currentTheme === "auto") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", currentTheme);
+    }
+    renderThemeToggle();
+  }
+
   var savedTheme = null;
   try { savedTheme = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
   applyTheme(savedTheme);
+
   themeToggle.addEventListener("click", function () {
-    var current = document.documentElement.getAttribute("data-theme");
-    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var effectiveDark = current ? current === "dark" : prefersDark;
-    var next = effectiveDark ? "light" : "dark";
+    var next = THEME_CYCLE[(THEME_CYCLE.indexOf(currentTheme) + 1) % THEME_CYCLE.length];
     applyTheme(next);
     track("theme_toggle", { theme: next });
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+    try {
+      if (next === "auto") localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, next);
+    } catch (e) { /* ignore */ }
   });
 
   // language switch: progressive enhancement over the plain <a href> links —
@@ -1564,8 +1592,7 @@
     copyJsonBtn.textContent = dict.copyJsonBtn;
     copyUrlBtn.textContent = dict.copyUrlBtn;
     footerEl.textContent = dict.footer;
-    themeToggle.title = dict.themeToggleLabel;
-    themeToggle.setAttribute("aria-label", dict.themeToggleLabel);
+    renderThemeToggle();
 
     editModeLabel.textContent = editMode ? dict.doneEditing : dict.editParams;
     fullUrlHeadingEl.textContent = dict.fullUrlHeading;
