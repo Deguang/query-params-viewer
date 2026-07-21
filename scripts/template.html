@@ -72,6 +72,7 @@
     --border:         rgba(18,50,74,0.16);
     --series-1:       #14608f;
     --success:        #1f7a4d;
+    --warning:        #8a5a00;
     --critical:       #a8442a;
 
     --cat-1: #2a78d6;
@@ -96,6 +97,7 @@
       --border:         rgba(180,210,230,0.18);
       --series-1:       #5fc1ea;
       --success:        #4fbd85;
+      --warning:        #e0a33a;
       --critical:       #e2775a;
 
       --cat-1: #3987e5;
@@ -120,6 +122,7 @@
     --border:         rgba(180,210,230,0.18);
     --series-1:       #5fc1ea;
     --success:        #4fbd85;
+    --warning:        #e0a33a;
     --critical:       #e2775a;
 
     --cat-1: #3987e5;
@@ -305,6 +308,11 @@
     font-size: 12px;
     color: var(--text-muted);
   }
+  .hint-ok { color: var(--success); }
+  .hint-warn { color: var(--warning); }
+  .hint-risk { color: var(--critical); }
+
+  .share-card { margin-bottom: 16px; }
 
   #empty-state {
     text-align: center;
@@ -624,11 +632,21 @@
           </div>
         </section>
 
+        <section class="card share-card" id="shareCard" hidden>
+          <h2 class="section-title" id="shareHeadingText" style="margin:0 0 8px;">__SHARE_HEADING__</h2>
+          <div class="full-url-row">
+            <input type="text" id="shareUrlOutput" readonly>
+            <button class="btn btn-ghost" id="copyShareUrlBtn" type="button">__COPY__</button>
+          </div>
+          <p class="hint" id="shareLenHint"></p>
+        </section>
+
         <section class="card">
           <div class="table-card-header">
             <h2 class="section-title" id="tableTitleText" style="margin:0;">__TABLE_TITLE__</h2>
             <div class="table-actions">
               <button class="btn btn-primary" id="editModeBtn" type="button"><span aria-hidden="true">✎</span> <span id="editModeLabel">__EDIT_PARAMS__</span></button>
+              <button class="btn btn-ghost" id="shareBtn" type="button"><span aria-hidden="true">🔗</span> <span id="shareBtnLabel">__SHARE_BTN__</span></button>
               <button class="btn btn-ghost" id="copyUrlBtn" type="button">__COPY_URL_BTN__</button>
               <button class="btn btn-ghost" id="copyJsonBtn" type="button">__COPY_JSON_BTN__</button>
             </div>
@@ -657,6 +675,7 @@
           <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
           <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
           <button class="btn btn-primary" id="compareBtn" type="button">__COMPARE_BTN__</button>
+          <button class="btn btn-ghost" id="compareShareBtn" type="button"><span aria-hidden="true">🔗</span> <span id="compareShareBtnLabel">__SHARE_BTN__</span></button>
         </div>
         <div class="table-wrap">
           <table id="compareTable" hidden>
@@ -671,6 +690,15 @@
             <tbody id="compareTableBody"></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="card share-card" id="compareShareCard" hidden>
+        <h2 class="section-title" id="compareShareHeadingText" style="margin:0 0 8px;">__SHARE_HEADING__</h2>
+        <div class="full-url-row">
+          <input type="text" id="compareShareUrlOutput" readonly>
+          <button class="btn btn-ghost" id="copyCompareShareUrlBtn" type="button">__COPY__</button>
+        </div>
+        <p class="hint" id="compareShareLenHint"></p>
       </section>
     </div>
   </main>
@@ -725,6 +753,13 @@
   var baseUrlInput = document.getElementById("baseUrlInput");
   var fullUrlOutput = document.getElementById("fullUrlOutput");
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
+  var shareCard = document.getElementById("shareCard");
+  var shareHeadingEl = document.getElementById("shareHeadingText");
+  var shareBtn = document.getElementById("shareBtn");
+  var shareBtnLabel = document.getElementById("shareBtnLabel");
+  var shareUrlOutput = document.getElementById("shareUrlOutput");
+  var copyShareUrlBtn = document.getElementById("copyShareUrlBtn");
+  var shareLenHint = document.getElementById("shareLenHint");
   var tabParseBtn = document.getElementById("tabParseBtn");
   var tabCompareBtn = document.getElementById("tabCompareBtn");
   var tabParseLabel = document.getElementById("tabParseLabel");
@@ -737,6 +772,13 @@
   var compareBtn = document.getElementById("compareBtn");
   var compareTable = document.getElementById("compareTable");
   var compareTableBody = document.getElementById("compareTableBody");
+  var compareShareCard = document.getElementById("compareShareCard");
+  var compareShareHeadingEl = document.getElementById("compareShareHeadingText");
+  var compareShareBtn = document.getElementById("compareShareBtn");
+  var compareShareBtnLabel = document.getElementById("compareShareBtnLabel");
+  var compareShareUrlOutput = document.getElementById("compareShareUrlOutput");
+  var copyCompareShareUrlBtn = document.getElementById("copyCompareShareUrlBtn");
+  var compareShareLenHint = document.getElementById("compareShareLenHint");
 
   var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=&redirect=https%3A%2F%2Fapp.example.com%2Fcallback%3Ftoken%3Dabc123%26next%3D%2Fdashboard&filter=status%3Dactive%26owner%3Dme';
 
@@ -747,6 +789,7 @@
 
   var editMode = false;
   var editEntries = [];
+  var shareErrorKey = null;
 
   // Splits a full URL / hash route / bare query string into its base and
   // query parts, mirroring the three input shapes this tool accepts, so the
@@ -887,6 +930,10 @@
 
   function render(entries) {
     currentEntries = entries;
+    // Any re-render means the params changed, so a previously generated
+    // share link no longer matches what is on screen — drop it rather than
+    // leave a stale link sitting there to be copied.
+    shareCard.hidden = true;
 
     if (!entries.length) {
       results.hidden = true;
@@ -1013,6 +1060,8 @@
   function updateFullUrlPreview() {
     var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
     fullUrlOutput.value = buildFullUrl(baseUrlInput.value.trim(), currentStyle, currentFragment, cleaned);
+    // Editing a param invalidates any share link generated before the edit.
+    shareCard.hidden = true;
   }
 
   function enterEditMode() {
@@ -1080,6 +1129,140 @@
       btn.classList.remove("copied");
     }, 1200);
   }
+
+  // --- share links: encode the current parse/compare state as a query
+  // param on this tool's own URL, so opening the link reproduces it.
+  // Where the browser supports it, the payload is gzip-compressed via the
+  // native CompressionStream API (no library, no backend, no third-party
+  // shortener) before being base64url-encoded into ?z=; browsers without it
+  // fall back to a plain encodeURIComponent payload in ?u= / ?a=&b=. ---
+
+  // The payload lives in the fragment, so it is never sent to the server and
+  // the proxy's ~8KB request-line limit does not apply. What remains is what
+  // mangles links in transit (chat clients, mail wrapping) and, far out, the
+  // browser's own URL ceiling.
+  var SHARE_LEN_SAFE = 2000;
+  var SHARE_LEN_RISKY = 32000;
+  var HAS_COMPRESSION = typeof CompressionStream !== "undefined" && typeof DecompressionStream !== "undefined";
+
+  function classifyShareLen(n) {
+    if (n <= SHARE_LEN_SAFE) return "ok";
+    if (n <= SHARE_LEN_RISKY) return "warn";
+    return "risk";
+  }
+
+  function setShareLenHint(hintEl, url) {
+    var n = url.length;
+    var cls = classifyShareLen(n);
+    var key = cls === "ok" ? "shareLenOk" : cls === "warn" ? "shareLenWarn" : "shareLenRisk";
+    hintEl.textContent = t(key).replace("{n}", n);
+    hintEl.classList.remove("hint-ok", "hint-warn", "hint-risk");
+    hintEl.classList.add("hint-" + cls);
+  }
+
+  function getShareableUrl() {
+    if (editMode) {
+      var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
+      return buildFullUrl(baseUrlInput.value.trim(), currentStyle, currentFragment, cleaned);
+    }
+    return urlInput.value.trim();
+  }
+
+  function bufferToBase64Url(buf) {
+    var bytes = new Uint8Array(buf);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function base64UrlToBuffer(str) {
+    var b64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  function compressToParam(str) {
+    var stream = new Blob([str]).stream().pipeThrough(new CompressionStream("gzip"));
+    return new Response(stream).arrayBuffer().then(bufferToBase64Url);
+  }
+
+  // Wrapped in Promise.resolve().then so that a malformed payload — atob()
+  // throws synchronously on invalid base64, e.g. a link mangled or truncated
+  // in transit — surfaces as a rejection the caller's .catch can handle,
+  // rather than escaping it and aborting page init.
+  function decompressFromParam(param) {
+    return Promise.resolve().then(function () {
+      var stream = new Blob([base64UrlToBuffer(param)]).stream().pipeThrough(new DecompressionStream("gzip"));
+      return new Response(stream).text();
+    });
+  }
+
+  // Share state rides in the fragment, never the query string, for two
+  // reasons: the query string is already taken by the documented "paste your
+  // params straight onto this tool's URL" convention (so a ?z= / ?u= / ?a=
+  // share key would hijack anyone analysing a URL that happens to use those
+  // very common short names), and a fragment is never sent to the server, so
+  // a long payload cannot trip the proxy's request-line limit.
+  var SHARE_HASH_RE = /^#(s|p)=/;
+
+  function buildPlainShareLink(payload) {
+    return CANONICALS[currentLang] + "#p=" + encodeURIComponent(JSON.stringify(payload));
+  }
+
+  function finalizeShareLink(link, hintEl, outputEl, cardEl, view, compressed, silent) {
+    outputEl.value = link;
+    setShareLenHint(hintEl, link);
+    cardEl.hidden = false;
+    if (!silent) track("share_link_generate", { view: view, len: link.length, compressed: !!compressed });
+  }
+
+  // Compression is a win on repetitive params but a loss on high-entropy ones
+  // (tokens, JWTs, hashes): gzip cannot shrink them and base64url then adds
+  // ~33%, making ?z= longer than plain ?u=. So build both and keep whichever
+  // is actually shorter — the link is never worse than the uncompressed form.
+  function makeShareLink(payload, hintEl, outputEl, cardEl, view, silent) {
+    var plain = buildPlainShareLink(payload);
+    if (!HAS_COMPRESSION) {
+      finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+      return;
+    }
+    compressToParam(JSON.stringify(payload)).then(function (z) {
+      var compressed = CANONICALS[currentLang] + "#s=" + z;
+      if (compressed.length < plain.length) {
+        finalizeShareLink(compressed, hintEl, outputEl, cardEl, view, true, silent);
+      } else {
+        finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+      }
+    }).catch(function () {
+      finalizeShareLink(plain, hintEl, outputEl, cardEl, view, false, silent);
+    });
+  }
+
+  shareBtn.addEventListener("click", function () {
+    var target = getShareableUrl();
+    if (!target) return;
+    makeShareLink({ t: "u", v: target }, shareLenHint, shareUrlOutput, shareCard, "parse");
+  });
+
+  copyShareUrlBtn.addEventListener("click", function () {
+    track("copy_share_url", { view: "parse" });
+    copyToClipboard(shareUrlOutput.value).then(function () { flashCopied(copyShareUrlBtn); });
+  });
+
+  compareShareBtn.addEventListener("click", function () {
+    var a = compareInputA.value.trim();
+    var b = compareInputB.value.trim();
+    if (!a && !b) return;
+    makeShareLink({ t: "c", a: a, b: b }, compareShareLenHint, compareShareUrlOutput, compareShareCard, "compare");
+  });
+
+  copyCompareShareUrlBtn.addEventListener("click", function () {
+    track("copy_share_url", { view: "compare" });
+    copyToClipboard(compareShareUrlOutput.value).then(function () { flashCopied(copyCompareShareUrlBtn); });
+  });
 
   tableBody.addEventListener("click", function (ev) {
     var copyBtn = ev.target.closest("[data-copy-value]");
@@ -1164,6 +1347,7 @@
 
   function doParse() {
     editMode = false;
+    resetShareError();
     editModeLabel.textContent = t("editParams");
     var parts = splitBaseAndQuery(urlInput.value);
     currentBase = parts.base;
@@ -1186,6 +1370,7 @@
   clearBtn.addEventListener("click", function () {
     urlInput.value = "";
     track("clear");
+    resetShareError();
     render([]);
     urlInput.focus();
   });
@@ -1227,6 +1412,9 @@
   }
 
   function renderCompare() {
+    // Same reasoning as render(): a new diff invalidates the old share link.
+    compareShareCard.hidden = true;
+
     var entriesA = parseEntries(compareInputA.value);
     var entriesB = parseEntries(compareInputB.value);
     var rows = buildDiffRows(entriesA, entriesB);
@@ -1326,7 +1514,7 @@
     exampleBtn.textContent = dict.btnExample;
     clearBtn.textContent = dict.btnClear;
     hintEl.innerHTML = dict.hintHtml;
-    emptyTextEl.textContent = dict.emptyText;
+    emptyTextEl.textContent = shareErrorKey ? dict[shareErrorKey] : dict.emptyText;
     tableTitleEl.textContent = dict.tableTitle;
     copyJsonBtn.textContent = dict.copyJsonBtn;
     copyUrlBtn.textContent = dict.copyUrlBtn;
@@ -1346,7 +1534,18 @@
     compareHeadingEl.textContent = dict.compareHeading;
     compareBtn.textContent = dict.compareBtn;
 
+    shareHeadingEl.textContent = dict.shareHeading;
+    shareBtnLabel.textContent = dict.shareBtn;
+    compareShareHeadingEl.textContent = dict.shareHeading;
+    compareShareBtnLabel.textContent = dict.shareBtn;
+
     refreshLangHrefs(lang);
+
+    // Captured up front: the re-renders below intentionally hide the share
+    // cards (a re-render normally means the state changed), but a language
+    // switch leaves the state alone, so the cards are restored afterwards.
+    var shareWasOpen = !shareCard.hidden;
+    var compareShareWasOpen = !compareShareCard.hidden;
 
     if (editMode) {
       renderEditTable();
@@ -1355,6 +1554,22 @@
       render(currentEntries);
     }
     if (!compareTable.hidden) renderCompare();
+
+    // currentLang is already reassigned above, so re-running makeShareLink
+    // rebuilds the link against the new language's canonical URL. Tracking is
+    // suppressed — this is a language switch, not a new share.
+    if (shareWasOpen) {
+      var reshareTarget = getShareableUrl();
+      if (reshareTarget) {
+        makeShareLink({ t: "u", v: reshareTarget }, shareLenHint, shareUrlOutput, shareCard, "parse", true);
+      }
+    }
+    if (compareShareWasOpen) {
+      makeShareLink(
+        { t: "c", a: compareInputA.value.trim(), b: compareInputB.value.trim() },
+        compareShareLenHint, compareShareUrlOutput, compareShareCard, "compare", true
+      );
+    }
   }
 
   function detectLangFromPath() {
@@ -1370,12 +1585,16 @@
   // compounding onto whatever path pushState last landed on.
   var LANG_DIR = { zh: "", en: "en/", ja: "ja/" };
 
+  // Drops a trailing index.html first (the file:// and "serve the file
+  // directly" cases), then strips whole /en//ja/ segments — anchored on a
+  // leading slash so an unrelated path segment that merely ends in those
+  // letters (/zen/, /ninja/) survives intact.
   function computeBasePath() {
-    var stripped = window.location.pathname;
+    var stripped = window.location.pathname.replace(/index\.html$/, "");
     var prev;
     do {
       prev = stripped;
-      stripped = stripped.replace(/(?:en|ja)\/?$/, "");
+      stripped = stripped.replace(/\/(?:en|ja)\/?$/, "/");
     } while (stripped !== prev);
     if (stripped.slice(-1) !== "/") stripped += "/";
     return stripped;
@@ -1384,7 +1603,9 @@
   var BASE_PATH = computeBasePath();
 
   function langHref(lang) {
-    return BASE_PATH + LANG_DIR[lang];
+    // Carries the query string and the fragment along (the fragment is where
+    // a share payload lives) so switching language mid-share keeps the state.
+    return BASE_PATH + LANG_DIR[lang] + window.location.search + window.location.hash;
   }
 
   function refreshLangHrefs(lang) {
@@ -1414,15 +1635,95 @@
     applyLangToDom((ev.state && ev.state.lang) || detectLangFromPath());
   });
 
-  // auto-load from current page URL if it carries its own query/hash params
-  var selfHref = window.location.href;
-  var selfQs = extractQueryString(selfHref);
-  if (selfQs) {
-    urlInput.value = selfHref;
-    doParse();
-  } else {
-    render([]);
+  // Load state from an explicit share link: ?z=<gzip+base64url> (compressed
+  // payload, see HAS_COMPRESSION above) or the plain ?u=... / ?a=...&b=...
+  // fallback, falling back further to the legacy convention of pasting bare
+  // params directly onto this tool's own URL (see README) for links shared
+  // before the Share button existed.
+  function applySharePayload(payload, compressed) {
+    if (payload && payload.t === "c") {
+      compareInputA.value = payload.a || "";
+      compareInputB.value = payload.b || "";
+      switchView("compare");
+      renderCompare();
+      track("share_link_open", { view: "compare", compressed: !!compressed });
+    } else if (payload && payload.t === "u") {
+      urlInput.value = payload.v || "";
+      doParse();
+      track("share_link_open", { view: "parse", compressed: !!compressed });
+    } else {
+      // Decoded cleanly but is not a payload shape we know — treat as broken
+      // rather than silently showing an empty page.
+      showShareError("shareLinkBroken");
+      track("share_link_open_failed", { reason: "unknown_shape" });
+    }
   }
+
+  // Returns true if the page URL carries a share payload and it has been
+  // handled (successfully or with an error shown). The "#s=" / "#p=" prefix
+  // is matched strictly, so an ordinary hash route the user pasted in to be
+  // analysed still falls through to the normal auto-load path.
+  function readShareFromHash() {
+    var hash = window.location.hash;
+    if (!SHARE_HASH_RE.test(hash)) return false;
+
+    var kind = hash.charAt(1);
+    var raw = hash.slice(3);
+
+    if (kind === "p") {
+      try {
+        applySharePayload(JSON.parse(decodeURIComponent(raw)), false);
+      } catch (e) {
+        showShareError("shareLinkBroken");
+        track("share_link_open_failed", { reason: "corrupt" });
+      }
+      return true;
+    }
+
+    if (!HAS_COMPRESSION) {
+      showShareError("shareUnsupported");
+      track("share_link_open_failed", { reason: "unsupported" });
+      return true;
+    }
+
+    decompressFromParam(raw).then(function (json) {
+      applySharePayload(JSON.parse(json), true);
+    }).catch(function () {
+      showShareError("shareLinkBroken");
+      track("share_link_open_failed", { reason: "corrupt" });
+    });
+    return true;
+  }
+
+  // A share link that cannot be opened replaces the empty-state copy with the
+  // reason. shareErrorKey is remembered so a language switch re-translates the
+  // message instead of reverting it to the generic empty-state text.
+  function showShareError(key) {
+    shareErrorKey = key;
+    render([]);
+    emptyTextEl.textContent = t(key);
+    emptyTextEl.classList.add("hint-risk");
+  }
+
+  function resetShareError() {
+    if (!shareErrorKey) return;
+    shareErrorKey = null;
+    emptyTextEl.textContent = t("emptyText");
+    emptyTextEl.classList.remove("hint-risk");
+  }
+
+  function fallbackAutoLoad() {
+    var selfHref = window.location.href;
+    var selfQs = extractQueryString(selfHref);
+    if (selfQs) {
+      urlInput.value = selfHref;
+      doParse();
+    } else {
+      render([]);
+    }
+  }
+
+  if (!readShareFromHash()) fallbackAutoLoad();
 })();
 </script>
 </body>

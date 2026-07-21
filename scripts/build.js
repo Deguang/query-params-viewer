@@ -92,6 +92,8 @@ for (const lang of Object.keys(PAGES)) {
     __TAB_COMPARE__: dict.tabCompare,
     __COMPARE_HEADING__: dict.compareHeading,
     __COMPARE_BTN__: dict.compareBtn,
+    __SHARE_BTN__: dict.shareBtn,
+    __SHARE_HEADING__: dict.shareHeading,
     __FOOTER__: dict.footer,
     __LANG_SWITCH__: buildLangSwitch(lang),
     __LANG__: JSON.stringify(lang),

@@ -45,6 +45,13 @@ module.exports = {
     statusDiff: "不同",
     statusOnlyA: "仅 A 有",
     statusOnlyB: "仅 B 有",
+    shareBtn: "分享",
+    shareHeading: "分享链接",
+    shareLenOk: "链接长度 {n} 字符，大多数平台都能正常打开",
+    shareLenWarn: "链接长度 {n} 字符，聊天软件或邮件客户端可能会折行/截断，建议精简参数后再分享",
+    shareLenRisk: "链接长度 {n} 字符，已超出部分浏览器能处理的 URL 长度上限，可能无法打开",
+    shareUnsupported: "这是一个压缩过的分享链接，但当前浏览器不支持解压所需的 CompressionStream API。请改用较新版本的 Chrome / Edge / Firefox / Safari 打开。",
+    shareLinkBroken: "这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。",
     footer: "单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"
   },
   en: {
@@ -91,6 +98,13 @@ module.exports = {
     statusDiff: "Different",
     statusOnlyA: "Only in A",
     statusOnlyB: "Only in B",
+    shareBtn: "Share",
+    shareHeading: "Share Link",
+    shareLenOk: "{n} characters — should open fine on most platforms",
+    shareLenWarn: "{n} characters — chat and email clients may wrap or truncate a link this long; consider trimming params before sharing",
+    shareLenRisk: "{n} characters — this exceeds the URL length some browsers can handle and may fail to open",
+    shareUnsupported: "This is a compressed share link, but this browser lacks the CompressionStream API needed to unpack it. Try a recent version of Chrome, Edge, Firefox or Safari.",
+    shareLinkBroken: "This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.",
     footer: "Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"
   },
   ja: {
@@ -137,6 +151,13 @@ module.exports = {
     statusDiff: "異なる",
     statusOnlyA: "A のみ",
     statusOnlyB: "B のみ",
+    shareBtn: "共有",
+    shareHeading: "共有リンク",
+    shareLenOk: "{n} 文字 — ほとんどの環境で問題なく開けます",
+    shareLenWarn: "{n} 文字 — チャットやメールのクライアントで折り返し・切り詰めが起きる可能性があります。パラメータを減らしてから共有してください",
+    shareLenRisk: "{n} 文字 — 一部のブラウザが扱える URL 長の上限を超えており、開けない可能性があります",
+    shareUnsupported: "これは圧縮された共有リンクですが、このブラウザには展開に必要な CompressionStream API がありません。新しいバージョンの Chrome / Edge / Firefox / Safari でお試しください。",
+    shareLinkBroken: "この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。",
     footer: "単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"
   }
 };
