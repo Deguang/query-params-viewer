@@ -214,6 +214,32 @@
   }
   .theme-toggle:hover { color: var(--text-primary); border-color: var(--series-1); }
 
+  .view-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .view-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 4px;
+    cursor: pointer;
+  }
+  .view-tab:hover { color: var(--text-primary); }
+  .view-tab[aria-selected="true"] {
+    color: var(--series-1);
+    border-bottom-color: var(--series-1);
+  }
+
   .card {
     background: var(--surface-1);
     border: 1px solid var(--border);
@@ -549,81 +575,89 @@
   </header>
 
   <main>
-    <section class="card input-card">
-      <div class="input-row">
-        <input type="text" id="urlInput" placeholder="完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&amp;page=2）" autocomplete="off" spellcheck="false">
-        <button class="btn btn-primary" id="parseBtn" type="button">解析</button>
-        <button class="btn" id="exampleBtn" type="button">サンプル</button>
-        <button class="btn" id="clearBtn" type="button">クリア</button>
-        <button class="btn" id="compareToggleBtn" type="button">比較</button>
-      </div>
-      <p class="hint" id="hintText">完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。</p>
-    </section>
+    <div class="view-tabs" role="tablist">
+      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse">解析</button>
+      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare">比較</button>
+    </div>
 
-    <section class="card compare-card" id="compareCard" hidden>
-      <h2 class="section-title" id="compareHeadingText" style="margin:0 0 12px;">2つの URL を比較</h2>
-      <div class="input-row">
-        <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
-        <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
-        <button class="btn btn-primary" id="compareBtn" type="button">比較</button>
-      </div>
-      <div class="table-wrap">
-        <table id="compareTable" hidden>
-          <thead>
-            <tr>
-              <th>Key</th>
-              <th>A</th>
-              <th>B</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="compareTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="empty-state">
-      <div class="big">🔎</div>
-      <div id="emptyText">まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。</div>
-    </section>
-
-    <section id="results" hidden>
-      <div class="stats" id="stats"></div>
-
-      <section class="card full-url-card" id="fullUrlCard" hidden>
-        <h2 class="section-title" id="fullUrlHeadingText" style="margin:0 0 8px;">完全な URL</h2>
-        <div class="full-url-row">
-          <input type="text" id="baseUrlInput" placeholder="ベース URL（ドメイン + パス）" autocomplete="off" spellcheck="false">
+    <div id="parseView">
+      <section class="card input-card">
+        <div class="input-row">
+          <input type="text" id="urlInput" placeholder="完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&amp;page=2）" autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary" id="parseBtn" type="button">解析</button>
+          <button class="btn" id="exampleBtn" type="button">サンプル</button>
+          <button class="btn" id="clearBtn" type="button">クリア</button>
         </div>
-        <div class="full-url-row">
-          <input type="text" id="fullUrlOutput" readonly>
-          <button class="btn btn-ghost" id="copyFullUrlBtn" type="button">コピー</button>
-        </div>
+        <p class="hint" id="hintText">完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。</p>
       </section>
 
-      <section class="card">
-        <div class="table-card-header">
-          <h2 class="section-title" id="tableTitleText" style="margin:0;">パラメータ詳細</h2>
-          <div class="table-actions">
-            <button class="btn btn-ghost" id="editModeBtn" type="button">パラメータを編集</button>
-            <button class="btn btn-ghost" id="copyJsonBtn" type="button">JSON としてコピー</button>
+      <section id="empty-state">
+        <div class="big">🔎</div>
+        <div id="emptyText">まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。</div>
+      </section>
+
+      <section id="results" hidden>
+        <div class="stats" id="stats"></div>
+
+        <section class="card full-url-card" id="fullUrlCard" hidden>
+          <h2 class="section-title" id="fullUrlHeadingText" style="margin:0 0 8px;">完全な URL</h2>
+          <div class="full-url-row">
+            <input type="text" id="baseUrlInput" placeholder="ベース URL（ドメイン + パス）" autocomplete="off" spellcheck="false">
           </div>
+          <div class="full-url-row">
+            <input type="text" id="fullUrlOutput" readonly>
+            <button class="btn btn-ghost" id="copyFullUrlBtn" type="button">コピー</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="table-card-header">
+            <h2 class="section-title" id="tableTitleText" style="margin:0;">パラメータ詳細</h2>
+            <div class="table-actions">
+              <button class="btn btn-ghost" id="editModeBtn" type="button">パラメータを編集</button>
+              <button class="btn btn-ghost" id="copyJsonBtn" type="button">JSON としてコピー</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Value</th>
+                  <th>Type</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <div id="compareView" hidden>
+      <section class="card compare-card">
+        <h2 class="section-title" id="compareHeadingText" style="margin:0 0 12px;">2つの URL を比較</h2>
+        <div class="input-row">
+          <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
+          <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary" id="compareBtn" type="button">比較</button>
         </div>
         <div class="table-wrap">
-          <table>
+          <table id="compareTable" hidden>
             <thead>
               <tr>
                 <th>Key</th>
-                <th>Value</th>
-                <th>Type</th>
-                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>Status</th>
               </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="compareTableBody"></tbody>
           </table>
         </div>
       </section>
-    </section>
+    </div>
   </main>
 
   <footer id="footerText">
@@ -643,7 +677,7 @@
     if (typeof gtag === "function") gtag("event", name, params || {});
   }
 
-  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlPlaceholder":"Base URL（域名 + 路径）","compareToggle":"对比模式","compareToggleClose":"收起对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlPlaceholder":"Base URL (domain + path)","compareToggle":"Compare","compareToggleClose":"Hide Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","compareToggle":"比較","compareToggleClose":"比較を閉じる","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
+  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlPlaceholder":"Base URL（域名 + 路径）","tabParse":"解析","tabCompare":"对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlPlaceholder":"Base URL (domain + path)","tabParse":"Parse","tabCompare":"Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","tabParse":"解析","tabCompare":"比較","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
   var CANONICALS = {"zh":"https://app.lideguang.com/query-params-viewer/","en":"https://app.lideguang.com/query-params-viewer/en/","ja":"https://app.lideguang.com/query-params-viewer/ja/"};
   var currentLang = "ja";
 
@@ -672,8 +706,10 @@
   var baseUrlInput = document.getElementById("baseUrlInput");
   var fullUrlOutput = document.getElementById("fullUrlOutput");
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
-  var compareToggleBtn = document.getElementById("compareToggleBtn");
-  var compareCard = document.getElementById("compareCard");
+  var tabParseBtn = document.getElementById("tabParseBtn");
+  var tabCompareBtn = document.getElementById("tabCompareBtn");
+  var parseView = document.getElementById("parseView");
+  var compareView = document.getElementById("compareView");
   var compareHeadingEl = document.getElementById("compareHeadingText");
   var compareInputA = document.getElementById("compareInputA");
   var compareInputB = document.getElementById("compareInputB");
@@ -1188,12 +1224,16 @@
     compareTable.hidden = rows.length === 0;
   }
 
-  compareToggleBtn.addEventListener("click", function () {
-    var willShow = compareCard.hidden;
-    compareCard.hidden = !willShow;
-    compareToggleBtn.textContent = willShow ? t("compareToggleClose") : t("compareToggle");
-    if (willShow) track("compare_toggle_open");
-  });
+  function switchView(view) {
+    parseView.hidden = view !== "parse";
+    compareView.hidden = view !== "compare";
+    tabParseBtn.setAttribute("aria-selected", String(view === "parse"));
+    tabCompareBtn.setAttribute("aria-selected", String(view === "compare"));
+    track("view_switch", { view: view });
+  }
+
+  tabParseBtn.addEventListener("click", function () { switchView("parse"); });
+  tabCompareBtn.addEventListener("click", function () { switchView("compare"); });
 
   compareBtn.addEventListener("click", function () {
     track("compare_run");
@@ -1269,7 +1309,8 @@
     baseUrlInput.placeholder = dict.baseUrlPlaceholder;
     copyFullUrlBtn.textContent = dict.copy;
 
-    compareToggleBtn.textContent = compareCard.hidden ? dict.compareToggle : dict.compareToggleClose;
+    tabParseBtn.textContent = dict.tabParse;
+    tabCompareBtn.textContent = dict.tabCompare;
     compareHeadingEl.textContent = dict.compareHeading;
     compareBtn.textContent = dict.compareBtn;
 

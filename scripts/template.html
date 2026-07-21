@@ -214,6 +214,32 @@
   }
   .theme-toggle:hover { color: var(--text-primary); border-color: var(--series-1); }
 
+  .view-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .view-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 4px;
+    cursor: pointer;
+  }
+  .view-tab:hover { color: var(--text-primary); }
+  .view-tab[aria-selected="true"] {
+    color: var(--series-1);
+    border-bottom-color: var(--series-1);
+  }
+
   .card {
     background: var(--surface-1);
     border: 1px solid var(--border);
@@ -543,81 +569,89 @@
   </header>
 
   <main>
-    <section class="card input-card">
-      <div class="input-row">
-        <input type="text" id="urlInput" placeholder="__INPUT_PLACEHOLDER__" autocomplete="off" spellcheck="false">
-        <button class="btn btn-primary" id="parseBtn" type="button">__BTN_PARSE__</button>
-        <button class="btn" id="exampleBtn" type="button">__BTN_EXAMPLE__</button>
-        <button class="btn" id="clearBtn" type="button">__BTN_CLEAR__</button>
-        <button class="btn" id="compareToggleBtn" type="button">__COMPARE_TOGGLE__</button>
-      </div>
-      <p class="hint" id="hintText">__HINT_HTML__</p>
-    </section>
+    <div class="view-tabs" role="tablist">
+      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse">__TAB_PARSE__</button>
+      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare">__TAB_COMPARE__</button>
+    </div>
 
-    <section class="card compare-card" id="compareCard" hidden>
-      <h2 class="section-title" id="compareHeadingText" style="margin:0 0 12px;">__COMPARE_HEADING__</h2>
-      <div class="input-row">
-        <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
-        <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
-        <button class="btn btn-primary" id="compareBtn" type="button">__COMPARE_BTN__</button>
-      </div>
-      <div class="table-wrap">
-        <table id="compareTable" hidden>
-          <thead>
-            <tr>
-              <th>Key</th>
-              <th>A</th>
-              <th>B</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="compareTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="empty-state">
-      <div class="big">🔎</div>
-      <div id="emptyText">__EMPTY_TEXT__</div>
-    </section>
-
-    <section id="results" hidden>
-      <div class="stats" id="stats"></div>
-
-      <section class="card full-url-card" id="fullUrlCard" hidden>
-        <h2 class="section-title" id="fullUrlHeadingText" style="margin:0 0 8px;">__FULL_URL_HEADING__</h2>
-        <div class="full-url-row">
-          <input type="text" id="baseUrlInput" placeholder="__BASE_URL_PLACEHOLDER__" autocomplete="off" spellcheck="false">
+    <div id="parseView">
+      <section class="card input-card">
+        <div class="input-row">
+          <input type="text" id="urlInput" placeholder="__INPUT_PLACEHOLDER__" autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary" id="parseBtn" type="button">__BTN_PARSE__</button>
+          <button class="btn" id="exampleBtn" type="button">__BTN_EXAMPLE__</button>
+          <button class="btn" id="clearBtn" type="button">__BTN_CLEAR__</button>
         </div>
-        <div class="full-url-row">
-          <input type="text" id="fullUrlOutput" readonly>
-          <button class="btn btn-ghost" id="copyFullUrlBtn" type="button">__COPY__</button>
-        </div>
+        <p class="hint" id="hintText">__HINT_HTML__</p>
       </section>
 
-      <section class="card">
-        <div class="table-card-header">
-          <h2 class="section-title" id="tableTitleText" style="margin:0;">__TABLE_TITLE__</h2>
-          <div class="table-actions">
-            <button class="btn btn-ghost" id="editModeBtn" type="button">__EDIT_PARAMS__</button>
-            <button class="btn btn-ghost" id="copyJsonBtn" type="button">__COPY_JSON_BTN__</button>
+      <section id="empty-state">
+        <div class="big">🔎</div>
+        <div id="emptyText">__EMPTY_TEXT__</div>
+      </section>
+
+      <section id="results" hidden>
+        <div class="stats" id="stats"></div>
+
+        <section class="card full-url-card" id="fullUrlCard" hidden>
+          <h2 class="section-title" id="fullUrlHeadingText" style="margin:0 0 8px;">__FULL_URL_HEADING__</h2>
+          <div class="full-url-row">
+            <input type="text" id="baseUrlInput" placeholder="__BASE_URL_PLACEHOLDER__" autocomplete="off" spellcheck="false">
           </div>
+          <div class="full-url-row">
+            <input type="text" id="fullUrlOutput" readonly>
+            <button class="btn btn-ghost" id="copyFullUrlBtn" type="button">__COPY__</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="table-card-header">
+            <h2 class="section-title" id="tableTitleText" style="margin:0;">__TABLE_TITLE__</h2>
+            <div class="table-actions">
+              <button class="btn btn-ghost" id="editModeBtn" type="button">__EDIT_PARAMS__</button>
+              <button class="btn btn-ghost" id="copyJsonBtn" type="button">__COPY_JSON_BTN__</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Value</th>
+                  <th>Type</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <div id="compareView" hidden>
+      <section class="card compare-card">
+        <h2 class="section-title" id="compareHeadingText" style="margin:0 0 12px;">__COMPARE_HEADING__</h2>
+        <div class="input-row">
+          <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
+          <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary" id="compareBtn" type="button">__COMPARE_BTN__</button>
         </div>
         <div class="table-wrap">
-          <table>
+          <table id="compareTable" hidden>
             <thead>
               <tr>
                 <th>Key</th>
-                <th>Value</th>
-                <th>Type</th>
-                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>Status</th>
               </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="compareTableBody"></tbody>
           </table>
         </div>
       </section>
-    </section>
+    </div>
   </main>
 
   <footer id="footerText">
@@ -666,8 +700,10 @@
   var baseUrlInput = document.getElementById("baseUrlInput");
   var fullUrlOutput = document.getElementById("fullUrlOutput");
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
-  var compareToggleBtn = document.getElementById("compareToggleBtn");
-  var compareCard = document.getElementById("compareCard");
+  var tabParseBtn = document.getElementById("tabParseBtn");
+  var tabCompareBtn = document.getElementById("tabCompareBtn");
+  var parseView = document.getElementById("parseView");
+  var compareView = document.getElementById("compareView");
   var compareHeadingEl = document.getElementById("compareHeadingText");
   var compareInputA = document.getElementById("compareInputA");
   var compareInputB = document.getElementById("compareInputB");
@@ -1182,12 +1218,16 @@
     compareTable.hidden = rows.length === 0;
   }
 
-  compareToggleBtn.addEventListener("click", function () {
-    var willShow = compareCard.hidden;
-    compareCard.hidden = !willShow;
-    compareToggleBtn.textContent = willShow ? t("compareToggleClose") : t("compareToggle");
-    if (willShow) track("compare_toggle_open");
-  });
+  function switchView(view) {
+    parseView.hidden = view !== "parse";
+    compareView.hidden = view !== "compare";
+    tabParseBtn.setAttribute("aria-selected", String(view === "parse"));
+    tabCompareBtn.setAttribute("aria-selected", String(view === "compare"));
+    track("view_switch", { view: view });
+  }
+
+  tabParseBtn.addEventListener("click", function () { switchView("parse"); });
+  tabCompareBtn.addEventListener("click", function () { switchView("compare"); });
 
   compareBtn.addEventListener("click", function () {
     track("compare_run");
@@ -1263,7 +1303,8 @@
     baseUrlInput.placeholder = dict.baseUrlPlaceholder;
     copyFullUrlBtn.textContent = dict.copy;
 
-    compareToggleBtn.textContent = compareCard.hidden ? dict.compareToggle : dict.compareToggleClose;
+    tabParseBtn.textContent = dict.tabParse;
+    tabCompareBtn.textContent = dict.tabCompare;
     compareHeadingEl.textContent = dict.compareHeading;
     compareBtn.textContent = dict.compareBtn;
 
