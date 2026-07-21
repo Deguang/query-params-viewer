@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Query Params Viewer</title>
+<meta name="description" content="拆解并可视化 URL 中的 query params">
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6;
+    --success:        #006300;
+
+    --cat-1: #2a78d6;
+    --cat-2: #008300;
+    --cat-3: #e87ba4;
+    --cat-4: #eda100;
+    --cat-5: #1baf7a;
+    --cat-6: #eb6834;
+    --cat-7: #4a3aa7;
+    --cat-8: #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --success:        #0ca30c;
+
+      --cat-1: #3987e5;
+      --cat-2: #008300;
+      --cat-3: #d55181;
+      --cat-4: #c98500;
+      --cat-5: #199e70;
+      --cat-6: #d95926;
+      --cat-7: #9085e9;
+      --cat-8: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --success:        #0ca30c;
+
+    --cat-1: #3987e5;
+    --cat-2: #008300;
+    --cat-3: #d55181;
+    --cat-4: #c98500;
+    --cat-5: #199e70;
+    --cat-6: #d95926;
+    --cat-7: #9085e9;
+    --cat-8: #e66767;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: 20px;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  header p.tag {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    cursor: pointer;
+    flex: none;
+  }
+  .theme-toggle:hover { color: var(--text-primary); }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .input-card { margin-bottom: 16px; }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .input-row input[type="text"] {
+    flex: 1 1 320px;
+    min-width: 0;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .input-row input[type="text"]:focus {
+    outline: 2px solid var(--series-1);
+    outline-offset: -1px;
+  }
+  .btn {
+    border: 1px solid var(--border);
+    background: var(--page);
+    color: var(--text-primary);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--series-1); }
+  .btn-primary {
+    background: var(--series-1);
+    border-color: var(--series-1);
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .btn-ghost:hover { color: var(--text-primary); border-color: var(--border); }
+  .hint {
+    margin: 8px 2px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  #empty-state {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--text-secondary);
+  }
+  #empty-state .big { font-size: 32px; margin-bottom: 8px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .stat-tile .val {
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-tile .lbl {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .chart-card { margin-bottom: 16px; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: minmax(80px, 160px) 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+  }
+  .bar-row .key {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bar-track {
+    position: relative;
+    height: 16px;
+    background: var(--grid);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--series-1);
+    border-radius: 3px;
+    min-width: 3px;
+  }
+  .bar-row .count {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 2.5em;
+    text-align: right;
+  }
+  .bar-more {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 0 8px 8px;
+    border-bottom: 1px solid var(--grid);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--grid);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  .key-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex: none;
+  }
+  .dup-badge {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 400;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0 4px;
+  }
+  .val-cell {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    word-break: break-all;
+    max-width: 420px;
+  }
+  .val-cell pre {
+    margin: 4px 0 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  .val-empty { color: var(--text-muted); font-style: italic; }
+  .type-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+  .copy-cell { text-align: right; }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { color: var(--text-primary); border-color: var(--series-1); }
+  .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-top: 32px;
+  }
+  footer a { color: inherit; }
+
+  [hidden] { display: none !important; }
+
+  @media (max-width: 560px) {
+    .bar-row { grid-template-columns: 90px 1fr auto; }
+    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Query Params Viewer</h1>
+      <p class="tag">拆解 URL 中的 query params，并做可视化</p>
+    </div>
+    <button class="theme-toggle" id="themeToggle" type="button" title="切换主题" aria-label="切换主题">◐</button>
+  </header>
+
+  <main>
+    <section class="card input-card">
+      <div class="input-row">
+        <input type="text" id="urlInput" placeholder="粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary" id="parseBtn" type="button">解析</button>
+        <button class="btn" id="exampleBtn" type="button">示例</button>
+        <button class="btn" id="clearBtn" type="button">清空</button>
+      </div>
+      <p class="hint">支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。</p>
+    </section>
+
+    <section id="empty-state">
+      <div class="big">🔎</div>
+      <div>还没有解析任何 URL。粘贴一个链接，或点击"示例"看看效果。</div>
+    </section>
+
+    <section id="results" hidden>
+      <div class="stats" id="stats"></div>
+
+      <section class="card chart-card" id="chartCard" hidden>
+        <h2 class="section-title">按值长度可视化</h2>
+        <div id="chart"></div>
+        <div class="bar-more" id="chartMore" hidden></div>
+      </section>
+
+      <section class="card">
+        <div class="table-card-header">
+          <h2 class="section-title" style="margin:0;">参数明细</h2>
+          <button class="btn btn-ghost" id="copyJsonBtn" type="button">复制为 JSON</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Value</th>
+                <th>Type</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    单文件 · 纯前端 · 无依赖 &mdash; 可直接部署到 GitHub Pages
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CAT_SLOTS = 8;
+  var CHART_LIMIT = 15;
+
+  var urlInput = document.getElementById("urlInput");
+  var parseBtn = document.getElementById("parseBtn");
+  var exampleBtn = document.getElementById("exampleBtn");
+  var clearBtn = document.getElementById("clearBtn");
+  var emptyState = document.getElementById("empty-state");
+  var results = document.getElementById("results");
+  var statsEl = document.getElementById("stats");
+  var chartCard = document.getElementById("chartCard");
+  var chartEl = document.getElementById("chart");
+  var chartMoreEl = document.getElementById("chartMore");
+  var tableBody = document.getElementById("tableBody");
+  var copyJsonBtn = document.getElementById("copyJsonBtn");
+  var themeToggle = document.getElementById("themeToggle");
+
+  var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=';
+
+  var currentEntries = [];
+
+  function extractQueryString(raw) {
+    var s = raw.trim();
+    if (!s) return "";
+
+    var hashIdx = s.indexOf("#");
+    if (hashIdx !== -1) {
+      var hashPart = s.slice(hashIdx + 1);
+      var hQ = hashPart.indexOf("?");
+      if (hQ !== -1) {
+        return hashPart.slice(hQ + 1);
+      }
+    }
+
+    var qIdx = s.indexOf("?");
+    if (qIdx !== -1) {
+      var afterQ = s.slice(qIdx + 1);
+      var hIdx2 = afterQ.indexOf("#");
+      return hIdx2 !== -1 ? afterQ.slice(0, hIdx2) : afterQ;
+    }
+
+    if (s.indexOf("=") !== -1) return s;
+    return "";
+  }
+
+  function parseEntries(raw) {
+    var qs = extractQueryString(raw);
+    if (!qs) return [];
+    var params = new URLSearchParams(qs);
+    var entries = [];
+    params.forEach(function (value, key) {
+      entries.push({ key: key, value: value });
+    });
+    var counts = Object.create(null);
+    entries.forEach(function (e) { counts[e.key] = (counts[e.key] || 0) + 1; });
+    var running = Object.create(null);
+    entries.forEach(function (e) {
+      running[e.key] = (running[e.key] || 0) + 1;
+      e.occurrence = running[e.key];
+      e.total = counts[e.key];
+    });
+    return entries;
+  }
+
+  function detectType(value) {
+    if (value === "") return "empty";
+    if (value === "true" || value === "false") return "boolean";
+    if (/^-?\d+(\.\d+)?$/.test(value)) return "number";
+    try {
+      var parsed = JSON.parse(value);
+      if (parsed !== null && typeof parsed === "object") return "json";
+    } catch (e) { /* not json */ }
+    return "string";
+  }
+
+  function keyColorVar(index) {
+    return index < CAT_SLOTS ? "var(--cat-" + (index + 1) + ")" : "var(--text-muted)";
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function render(entries) {
+    currentEntries = entries;
+
+    if (!entries.length) {
+      results.hidden = true;
+      emptyState.hidden = false;
+      return;
+    }
+    emptyState.hidden = true;
+    results.hidden = false;
+
+    var uniqueKeys = [];
+    var keyIndex = Object.create(null);
+    entries.forEach(function (e) {
+      if (!(e.key in keyIndex)) {
+        keyIndex[e.key] = uniqueKeys.length;
+        uniqueKeys.push(e.key);
+      }
+    });
+
+    var duplicateKeyCount = uniqueKeys.filter(function (k) {
+      return entries.filter(function (e) { return e.key === k; }).length > 1;
+    }).length;
+
+    var jsonCount = entries.filter(function (e) { return detectType(e.value) === "json"; }).length;
+
+    renderStats({
+      total: entries.length,
+      unique: uniqueKeys.length,
+      duplicates: duplicateKeyCount,
+      json: jsonCount
+    });
+
+    renderChart(entries, uniqueKeys);
+    renderTable(entries, keyIndex);
+  }
+
+  function renderStats(s) {
+    var tiles = [
+      { val: s.total, lbl: "参数总数" },
+      { val: s.unique, lbl: "唯一 Key" },
+      { val: s.duplicates, lbl: "重复 Key" },
+      { val: s.json, lbl: "JSON 值" }
+    ];
+    statsEl.innerHTML = tiles.map(function (t) {
+      return '<div class="stat-tile"><div class="val">' + t.val + '</div><div class="lbl">' + t.lbl + '</div></div>';
+    }).join("");
+  }
+
+  function renderChart(entries, uniqueKeys) {
+    var totals = uniqueKeys.map(function (key) {
+      var chars = entries
+        .filter(function (e) { return e.key === key; })
+        .reduce(function (sum, e) { return sum + e.value.length; }, 0);
+      return { key: key, chars: chars };
+    });
+    totals.sort(function (a, b) { return b.chars - a.chars; });
+
+    if (totals.every(function (t) { return t.chars === 0; })) {
+      chartCard.hidden = true;
+      return;
+    }
+    chartCard.hidden = false;
+
+    var shown = totals.slice(0, CHART_LIMIT);
+    var max = shown.length ? shown[0].chars : 1;
+    if (max === 0) max = 1;
+
+    chartEl.innerHTML = shown.map(function (t) {
+      var pct = Math.max((t.chars / max) * 100, t.chars > 0 ? 2 : 0);
+      return (
+        '<div class="bar-row" title="' + escapeHtml(t.key) + ': ' + t.chars + ' 字符">' +
+          '<div class="key">' + escapeHtml(t.key) + '</div>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="count">' + t.chars + '</div>' +
+        '</div>'
+      );
+    }).join("");
+
+    if (totals.length > CHART_LIMIT) {
+      chartMoreEl.hidden = false;
+      chartMoreEl.textContent = "还有 " + (totals.length - CHART_LIMIT) + " 个 key 未显示（按值长度取前 " + CHART_LIMIT + " 个）";
+    } else {
+      chartMoreEl.hidden = true;
+    }
+  }
+
+  function renderValueCell(value) {
+    var type = detectType(value);
+    if (type === "empty") {
+      return '<span class="val-empty">(空)</span>';
+    }
+    if (type === "json") {
+      try {
+        var pretty = JSON.stringify(JSON.parse(value), null, 2);
+        return '<pre>' + escapeHtml(pretty) + '</pre>';
+      } catch (e) { /* fall through */ }
+    }
+    return escapeHtml(value);
+  }
+
+  function renderTable(entries, keyIndex) {
+    tableBody.innerHTML = entries.map(function (e, i) {
+      var type = detectType(e.value);
+      var dot = '<span class="dot" style="background:' + keyColorVar(keyIndex[e.key]) + '"></span>';
+      var dup = e.total > 1
+        ? '<span class="dup-badge">' + e.occurrence + '/' + e.total + '</span>'
+        : '';
+      return (
+        '<tr>' +
+          '<td><div class="key-cell">' + dot + escapeHtml(e.key) + dup + '</div></td>' +
+          '<td class="val-cell">' + renderValueCell(e.value) + '</td>' +
+          '<td><span class="type-badge">' + type + '</span></td>' +
+          '<td class="copy-cell"><button class="copy-btn" data-copy-index="' + i + '" type="button">复制</button></td>' +
+        '</tr>'
+      );
+    }).join("");
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) { /* ignore */ }
+    document.body.removeChild(ta);
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () {
+        fallbackCopy(text);
+      });
+    }
+    fallbackCopy(text);
+    return Promise.resolve();
+  }
+
+  function flashCopied(btn, label) {
+    var original = btn.textContent;
+    btn.textContent = label || "已复制";
+    btn.classList.add("copied");
+    setTimeout(function () {
+      btn.textContent = original;
+      btn.classList.remove("copied");
+    }, 1200);
+  }
+
+  tableBody.addEventListener("click", function (ev) {
+    var btn = ev.target.closest("[data-copy-index]");
+    if (!btn) return;
+    var idx = Number(btn.getAttribute("data-copy-index"));
+    var entry = currentEntries[idx];
+    if (!entry) return;
+    copyToClipboard(entry.value).then(function () { flashCopied(btn); });
+  });
+
+  copyJsonBtn.addEventListener("click", function () {
+    var obj = {};
+    currentEntries.forEach(function (e) {
+      if (e.key in obj) {
+        if (!Array.isArray(obj[e.key])) obj[e.key] = [obj[e.key]];
+        obj[e.key].push(e.value);
+      } else {
+        obj[e.key] = e.value;
+      }
+    });
+    copyToClipboard(JSON.stringify(obj, null, 2)).then(function () {
+      flashCopied(copyJsonBtn, "已复制 JSON");
+    });
+  });
+
+  function doParse() {
+    render(parseEntries(urlInput.value));
+  }
+
+  parseBtn.addEventListener("click", doParse);
+  urlInput.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") doParse();
+  });
+  exampleBtn.addEventListener("click", function () {
+    urlInput.value = EXAMPLE_URL;
+    doParse();
+  });
+  clearBtn.addEventListener("click", function () {
+    urlInput.value = "";
+    render([]);
+    urlInput.focus();
+  });
+
+  // theme toggle
+  var THEME_KEY = "qpv-theme";
+  function applyTheme(theme) {
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.setAttribute("data-theme", theme);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+  }
+  var savedTheme = null;
+  try { savedTheme = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
+  applyTheme(savedTheme);
+  themeToggle.addEventListener("click", function () {
+    var current = document.documentElement.getAttribute("data-theme");
+    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var effectiveDark = current ? current === "dark" : prefersDark;
+    var next = effectiveDark ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+  });
+
+  // auto-load from current page URL if it carries its own query/hash params
+  var selfHref = window.location.href;
+  var selfQs = extractQueryString(selfHref);
+  if (selfQs) {
+    urlInput.value = selfHref;
+    doParse();
+  } else {
+    render([]);
+  }
+})();
+</script>
+</body>
+</html>
