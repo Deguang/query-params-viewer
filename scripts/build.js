@@ -44,11 +44,16 @@ function buildLangSwitch(currentLang) {
   const langs = ["zh", "en", "ja"];
   const links = langs.map(function (lang) {
     const current = lang === currentLang ? ' aria-current="true"' : "";
-    return '<a href="' + relativeHref(currentLang, lang) + '"' + current + ">" + LANG_LABELS[lang] + "</a>";
+    return '<a href="' + relativeHref(currentLang, lang) + '" data-lang="' + lang + '"' + current + ">" + LANG_LABELS[lang] + "</a>";
   });
   return '<nav class="lang-switch" aria-label="Language">\n        ' +
     links.join('\n        <span class="sep">·</span>\n        ') +
     "\n      </nav>";
+}
+
+const CANONICALS = {};
+for (const lang of Object.keys(PAGES)) {
+  CANONICALS[lang] = PAGES[lang].canonical;
 }
 
 for (const lang of Object.keys(PAGES)) {
@@ -74,21 +79,13 @@ for (const lang of Object.keys(PAGES)) {
     __HINT_HTML__: dict.hintHtml,
     __EMPTY_TEXT__: dict.emptyText,
     __THEME_TOGGLE_LABEL__: escapeAttr(dict.themeToggleLabel),
-    __CHART_TITLE__: dict.chartTitle,
     __TABLE_TITLE__: dict.tableTitle,
     __COPY_JSON_BTN__: dict.copyJsonBtn,
     __FOOTER__: dict.footer,
     __LANG_SWITCH__: buildLangSwitch(lang),
-    __STR_STAT_TOTAL__: JSON.stringify(dict.statTotal),
-    __STR_STAT_UNIQUE__: JSON.stringify(dict.statUnique),
-    __STR_STAT_DUP__: JSON.stringify(dict.statDup),
-    __STR_STAT_JSON__: JSON.stringify(dict.statJson),
-    __STR_CHART_MORE_TEMPLATE__: JSON.stringify(dict.chartMoreTemplate),
-    __STR_COPY__: JSON.stringify(dict.copy),
-    __STR_COPIED__: JSON.stringify(dict.copied),
-    __STR_COPIED_JSON__: JSON.stringify(dict.copiedJson),
-    __STR_VAL_EMPTY__: JSON.stringify(dict.valEmpty),
-    __STR_CHAR_SUFFIX__: JSON.stringify(dict.charSuffix)
+    __LANG__: JSON.stringify(lang),
+    __CANONICALS_JSON__: JSON.stringify(CANONICALS),
+    __I18N_ALL_JSON__: JSON.stringify(i18n)
   };
 
   for (const token of Object.keys(tokens)) {

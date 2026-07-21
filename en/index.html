@@ -4,10 +4,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HY52V0R49B"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HY52V0R49B');
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Query Params Viewer — Parse &amp; Visualize URL Query Strings</title>
-<meta name="description" content="Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and visualize them as a chart. Single file, no install.">
-<meta name="keywords" content="query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, visualize query params">
+<title>Query Params Viewer — Parse URL Query Strings</title>
+<meta name="description" content="Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.">
+<meta name="keywords" content="query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Deguang">
 <meta name="theme-color" content="#2a78d6" media="(prefers-color-scheme: light)">
@@ -19,16 +28,16 @@
 <link rel="alternate" hreflang="x-default" href="https://app.lideguang.com/query-params-viewer/">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Query Params Viewer — Parse &amp; Visualize URL Query Strings">
-<meta property="og:description" content="Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and visualize them as a chart.">
+<meta property="og:title" content="Query Params Viewer — Parse URL Query Strings">
+<meta property="og:description" content="Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.">
 <meta property="og:url" content="https://app.lideguang.com/query-params-viewer/en/">
 <meta property="og:site_name" content="Query Params Viewer">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://app.lideguang.com/query-params-viewer/favicon.svg">
 
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Query Params Viewer — Parse &amp; Visualize URL Query Strings">
-<meta name="twitter:description" content="Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and visualize them as a chart.">
+<meta name="twitter:title" content="Query Params Viewer — Parse URL Query Strings">
+<meta name="twitter:description" content="Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.">
 <meta name="twitter:image" content="https://app.lideguang.com/query-params-viewer/favicon.svg">
 
 <link rel="icon" type="image/svg+xml" href="/query-params-viewer/favicon.svg">
@@ -39,7 +48,7 @@
   "@type": "WebApplication",
   "name": "Query Params Viewer",
   "url": "https://app.lideguang.com/query-params-viewer/en/",
-  "description": "Parse and visualize URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, and empty values.",
+  "description": "Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -295,48 +304,34 @@
     letter-spacing: 0.04em;
   }
 
-  .chart-card { margin-bottom: 16px; }
-  .bar-row {
-    display: grid;
-    grid-template-columns: minmax(80px, 160px) 1fr auto;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 0;
-  }
-  .bar-row .key {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .bar-track {
-    position: relative;
-    height: 16px;
-    background: var(--grid);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    background: var(--series-1);
-    border-radius: 3px;
-    min-width: 3px;
-  }
-  .bar-row .count {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
-    min-width: 2.5em;
-    text-align: right;
-  }
-  .bar-more {
-    font-size: 12px;
-    color: var(--text-muted);
+  .nested-toggle {
+    display: block;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
     margin-top: 6px;
   }
+  .nested-toggle:hover { color: var(--text-primary); border-color: var(--series-1); }
+  .nested-block {
+    margin-top: 8px;
+    padding-left: 10px;
+    border-left: 2px solid var(--border);
+  }
+  .nested-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .nested-table td {
+    padding: 6px 6px;
+    border-bottom: 1px solid var(--grid);
+    vertical-align: top;
+  }
+  .nested-table tr:last-child > td { border-bottom: none; }
 
   .table-card-header {
     display: flex;
@@ -443,7 +438,6 @@
   [hidden] { display: none !important; }
 
   @media (max-width: 560px) {
-    .bar-row { grid-template-columns: 90px 1fr auto; }
     thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
   }
 </style>
@@ -455,16 +449,16 @@
       <svg class="app-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="16" height="16" rx="3.5" fill="#2a78d6"/><rect x="6" y="1" width="1" height="1" fill="#ffffff"/><rect x="3" y="2" width="1" height="1" fill="#ffffff"/><rect x="4" y="2" width="1" height="1" fill="#ffffff"/><rect x="5" y="2" width="1" height="1" fill="#ffffff"/><rect x="6" y="2" width="1" height="1" fill="#ffffff"/><rect x="7" y="2" width="1" height="1" fill="#ffffff"/><rect x="8" y="2" width="1" height="1" fill="#ffffff"/><rect x="9" y="2" width="1" height="1" fill="#ffffff"/><rect x="2" y="3" width="1" height="1" fill="#ffffff"/><rect x="3" y="3" width="1" height="1" fill="#ffffff"/><rect x="4" y="3" width="1" height="1" fill="#ffffff"/><rect x="8" y="3" width="1" height="1" fill="#ffffff"/><rect x="9" y="3" width="1" height="1" fill="#ffffff"/><rect x="10" y="3" width="1" height="1" fill="#ffffff"/><rect x="2" y="4" width="1" height="1" fill="#ffffff"/><rect x="3" y="4" width="1" height="1" fill="#ffffff"/><rect x="9" y="4" width="1" height="1" fill="#ffffff"/><rect x="10" y="4" width="1" height="1" fill="#ffffff"/><rect x="2" y="5" width="1" height="1" fill="#ffffff"/><rect x="10" y="5" width="1" height="1" fill="#ffffff"/><rect x="1" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="6" width="1" height="1" fill="#ffffff"/><rect x="10" y="6" width="1" height="1" fill="#ffffff"/><rect x="11" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="7" width="1" height="1" fill="#ffffff"/><rect x="10" y="7" width="1" height="1" fill="#ffffff"/><rect x="2" y="8" width="1" height="1" fill="#ffffff"/><rect x="3" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#ffffff"/><rect x="10" y="8" width="1" height="1" fill="#ffffff"/><rect x="2" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="9" width="1" height="1" fill="#ffffff"/><rect x="4" y="9" width="1" height="1" fill="#ffffff"/><rect x="8" y="9" width="1" height="1" fill="#ffffff"/><rect x="9" y="9" width="1" height="1" fill="#ffffff"/><rect x="10" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="10" width="1" height="1" fill="#ffffff"/><rect x="4" y="10" width="1" height="1" fill="#ffffff"/><rect x="5" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="10" width="1" height="1" fill="#ffffff"/><rect x="8" y="10" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="10" y="10" width="1" height="1" fill="#ffffff"/><rect x="11" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="11" width="1" height="1" fill="#ffffff"/><rect x="10" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="11" width="1" height="1" fill="#ffffff"/><rect x="12" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="12" width="1" height="1" fill="#ffffff"/><rect x="13" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="13" width="1" height="1" fill="#ffffff"/><rect x="14" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="14" width="1" height="1" fill="#ffffff"/><rect x="15" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="15" width="1" height="1" fill="#ffffff"/><rect x="15" y="15" width="1" height="1" fill="#ffffff"/></svg>
       <div>
         <h1>Query Params Viewer</h1>
-        <p class="tag">Break down URL query params, visualized</p>
+        <p class="tag" id="tagline">Break down URL query params — nested encoded params expand automatically</p>
       </div>
     </div>
     <div class="header-actions">
       <nav class="lang-switch" aria-label="Language">
-        <a href="../">中文</a>
+        <a href="../" data-lang="zh">中文</a>
         <span class="sep">·</span>
-        <a href="./" aria-current="true">EN</a>
+        <a href="./" data-lang="en" aria-current="true">EN</a>
         <span class="sep">·</span>
-        <a href="../ja/">日本語</a>
+        <a href="../ja/" data-lang="ja">日本語</a>
       </nav>
       <button class="theme-toggle" id="themeToggle" type="button" title="Toggle theme" aria-label="Toggle theme">◐</button>
     </div>
@@ -478,26 +472,20 @@
         <button class="btn" id="exampleBtn" type="button">Example</button>
         <button class="btn" id="clearBtn" type="button">Clear</button>
       </div>
-      <p class="hint">Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.</p>
+      <p class="hint" id="hintText">Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.</p>
     </section>
 
     <section id="empty-state">
       <div class="big">🔎</div>
-      <div>No URL parsed yet. Paste a link, or click "Example" to see it in action.</div>
+      <div id="emptyText">No URL parsed yet. Paste a link, or click "Example" to see it in action.</div>
     </section>
 
     <section id="results" hidden>
       <div class="stats" id="stats"></div>
 
-      <section class="card chart-card" id="chartCard" hidden>
-        <h2 class="section-title">Value Length Chart</h2>
-        <div id="chart"></div>
-        <div class="bar-more" id="chartMore" hidden></div>
-      </section>
-
       <section class="card">
         <div class="table-card-header">
-          <h2 class="section-title" style="margin:0;">Parameter Details</h2>
+          <h2 class="section-title" id="tableTitleText" style="margin:0;">Parameter Details</h2>
           <button class="btn btn-ghost" id="copyJsonBtn" type="button">Copy as JSON</button>
         </div>
         <div class="table-wrap">
@@ -517,7 +505,7 @@
     </section>
   </main>
 
-  <footer>
+  <footer id="footerText">
     Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages
   </footer>
 </div>
@@ -527,36 +515,34 @@
   "use strict";
 
   var CAT_SLOTS = 8;
-  var CHART_LIMIT = 15;
+  var MAX_NEST_DEPTH = 3;
+  var nestedIdCounter = 0;
 
-  var STR = {
-    statTotal: "Total Params",
-    statUnique: "Unique Keys",
-    statDup: "Duplicate Keys",
-    statJson: "JSON Values",
-    chartMoreTemplate: "{n} more key(s) hidden (showing top {limit} by value length)",
-    copy: "Copy",
-    copied: "Copied",
-    copiedJson: "Copied JSON",
-    valEmpty: "(empty)",
-    charSuffix: " chars"
-  };
+  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
+  var CANONICALS = {"zh":"https://app.lideguang.com/query-params-viewer/","en":"https://app.lideguang.com/query-params-viewer/en/","ja":"https://app.lideguang.com/query-params-viewer/ja/"};
+  var currentLang = "en";
+
+  function t(key) {
+    return I18N_ALL[currentLang][key];
+  }
 
   var urlInput = document.getElementById("urlInput");
   var parseBtn = document.getElementById("parseBtn");
   var exampleBtn = document.getElementById("exampleBtn");
   var clearBtn = document.getElementById("clearBtn");
   var emptyState = document.getElementById("empty-state");
+  var emptyTextEl = document.getElementById("emptyText");
+  var taglineEl = document.getElementById("tagline");
+  var hintEl = document.getElementById("hintText");
+  var tableTitleEl = document.getElementById("tableTitleText");
+  var footerEl = document.getElementById("footerText");
   var results = document.getElementById("results");
   var statsEl = document.getElementById("stats");
-  var chartCard = document.getElementById("chartCard");
-  var chartEl = document.getElementById("chart");
-  var chartMoreEl = document.getElementById("chartMore");
   var tableBody = document.getElementById("tableBody");
   var copyJsonBtn = document.getElementById("copyJsonBtn");
   var themeToggle = document.getElementById("themeToggle");
 
-  var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=';
+  var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=&redirect=https%3A%2F%2Fapp.example.com%2Fcallback%3Ftoken%3Dabc123%26next%3D%2Fdashboard&filter=status%3Dactive%26owner%3Dme';
 
   var currentEntries = [];
 
@@ -584,8 +570,7 @@
     return "";
   }
 
-  function parseEntries(raw) {
-    var qs = extractQueryString(raw);
+  function parseQueryStringEntries(qs) {
     if (!qs) return [];
     var params = new URLSearchParams(qs);
     var entries = [];
@@ -603,6 +588,10 @@
     return entries;
   }
 
+  function parseEntries(raw) {
+    return parseQueryStringEntries(extractQueryString(raw));
+  }
+
   function detectType(value) {
     if (value === "") return "empty";
     if (value === "true" || value === "false") return "boolean";
@@ -612,6 +601,40 @@
       if (parsed !== null && typeof parsed === "object") return "json";
     } catch (e) { /* not json */ }
     return "string";
+  }
+
+  function isQueryStringLike(qs) {
+    if (!qs) return false;
+    var pairs = qs.split("&");
+    return pairs.length > 0 && pairs.every(function (p) {
+      var eq = p.indexOf("=");
+      if (eq <= 0) return false;
+      return /^[A-Za-z0-9_.[\]-]+$/.test(p.slice(0, eq));
+    });
+  }
+
+  // Detects a value that is itself a URL (with its own "?a=b&c=d") or a bare
+  // "a=1&b=2" query string, so it can be parsed and shown as a nested table.
+  function detectNested(value, depth) {
+    if (depth >= MAX_NEST_DEPTH || !value) return null;
+
+    var candidate = value;
+    try {
+      var decodedOnce = decodeURIComponent(value);
+      if (decodedOnce !== value) candidate = decodedOnce;
+    } catch (e) { /* leave as-is on invalid escape sequences */ }
+
+    var qIdx = candidate.indexOf("?");
+    if (qIdx !== -1 && /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(candidate)) {
+      var qs = candidate.slice(qIdx + 1).split("#")[0];
+      if (isQueryStringLike(qs)) return qs;
+    }
+
+    if (candidate.indexOf("&") !== -1 && isQueryStringLike(candidate)) {
+      return candidate;
+    }
+
+    return null;
   }
 
   function keyColorVar(index) {
@@ -638,12 +661,8 @@
     results.hidden = false;
 
     var uniqueKeys = [];
-    var keyIndex = Object.create(null);
     entries.forEach(function (e) {
-      if (!(e.key in keyIndex)) {
-        keyIndex[e.key] = uniqueKeys.length;
-        uniqueKeys.push(e.key);
-      }
+      if (uniqueKeys.indexOf(e.key) === -1) uniqueKeys.push(e.key);
     });
 
     var duplicateKeyCount = uniqueKeys.filter(function (k) {
@@ -659,66 +678,25 @@
       json: jsonCount
     });
 
-    renderChart(entries, uniqueKeys);
-    renderTable(entries, keyIndex);
+    tableBody.innerHTML = buildRowsHtml(entries, 0);
   }
 
   function renderStats(s) {
     var tiles = [
-      { val: s.total, lbl: STR.statTotal },
-      { val: s.unique, lbl: STR.statUnique },
-      { val: s.duplicates, lbl: STR.statDup },
-      { val: s.json, lbl: STR.statJson }
+      { val: s.total, lbl: t("statTotal") },
+      { val: s.unique, lbl: t("statUnique") },
+      { val: s.duplicates, lbl: t("statDup") },
+      { val: s.json, lbl: t("statJson") }
     ];
-    statsEl.innerHTML = tiles.map(function (t) {
-      return '<div class="stat-tile"><div class="val">' + t.val + '</div><div class="lbl">' + t.lbl + '</div></div>';
+    statsEl.innerHTML = tiles.map(function (tile) {
+      return '<div class="stat-tile"><div class="val">' + tile.val + '</div><div class="lbl">' + tile.lbl + '</div></div>';
     }).join("");
-  }
-
-  function renderChart(entries, uniqueKeys) {
-    var totals = uniqueKeys.map(function (key) {
-      var chars = entries
-        .filter(function (e) { return e.key === key; })
-        .reduce(function (sum, e) { return sum + e.value.length; }, 0);
-      return { key: key, chars: chars };
-    });
-    totals.sort(function (a, b) { return b.chars - a.chars; });
-
-    if (totals.every(function (t) { return t.chars === 0; })) {
-      chartCard.hidden = true;
-      return;
-    }
-    chartCard.hidden = false;
-
-    var shown = totals.slice(0, CHART_LIMIT);
-    var max = shown.length ? shown[0].chars : 1;
-    if (max === 0) max = 1;
-
-    chartEl.innerHTML = shown.map(function (t) {
-      var pct = Math.max((t.chars / max) * 100, t.chars > 0 ? 2 : 0);
-      return (
-        '<div class="bar-row" title="' + escapeHtml(t.key) + ': ' + t.chars + STR.charSuffix + '">' +
-          '<div class="key">' + escapeHtml(t.key) + '</div>' +
-          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="count">' + t.chars + '</div>' +
-        '</div>'
-      );
-    }).join("");
-
-    if (totals.length > CHART_LIMIT) {
-      chartMoreEl.hidden = false;
-      chartMoreEl.textContent = STR.chartMoreTemplate
-        .replace("{n}", totals.length - CHART_LIMIT)
-        .replace("{limit}", CHART_LIMIT);
-    } else {
-      chartMoreEl.hidden = true;
-    }
   }
 
   function renderValueCell(value) {
     var type = detectType(value);
     if (type === "empty") {
-      return '<span class="val-empty">' + escapeHtml(STR.valEmpty) + '</span>';
+      return '<span class="val-empty">' + escapeHtml(t("valEmpty")) + '</span>';
     }
     if (type === "json") {
       try {
@@ -729,19 +707,45 @@
     return escapeHtml(value);
   }
 
-  function renderTable(entries, keyIndex) {
-    tableBody.innerHTML = entries.map(function (e, i) {
+  function buildRowsHtml(entries, depth) {
+    var uniqueKeys = [];
+    var keyIndex = Object.create(null);
+    entries.forEach(function (e) {
+      if (!(e.key in keyIndex)) {
+        keyIndex[e.key] = uniqueKeys.length;
+        uniqueKeys.push(e.key);
+      }
+    });
+
+    return entries.map(function (e) {
       var type = detectType(e.value);
       var dot = '<span class="dot" style="background:' + keyColorVar(keyIndex[e.key]) + '"></span>';
       var dup = e.total > 1
         ? '<span class="dup-badge">' + e.occurrence + '/' + e.total + '</span>'
         : '';
+
+      var valueHtml = renderValueCell(e.value);
+      var nestedQs = detectNested(e.value, depth);
+      if (nestedQs) {
+        var nestedEntries = parseQueryStringEntries(nestedQs);
+        if (nestedEntries.length) {
+          var nestedId = "nested-" + (nestedIdCounter++);
+          valueHtml +=
+            '<button class="nested-toggle" type="button" data-toggle-nested="' + nestedId + '">' +
+              escapeHtml(t("nestedExpand").replace("{n}", nestedEntries.length)) +
+            '</button>' +
+            '<div class="nested-block" id="' + nestedId + '" hidden>' +
+              '<table class="nested-table"><tbody>' + buildRowsHtml(nestedEntries, depth + 1) + '</tbody></table>' +
+            '</div>';
+        }
+      }
+
       return (
         '<tr>' +
           '<td><div class="key-cell">' + dot + escapeHtml(e.key) + dup + '</div></td>' +
-          '<td class="val-cell">' + renderValueCell(e.value) + '</td>' +
+          '<td class="val-cell">' + valueHtml + '</td>' +
           '<td><span class="type-badge">' + type + '</span></td>' +
-          '<td class="copy-cell"><button class="copy-btn" data-copy-index="' + i + '" type="button">' + escapeHtml(STR.copy) + '</button></td>' +
+          '<td class="copy-cell"><button class="copy-btn" data-copy-value="' + escapeHtml(e.value) + '" type="button">' + escapeHtml(t("copy")) + '</button></td>' +
         '</tr>'
       );
     }).join("");
@@ -770,7 +774,7 @@
 
   function flashCopied(btn, label) {
     var original = btn.textContent;
-    btn.textContent = label || STR.copied;
+    btn.textContent = label || t("copied");
     btn.classList.add("copied");
     setTimeout(function () {
       btn.textContent = original;
@@ -779,12 +783,24 @@
   }
 
   tableBody.addEventListener("click", function (ev) {
-    var btn = ev.target.closest("[data-copy-index]");
-    if (!btn) return;
-    var idx = Number(btn.getAttribute("data-copy-index"));
-    var entry = currentEntries[idx];
-    if (!entry) return;
-    copyToClipboard(entry.value).then(function () { flashCopied(btn); });
+    var copyBtn = ev.target.closest("[data-copy-value]");
+    if (copyBtn) {
+      copyToClipboard(copyBtn.getAttribute("data-copy-value")).then(function () { flashCopied(copyBtn); });
+      return;
+    }
+    var toggleBtn = ev.target.closest("[data-toggle-nested]");
+    if (toggleBtn) {
+      var block = document.getElementById(toggleBtn.getAttribute("data-toggle-nested"));
+      if (!block) return;
+      var willShow = block.hidden;
+      block.hidden = !willShow;
+      if (willShow) {
+        toggleBtn.textContent = t("nestedCollapse");
+      } else {
+        var n = block.querySelectorAll(":scope > table > tbody > tr").length;
+        toggleBtn.textContent = t("nestedExpand").replace("{n}", n);
+      }
+    }
   });
 
   copyJsonBtn.addEventListener("click", function () {
@@ -798,7 +814,7 @@
       }
     });
     copyToClipboard(JSON.stringify(obj, null, 2)).then(function () {
-      flashCopied(copyJsonBtn, STR.copiedJson);
+      flashCopied(copyJsonBtn, t("copiedJson"));
     });
   });
 
@@ -839,6 +855,75 @@
     var next = effectiveDark ? "light" : "dark";
     applyTheme(next);
     try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+  });
+
+  // language switch: progressive enhancement over the plain <a href> links —
+  // swap all page text client-side (no reload, keeps input/parsed state) and
+  // sync the URL bar via pushState; without JS the links still navigate to
+  // the real static per-language page.
+  function setMeta(selector, attr, value) {
+    var el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+  }
+
+  function applyLangToDom(lang) {
+    if (!I18N_ALL[lang] || lang === currentLang) return;
+    currentLang = lang;
+    var dict = I18N_ALL[lang];
+
+    document.documentElement.lang = dict.htmlLang;
+    document.title = dict.title;
+
+    setMeta('meta[name="description"]', "content", dict.description);
+    setMeta('meta[name="keywords"]', "content", dict.keywords);
+    setMeta('meta[property="og:title"]', "content", dict.title);
+    setMeta('meta[property="og:description"]', "content", dict.ogDescription);
+    setMeta('meta[property="og:url"]', "content", CANONICALS[lang]);
+    setMeta('meta[property="og:locale"]', "content", dict.ogLocale);
+    setMeta('meta[name="twitter:title"]', "content", dict.title);
+    setMeta('meta[name="twitter:description"]', "content", dict.ogDescription);
+    setMeta('link[rel="canonical"]', "href", CANONICALS[lang]);
+
+    taglineEl.textContent = dict.tagline;
+    urlInput.placeholder = dict.inputPlaceholder;
+    parseBtn.textContent = dict.btnParse;
+    exampleBtn.textContent = dict.btnExample;
+    clearBtn.textContent = dict.btnClear;
+    hintEl.innerHTML = dict.hintHtml;
+    emptyTextEl.textContent = dict.emptyText;
+    tableTitleEl.textContent = dict.tableTitle;
+    copyJsonBtn.textContent = dict.copyJsonBtn;
+    footerEl.textContent = dict.footer;
+    themeToggle.title = dict.themeToggleLabel;
+    themeToggle.setAttribute("aria-label", dict.themeToggleLabel);
+
+    document.querySelectorAll(".lang-switch a").forEach(function (a) {
+      if (a.getAttribute("data-lang") === lang) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    });
+
+    if (currentEntries.length) render(currentEntries);
+  }
+
+  function detectLangFromPath() {
+    var path = window.location.pathname;
+    if (/\/en\/?(?:index\.html)?$/.test(path)) return "en";
+    if (/\/ja\/?(?:index\.html)?$/.test(path)) return "ja";
+    return "zh";
+  }
+
+  document.querySelectorAll(".lang-switch a").forEach(function (a) {
+    a.addEventListener("click", function (ev) {
+      var lang = a.getAttribute("data-lang");
+      if (!lang || lang === currentLang) { ev.preventDefault(); return; }
+      ev.preventDefault();
+      applyLangToDom(lang);
+      history.pushState({ lang: lang }, "", a.getAttribute("href"));
+    });
+  });
+
+  window.addEventListener("popstate", function (ev) {
+    applyLangToDom((ev.state && ev.state.lang) || detectLangFromPath());
   });
 
   // auto-load from current page URL if it carries its own query/hash params
