@@ -215,29 +215,36 @@
   .theme-toggle:hover { color: var(--text-primary); border-color: var(--series-1); }
 
   .view-tabs {
-    display: flex;
-    gap: 4px;
+    display: inline-flex;
+    gap: 2px;
     margin-bottom: 16px;
-    border-bottom: 1px solid var(--border);
+    padding: 4px;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
   }
   .view-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     background: transparent;
     border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    color: var(--text-muted);
+    border-radius: 6px;
+    color: var(--text-secondary);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 8px 4px;
+    letter-spacing: 0.05em;
+    padding: 9px 18px;
     cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
   }
+  .view-tab-icon { font-size: 13px; }
   .view-tab:hover { color: var(--text-primary); }
   .view-tab[aria-selected="true"] {
-    color: var(--series-1);
-    border-bottom-color: var(--series-1);
+    background: var(--series-1);
+    color: #fff;
   }
 
   .card {
@@ -570,8 +577,8 @@
 
   <main>
     <div class="view-tabs" role="tablist">
-      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse">__TAB_PARSE__</button>
-      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare">__TAB_COMPARE__</button>
+      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse"><span class="view-tab-icon" aria-hidden="true">🔍</span><span id="tabParseLabel">__TAB_PARSE__</span></button>
+      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare"><span class="view-tab-icon" aria-hidden="true">⇄</span><span id="tabCompareLabel">__TAB_COMPARE__</span></button>
     </div>
 
     <div id="parseView">
@@ -608,7 +615,8 @@
           <div class="table-card-header">
             <h2 class="section-title" id="tableTitleText" style="margin:0;">__TABLE_TITLE__</h2>
             <div class="table-actions">
-              <button class="btn btn-ghost" id="editModeBtn" type="button">__EDIT_PARAMS__</button>
+              <button class="btn btn-primary" id="editModeBtn" type="button"><span aria-hidden="true">✎</span> <span id="editModeLabel">__EDIT_PARAMS__</span></button>
+              <button class="btn btn-ghost" id="copyUrlBtn" type="button">__COPY_URL_BTN__</button>
               <button class="btn btn-ghost" id="copyJsonBtn" type="button">__COPY_JSON_BTN__</button>
             </div>
           </div>
@@ -693,8 +701,10 @@
   var statsEl = document.getElementById("stats");
   var tableBody = document.getElementById("tableBody");
   var copyJsonBtn = document.getElementById("copyJsonBtn");
+  var copyUrlBtn = document.getElementById("copyUrlBtn");
   var themeToggle = document.getElementById("themeToggle");
   var editModeBtn = document.getElementById("editModeBtn");
+  var editModeLabel = document.getElementById("editModeLabel");
   var fullUrlCard = document.getElementById("fullUrlCard");
   var fullUrlHeadingEl = document.getElementById("fullUrlHeadingText");
   var baseUrlInput = document.getElementById("baseUrlInput");
@@ -702,6 +712,8 @@
   var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
   var tabParseBtn = document.getElementById("tabParseBtn");
   var tabCompareBtn = document.getElementById("tabCompareBtn");
+  var tabParseLabel = document.getElementById("tabParseLabel");
+  var tabCompareLabel = document.getElementById("tabCompareLabel");
   var parseView = document.getElementById("parseView");
   var compareView = document.getElementById("compareView");
   var compareHeadingEl = document.getElementById("compareHeadingText");
@@ -994,7 +1006,7 @@
     editEntries = currentEntries.map(function (e) { return { key: e.key, value: e.value }; });
     baseUrlInput.value = currentBase;
     fullUrlCard.hidden = false;
-    editModeBtn.textContent = t("doneEditing");
+    editModeLabel.textContent = t("doneEditing");
     track("edit_mode_enter");
     renderEditTable();
     updateFullUrlPreview();
@@ -1003,7 +1015,7 @@
   function exitEditMode() {
     editMode = false;
     fullUrlCard.hidden = true;
-    editModeBtn.textContent = t("editParams");
+    editModeLabel.textContent = t("editParams");
     var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
     currentBase = baseUrlInput.value.trim();
     urlInput.value = buildFullUrl(currentBase, currentStyle, currentFragment, cleaned);
@@ -1111,6 +1123,14 @@
     }
   });
 
+  copyUrlBtn.addEventListener("click", function () {
+    track("copy_full_url_quick");
+    var entries = editMode ? editEntries.filter(function (e) { return e.key !== ""; }) : currentEntries;
+    var base = editMode ? baseUrlInput.value.trim() : currentBase;
+    var url = buildFullUrl(base, currentStyle, currentFragment, entries);
+    copyToClipboard(url).then(function () { flashCopied(copyUrlBtn, t("copied")); });
+  });
+
   copyJsonBtn.addEventListener("click", function () {
     track("copy_json");
     var obj = {};
@@ -1129,7 +1149,7 @@
 
   function doParse() {
     editMode = false;
-    editModeBtn.textContent = t("editParams");
+    editModeLabel.textContent = t("editParams");
     var parts = splitBaseAndQuery(urlInput.value);
     currentBase = parts.base;
     currentStyle = parts.style;
@@ -1294,24 +1314,22 @@
     emptyTextEl.textContent = dict.emptyText;
     tableTitleEl.textContent = dict.tableTitle;
     copyJsonBtn.textContent = dict.copyJsonBtn;
+    copyUrlBtn.textContent = dict.copyUrlBtn;
     footerEl.textContent = dict.footer;
     themeToggle.title = dict.themeToggleLabel;
     themeToggle.setAttribute("aria-label", dict.themeToggleLabel);
 
-    editModeBtn.textContent = editMode ? dict.doneEditing : dict.editParams;
+    editModeLabel.textContent = editMode ? dict.doneEditing : dict.editParams;
     fullUrlHeadingEl.textContent = dict.fullUrlHeading;
     baseUrlInput.placeholder = dict.baseUrlPlaceholder;
     copyFullUrlBtn.textContent = dict.copy;
 
-    tabParseBtn.textContent = dict.tabParse;
-    tabCompareBtn.textContent = dict.tabCompare;
+    tabParseLabel.textContent = dict.tabParse;
+    tabCompareLabel.textContent = dict.tabCompare;
     compareHeadingEl.textContent = dict.compareHeading;
     compareBtn.textContent = dict.compareBtn;
 
-    document.querySelectorAll(".lang-switch a").forEach(function (a) {
-      if (a.getAttribute("data-lang") === lang) a.setAttribute("aria-current", "true");
-      else a.removeAttribute("aria-current");
-    });
+    refreshLangHrefs(lang);
 
     if (editMode) {
       renderEditTable();
@@ -1329,14 +1347,49 @@
     return "zh";
   }
 
+  // Root-relative (not "../"-chained) hrefs: BASE_PATH is resolved once by
+  // stripping any /en//ja/ segments from the current path, so repeated
+  // client-side switches always target base+lang directly instead of
+  // compounding onto whatever path pushState last landed on.
+  var LANG_DIR = { zh: "", en: "en/", ja: "ja/" };
+
+  function computeBasePath() {
+    var stripped = window.location.pathname;
+    var prev;
+    do {
+      prev = stripped;
+      stripped = stripped.replace(/(?:en|ja)\/?$/, "");
+    } while (stripped !== prev);
+    if (stripped.slice(-1) !== "/") stripped += "/";
+    return stripped;
+  }
+
+  var BASE_PATH = computeBasePath();
+
+  function langHref(lang) {
+    return BASE_PATH + LANG_DIR[lang];
+  }
+
+  function refreshLangHrefs(lang) {
+    document.querySelectorAll(".lang-switch a").forEach(function (a) {
+      var linkLang = a.getAttribute("data-lang");
+      if (linkLang) a.setAttribute("href", langHref(linkLang));
+      if (linkLang === lang) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    });
+  }
+
+  refreshLangHrefs(currentLang);
+
   document.querySelectorAll(".lang-switch a").forEach(function (a) {
     a.addEventListener("click", function (ev) {
       var lang = a.getAttribute("data-lang");
       if (!lang || lang === currentLang) { ev.preventDefault(); return; }
       ev.preventDefault();
       track("lang_switch", { lang: lang });
+      var href = langHref(lang);
       applyLangToDom(lang);
-      history.pushState({ lang: lang }, "", a.getAttribute("href"));
+      history.pushState({ lang: lang }, "", href);
     });
   });
 

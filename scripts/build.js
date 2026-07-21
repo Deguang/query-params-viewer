@@ -80,6 +80,7 @@ for (const lang of Object.keys(PAGES)) {
     __EMPTY_TEXT__: dict.emptyText,
     __THEME_TOGGLE_LABEL__: escapeAttr(dict.themeToggleLabel),
     __TABLE_TITLE__: dict.tableTitle,
+    __COPY_URL_BTN__: dict.copyUrlBtn,
     __COPY_JSON_BTN__: dict.copyJsonBtn,
     __COPY__: dict.copy,
     __EDIT_PARAMS__: dict.editParams,
