@@ -19,8 +19,8 @@
 <meta name="keywords" content="query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Deguang">
-<meta name="theme-color" content="#2a78d6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#14608f" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1a26" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://app.lideguang.com/query-params-viewer/">
 <link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/">
 <link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/">
@@ -61,16 +61,18 @@
 <style>
   :root {
     color-scheme: light;
-    --surface-1:      #fcfcfb;
-    --page:           #f9f9f7;
-    --text-primary:   #0b0b0b;
-    --text-secondary: #52514e;
-    --text-muted:     #898781;
-    --grid:           #e1e0d9;
-    --baseline:       #c3c2b7;
-    --border:         rgba(11,11,11,0.10);
-    --series-1:       #2a78d6;
-    --success:        #006300;
+    /* Blueprint / cyanotype: technical-drawing ink on drafting paper. */
+    --surface-1:      #ffffff;
+    --page:           #f1f5f8;
+    --text-primary:   #12202e;
+    --text-secondary: #48586a;
+    --text-muted:     #8494a3;
+    --grid:           rgba(18,50,74,0.10);
+    --grid-faint:     rgba(18,50,74,0.05);
+    --border:         rgba(18,50,74,0.16);
+    --series-1:       #14608f;
+    --success:        #1f7a4d;
+    --critical:       #a8442a;
 
     --cat-1: #2a78d6;
     --cat-2: #008300;
@@ -84,16 +86,17 @@
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
       color-scheme: dark;
-      --surface-1:      #1a1a19;
-      --page:           #0d0d0d;
-      --text-primary:   #ffffff;
-      --text-secondary: #c3c2b7;
-      --text-muted:     #898781;
-      --grid:           #2c2c2a;
-      --baseline:       #383835;
-      --border:         rgba(255,255,255,0.10);
-      --series-1:       #3987e5;
-      --success:        #0ca30c;
+      --surface-1:      #12283b;
+      --page:           #0b1a26;
+      --text-primary:   #e7f0f7;
+      --text-secondary: #a9bdcc;
+      --text-muted:     #6d8496;
+      --grid:           rgba(180,210,230,0.12);
+      --grid-faint:     rgba(180,210,230,0.05);
+      --border:         rgba(180,210,230,0.18);
+      --series-1:       #5fc1ea;
+      --success:        #4fbd85;
+      --critical:       #e2775a;
 
       --cat-1: #3987e5;
       --cat-2: #008300;
@@ -107,16 +110,17 @@
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --surface-1:      #1a1a19;
-    --page:           #0d0d0d;
-    --text-primary:   #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted:     #898781;
-    --grid:           #2c2c2a;
-    --baseline:       #383835;
-    --border:         rgba(255,255,255,0.10);
-    --series-1:       #3987e5;
-    --success:        #0ca30c;
+    --surface-1:      #12283b;
+    --page:           #0b1a26;
+    --text-primary:   #e7f0f7;
+    --text-secondary: #a9bdcc;
+    --text-muted:     #6d8496;
+    --grid:           rgba(180,210,230,0.12);
+    --grid-faint:     rgba(180,210,230,0.05);
+    --border:         rgba(180,210,230,0.18);
+    --series-1:       #5fc1ea;
+    --success:        #4fbd85;
+    --critical:       #e2775a;
 
     --cat-1: #3987e5;
     --cat-2: #008300;
@@ -131,7 +135,11 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--page);
+    background-color: var(--page);
+    background-image:
+      linear-gradient(var(--grid-faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-faint) 1px, transparent 1px);
+    background-size: 28px 28px;
     color: var(--text-primary);
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     line-height: 1.5;
@@ -185,7 +193,7 @@
     color: var(--text-muted);
     text-decoration: none;
     padding: 4px 6px;
-    border-radius: 6px;
+    border-radius: 3px;
   }
   .lang-switch a:hover { color: var(--text-primary); background: var(--surface-1); }
   .lang-switch a[aria-current="true"] {
@@ -197,19 +205,19 @@
     border: 1px solid var(--border);
     background: var(--surface-1);
     color: var(--text-secondary);
-    border-radius: 8px;
+    border-radius: 4px;
     width: 36px;
     height: 36px;
     font-size: 16px;
     cursor: pointer;
     flex: none;
   }
-  .theme-toggle:hover { color: var(--text-primary); }
+  .theme-toggle:hover { color: var(--text-primary); border-color: var(--series-1); }
 
   .card {
     background: var(--surface-1);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 16px;
   }
   .input-card { margin-bottom: 16px; }
@@ -223,7 +231,7 @@
     min-width: 0;
     background: var(--page);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 10px 12px;
     font-size: 14px;
     color: var(--text-primary);
@@ -237,7 +245,7 @@
     border: 1px solid var(--border);
     background: var(--page);
     color: var(--text-primary);
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 10px 14px;
     font-size: 14px;
     cursor: pointer;
@@ -281,12 +289,14 @@
   .stat-tile {
     background: var(--surface-1);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
+    border-top: 2px solid var(--series-1);
+    border-radius: 4px;
+    padding: 13px 16px 14px;
   }
   .stat-tile .val {
     font-size: 24px;
     font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-variant-numeric: tabular-nums;
   }
   .stat-tile .lbl {
@@ -296,12 +306,23 @@
   }
 
   .section-title {
-    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
     font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color: var(--text-secondary);
     margin: 0 0 12px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+  }
+  .section-title::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--series-1);
+    flex: none;
   }
 
   .nested-toggle {
@@ -309,7 +330,7 @@
     background: transparent;
     border: 1px dashed var(--border);
     color: var(--text-secondary);
-    border-radius: 6px;
+    border-radius: 3px;
     padding: 3px 8px;
     font-size: 11px;
     cursor: pointer;
@@ -340,6 +361,11 @@
     margin-bottom: 12px;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .table-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .table-wrap { overflow-x: auto; }
   table {
@@ -399,7 +425,7 @@
     word-break: break-all;
     background: var(--page);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 3px;
     padding: 6px 8px;
     font-size: 12px;
   }
@@ -419,13 +445,71 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text-muted);
-    border-radius: 6px;
+    border-radius: 3px;
     padding: 4px 8px;
     font-size: 11px;
     cursor: pointer;
   }
   .copy-btn:hover { color: var(--text-primary); border-color: var(--series-1); }
   .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+  .edit-input {
+    width: 100%;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--text-primary);
+  }
+  .edit-input:focus {
+    outline: 2px solid var(--series-1);
+    outline-offset: -1px;
+  }
+  .edit-key { font-weight: 600; }
+  .row-remove-btn { color: var(--critical); }
+  .row-remove-btn:hover { border-color: var(--critical); }
+  .add-row-cell { padding-top: 10px !important; }
+
+  .full-url-card { margin-bottom: 16px; }
+  .full-url-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .full-url-row:first-of-type { margin-top: 0; }
+  .full-url-row input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--text-primary);
+  }
+  .full-url-row input[type="text"]:focus {
+    outline: 2px solid var(--series-1);
+    outline-offset: -1px;
+  }
+  .full-url-row input[readonly] { color: var(--text-secondary); }
+
+  .compare-card { margin-bottom: 16px; }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    border-radius: 4px;
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .status-same { color: var(--success); border-color: var(--success); }
+  .status-diff { color: var(--critical); border-color: var(--critical); }
+  .status-only { color: var(--text-muted); }
 
   footer {
     text-align: center;
@@ -446,7 +530,7 @@
 <div class="app">
   <header>
     <div class="brand">
-      <svg class="app-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="16" height="16" rx="3.5" fill="#2a78d6"/><rect x="6" y="1" width="1" height="1" fill="#ffffff"/><rect x="3" y="2" width="1" height="1" fill="#ffffff"/><rect x="4" y="2" width="1" height="1" fill="#ffffff"/><rect x="5" y="2" width="1" height="1" fill="#ffffff"/><rect x="6" y="2" width="1" height="1" fill="#ffffff"/><rect x="7" y="2" width="1" height="1" fill="#ffffff"/><rect x="8" y="2" width="1" height="1" fill="#ffffff"/><rect x="9" y="2" width="1" height="1" fill="#ffffff"/><rect x="2" y="3" width="1" height="1" fill="#ffffff"/><rect x="3" y="3" width="1" height="1" fill="#ffffff"/><rect x="4" y="3" width="1" height="1" fill="#ffffff"/><rect x="8" y="3" width="1" height="1" fill="#ffffff"/><rect x="9" y="3" width="1" height="1" fill="#ffffff"/><rect x="10" y="3" width="1" height="1" fill="#ffffff"/><rect x="2" y="4" width="1" height="1" fill="#ffffff"/><rect x="3" y="4" width="1" height="1" fill="#ffffff"/><rect x="9" y="4" width="1" height="1" fill="#ffffff"/><rect x="10" y="4" width="1" height="1" fill="#ffffff"/><rect x="2" y="5" width="1" height="1" fill="#ffffff"/><rect x="10" y="5" width="1" height="1" fill="#ffffff"/><rect x="1" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="6" width="1" height="1" fill="#ffffff"/><rect x="10" y="6" width="1" height="1" fill="#ffffff"/><rect x="11" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="7" width="1" height="1" fill="#ffffff"/><rect x="10" y="7" width="1" height="1" fill="#ffffff"/><rect x="2" y="8" width="1" height="1" fill="#ffffff"/><rect x="3" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#ffffff"/><rect x="10" y="8" width="1" height="1" fill="#ffffff"/><rect x="2" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="9" width="1" height="1" fill="#ffffff"/><rect x="4" y="9" width="1" height="1" fill="#ffffff"/><rect x="8" y="9" width="1" height="1" fill="#ffffff"/><rect x="9" y="9" width="1" height="1" fill="#ffffff"/><rect x="10" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="10" width="1" height="1" fill="#ffffff"/><rect x="4" y="10" width="1" height="1" fill="#ffffff"/><rect x="5" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="10" width="1" height="1" fill="#ffffff"/><rect x="8" y="10" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="10" y="10" width="1" height="1" fill="#ffffff"/><rect x="11" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="11" width="1" height="1" fill="#ffffff"/><rect x="10" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="11" width="1" height="1" fill="#ffffff"/><rect x="12" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="12" width="1" height="1" fill="#ffffff"/><rect x="13" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="13" width="1" height="1" fill="#ffffff"/><rect x="14" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="14" width="1" height="1" fill="#ffffff"/><rect x="15" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="15" width="1" height="1" fill="#ffffff"/><rect x="15" y="15" width="1" height="1" fill="#ffffff"/></svg>
+      <svg class="app-icon" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="16" height="16" rx="3.5" fill="#14608f"/><rect x="6" y="1" width="1" height="1" fill="#ffffff"/><rect x="3" y="2" width="1" height="1" fill="#ffffff"/><rect x="4" y="2" width="1" height="1" fill="#ffffff"/><rect x="5" y="2" width="1" height="1" fill="#ffffff"/><rect x="6" y="2" width="1" height="1" fill="#ffffff"/><rect x="7" y="2" width="1" height="1" fill="#ffffff"/><rect x="8" y="2" width="1" height="1" fill="#ffffff"/><rect x="9" y="2" width="1" height="1" fill="#ffffff"/><rect x="2" y="3" width="1" height="1" fill="#ffffff"/><rect x="3" y="3" width="1" height="1" fill="#ffffff"/><rect x="4" y="3" width="1" height="1" fill="#ffffff"/><rect x="8" y="3" width="1" height="1" fill="#ffffff"/><rect x="9" y="3" width="1" height="1" fill="#ffffff"/><rect x="10" y="3" width="1" height="1" fill="#ffffff"/><rect x="2" y="4" width="1" height="1" fill="#ffffff"/><rect x="3" y="4" width="1" height="1" fill="#ffffff"/><rect x="9" y="4" width="1" height="1" fill="#ffffff"/><rect x="10" y="4" width="1" height="1" fill="#ffffff"/><rect x="2" y="5" width="1" height="1" fill="#ffffff"/><rect x="10" y="5" width="1" height="1" fill="#ffffff"/><rect x="1" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="6" width="1" height="1" fill="#ffffff"/><rect x="10" y="6" width="1" height="1" fill="#ffffff"/><rect x="11" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="7" width="1" height="1" fill="#ffffff"/><rect x="10" y="7" width="1" height="1" fill="#ffffff"/><rect x="2" y="8" width="1" height="1" fill="#ffffff"/><rect x="3" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#ffffff"/><rect x="10" y="8" width="1" height="1" fill="#ffffff"/><rect x="2" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="9" width="1" height="1" fill="#ffffff"/><rect x="4" y="9" width="1" height="1" fill="#ffffff"/><rect x="8" y="9" width="1" height="1" fill="#ffffff"/><rect x="9" y="9" width="1" height="1" fill="#ffffff"/><rect x="10" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="10" width="1" height="1" fill="#ffffff"/><rect x="4" y="10" width="1" height="1" fill="#ffffff"/><rect x="5" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="10" width="1" height="1" fill="#ffffff"/><rect x="8" y="10" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="10" y="10" width="1" height="1" fill="#ffffff"/><rect x="11" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="11" width="1" height="1" fill="#ffffff"/><rect x="10" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="11" width="1" height="1" fill="#ffffff"/><rect x="12" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="12" width="1" height="1" fill="#ffffff"/><rect x="13" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="13" width="1" height="1" fill="#ffffff"/><rect x="14" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="14" width="1" height="1" fill="#ffffff"/><rect x="15" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="15" width="1" height="1" fill="#ffffff"/><rect x="15" y="15" width="1" height="1" fill="#ffffff"/></svg>
       <div>
         <h1>Query Params Viewer</h1>
         <p class="tag" id="tagline">拆解 URL 中的 query params，支持嵌套参数自动展开</p>
@@ -471,8 +555,31 @@
         <button class="btn btn-primary" id="parseBtn" type="button">解析</button>
         <button class="btn" id="exampleBtn" type="button">示例</button>
         <button class="btn" id="clearBtn" type="button">清空</button>
+        <button class="btn" id="compareToggleBtn" type="button">对比模式</button>
       </div>
       <p class="hint" id="hintText">支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。</p>
+    </section>
+
+    <section class="card compare-card" id="compareCard" hidden>
+      <h2 class="section-title" id="compareHeadingText" style="margin:0 0 12px;">对比两个 URL</h2>
+      <div class="input-row">
+        <input type="text" id="compareInputA" placeholder="URL A" autocomplete="off" spellcheck="false">
+        <input type="text" id="compareInputB" placeholder="URL B" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary" id="compareBtn" type="button">对比</button>
+      </div>
+      <div class="table-wrap">
+        <table id="compareTable" hidden>
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>A</th>
+              <th>B</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="compareTableBody"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="empty-state">
@@ -483,10 +590,24 @@
     <section id="results" hidden>
       <div class="stats" id="stats"></div>
 
+      <section class="card full-url-card" id="fullUrlCard" hidden>
+        <h2 class="section-title" id="fullUrlHeadingText" style="margin:0 0 8px;">完整 URL</h2>
+        <div class="full-url-row">
+          <input type="text" id="baseUrlInput" placeholder="Base URL（域名 + 路径）" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="full-url-row">
+          <input type="text" id="fullUrlOutput" readonly>
+          <button class="btn btn-ghost" id="copyFullUrlBtn" type="button">复制</button>
+        </div>
+      </section>
+
       <section class="card">
         <div class="table-card-header">
           <h2 class="section-title" id="tableTitleText" style="margin:0;">参数明细</h2>
-          <button class="btn btn-ghost" id="copyJsonBtn" type="button">复制为 JSON</button>
+          <div class="table-actions">
+            <button class="btn btn-ghost" id="editModeBtn" type="button">编辑参数</button>
+            <button class="btn btn-ghost" id="copyJsonBtn" type="button">复制为 JSON</button>
+          </div>
         </div>
         <div class="table-wrap">
           <table>
@@ -518,7 +639,11 @@
   var MAX_NEST_DEPTH = 3;
   var nestedIdCounter = 0;
 
-  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
+  function track(name, params) {
+    if (typeof gtag === "function") gtag("event", name, params || {});
+  }
+
+  var I18N_ALL = {"zh":{"htmlLang":"zh-CN","ogLocale":"zh_CN","title":"Query Params Viewer — 在线 URL Query Params 拆解工具","description":"免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。","ogDescription":"粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。","keywords":"query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer","jsonldDescription":"拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。","tagline":"拆解 URL 中的 query params，支持嵌套参数自动展开","inputPlaceholder":"粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2","btnParse":"解析","btnExample":"示例","btnClear":"清空","hintHtml":"支持完整 URL、hash 路由（如 <code>#/path?a=1</code>）或裸 query string（如 <code>a=1&amp;b=2</code>）；回车即可解析。","emptyText":"还没有解析任何 URL。粘贴一个链接，或点击\"示例\"看看效果。","themeToggleLabel":"切换主题","statTotal":"参数总数","statUnique":"唯一 Key","statDup":"重复 Key","statJson":"JSON 值","tableTitle":"参数明细","copyJsonBtn":"复制为 JSON","copy":"复制","copied":"已复制","copiedJson":"已复制 JSON","valEmpty":"(空)","nestedExpand":"展开嵌套参数 ({n})","nestedCollapse":"收起嵌套参数","editParams":"编辑参数","doneEditing":"完成编辑","addParam":"添加参数","fullUrlHeading":"完整 URL","baseUrlPlaceholder":"Base URL（域名 + 路径）","compareToggle":"对比模式","compareToggleClose":"收起对比","compareHeading":"对比两个 URL","compareBtn":"对比","statusSame":"相同","statusDiff":"不同","statusOnlyA":"仅 A 有","statusOnlyB":"仅 B 有","footer":"单文件 · 纯前端 · 无依赖 — 可直接部署到 GitHub Pages"},"en":{"htmlLang":"en","ogLocale":"en_US","title":"Query Params Viewer — Parse URL Query Strings","description":"Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.","ogDescription":"Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.","keywords":"query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params","jsonldDescription":"Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.","tagline":"Break down URL query params — nested encoded params expand automatically","inputPlaceholder":"Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2","btnParse":"Parse","btnExample":"Example","btnClear":"Clear","hintHtml":"Supports full URLs, hash routes (e.g. <code>#/path?a=1</code>), or bare query strings (e.g. <code>a=1&amp;b=2</code>). Press Enter to parse.","emptyText":"No URL parsed yet. Paste a link, or click \"Example\" to see it in action.","themeToggleLabel":"Toggle theme","statTotal":"Total Params","statUnique":"Unique Keys","statDup":"Duplicate Keys","statJson":"JSON Values","tableTitle":"Parameter Details","copyJsonBtn":"Copy as JSON","copy":"Copy","copied":"Copied","copiedJson":"Copied JSON","valEmpty":"(empty)","nestedExpand":"Expand nested params ({n})","nestedCollapse":"Collapse nested params","editParams":"Edit Params","doneEditing":"Done","addParam":"Add Param","fullUrlHeading":"Full URL","baseUrlPlaceholder":"Base URL (domain + path)","compareToggle":"Compare","compareToggleClose":"Hide Compare","compareHeading":"Compare Two URLs","compareBtn":"Compare","statusSame":"Same","statusDiff":"Different","statusOnlyA":"Only in A","statusOnlyB":"Only in B","footer":"Single file · Pure frontend · No dependencies — deploy directly to GitHub Pages"},"ja":{"htmlLang":"ja","ogLocale":"ja_JP","title":"Query Params Viewer — URLクエリパラメータの解析ツール","description":"無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。","ogDescription":"任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。","keywords":"query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析","jsonldDescription":"URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。","tagline":"URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開","inputPlaceholder":"完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）","btnParse":"解析","btnExample":"サンプル","btnClear":"クリア","hintHtml":"完全な URL、ハッシュルーティング（例: <code>#/path?a=1</code>）、裸のクエリ文字列（例: <code>a=1&amp;b=2</code>）に対応。Enter キーで解析します。","emptyText":"まだ URL が解析されていません。リンクを貼り付けるか、「サンプル」をクリックしてください。","themeToggleLabel":"テーマ切替","statTotal":"パラメータ総数","statUnique":"ユニーク Key","statDup":"重複 Key","statJson":"JSON 値","tableTitle":"パラメータ詳細","copyJsonBtn":"JSON としてコピー","copy":"コピー","copied":"コピーしました","copiedJson":"JSON をコピーしました","valEmpty":"(空)","nestedExpand":"ネストされたパラメータを展開 ({n})","nestedCollapse":"折りたたむ","editParams":"パラメータを編集","doneEditing":"完了","addParam":"パラメータを追加","fullUrlHeading":"完全な URL","baseUrlPlaceholder":"ベース URL（ドメイン + パス）","compareToggle":"比較","compareToggleClose":"比較を閉じる","compareHeading":"2つの URL を比較","compareBtn":"比較","statusSame":"同じ","statusDiff":"異なる","statusOnlyA":"A のみ","statusOnlyB":"B のみ","footer":"単一ファイル・純粋なフロントエンド・依存関係なし — GitHub Pages に直接デプロイ可能"}};
   var CANONICALS = {"zh":"https://app.lideguang.com/query-params-viewer/","en":"https://app.lideguang.com/query-params-viewer/en/","ja":"https://app.lideguang.com/query-params-viewer/ja/"};
   var currentLang = "zh";
 
@@ -541,21 +666,50 @@
   var tableBody = document.getElementById("tableBody");
   var copyJsonBtn = document.getElementById("copyJsonBtn");
   var themeToggle = document.getElementById("themeToggle");
+  var editModeBtn = document.getElementById("editModeBtn");
+  var fullUrlCard = document.getElementById("fullUrlCard");
+  var fullUrlHeadingEl = document.getElementById("fullUrlHeadingText");
+  var baseUrlInput = document.getElementById("baseUrlInput");
+  var fullUrlOutput = document.getElementById("fullUrlOutput");
+  var copyFullUrlBtn = document.getElementById("copyFullUrlBtn");
+  var compareToggleBtn = document.getElementById("compareToggleBtn");
+  var compareCard = document.getElementById("compareCard");
+  var compareHeadingEl = document.getElementById("compareHeadingText");
+  var compareInputA = document.getElementById("compareInputA");
+  var compareInputB = document.getElementById("compareInputB");
+  var compareBtn = document.getElementById("compareBtn");
+  var compareTable = document.getElementById("compareTable");
+  var compareTableBody = document.getElementById("compareTableBody");
 
   var EXAMPLE_URL = 'https://example.com/search?q=claude+code&category=dev&tags=ai&tags=cli&page=2&sort=desc&debug=true&user={"id":123,"name":"Ada"}&empty=&redirect=https%3A%2F%2Fapp.example.com%2Fcallback%3Ftoken%3Dabc123%26next%3D%2Fdashboard&filter=status%3Dactive%26owner%3Dme';
 
   var currentEntries = [];
+  var currentBase = "";
+  var currentStyle = "none";
+  var currentFragment = "";
 
-  function extractQueryString(raw) {
+  var editMode = false;
+  var editEntries = [];
+
+  // Splits a full URL / hash route / bare query string into its base and
+  // query parts, mirroring the three input shapes this tool accepts, so the
+  // parts can be re-joined later (editor mode) without losing the original
+  // shape.
+  function splitBaseAndQuery(raw) {
     var s = raw.trim();
-    if (!s) return "";
+    if (!s) return { base: "", query: "", fragment: "", style: "none" };
 
     var hashIdx = s.indexOf("#");
     if (hashIdx !== -1) {
       var hashPart = s.slice(hashIdx + 1);
       var hQ = hashPart.indexOf("?");
       if (hQ !== -1) {
-        return hashPart.slice(hQ + 1);
+        return {
+          base: s.slice(0, hashIdx + 1) + hashPart.slice(0, hQ),
+          query: hashPart.slice(hQ + 1),
+          fragment: "",
+          style: "hash"
+        };
       }
     }
 
@@ -563,20 +717,26 @@
     if (qIdx !== -1) {
       var afterQ = s.slice(qIdx + 1);
       var hIdx2 = afterQ.indexOf("#");
-      return hIdx2 !== -1 ? afterQ.slice(0, hIdx2) : afterQ;
+      return {
+        base: s.slice(0, qIdx),
+        query: hIdx2 !== -1 ? afterQ.slice(0, hIdx2) : afterQ,
+        fragment: hIdx2 !== -1 ? afterQ.slice(hIdx2) : "",
+        style: "query"
+      };
     }
 
-    if (s.indexOf("=") !== -1) return s;
-    return "";
+    if (s.indexOf("=") !== -1) {
+      return { base: "", query: s, fragment: "", style: "bare" };
+    }
+
+    return { base: s, query: "", fragment: "", style: "none" };
   }
 
-  function parseQueryStringEntries(qs) {
-    if (!qs) return [];
-    var params = new URLSearchParams(qs);
-    var entries = [];
-    params.forEach(function (value, key) {
-      entries.push({ key: key, value: value });
-    });
+  function extractQueryString(raw) {
+    return splitBaseAndQuery(raw).query;
+  }
+
+  function annotateOccurrences(entries) {
     var counts = Object.create(null);
     entries.forEach(function (e) { counts[e.key] = (counts[e.key] || 0) + 1; });
     var running = Object.create(null);
@@ -588,8 +748,27 @@
     return entries;
   }
 
+  function parseQueryStringEntries(qs) {
+    if (!qs) return [];
+    var params = new URLSearchParams(qs);
+    var entries = [];
+    params.forEach(function (value, key) {
+      entries.push({ key: key, value: value });
+    });
+    return annotateOccurrences(entries);
+  }
+
   function parseEntries(raw) {
     return parseQueryStringEntries(extractQueryString(raw));
+  }
+
+  function buildFullUrl(base, style, fragment, entries) {
+    var params = new URLSearchParams();
+    entries.forEach(function (e) { params.append(e.key, e.value); });
+    var qs = params.toString();
+    if (!base && style === "bare") return qs;
+    if (!qs) return base + fragment;
+    return base + "?" + qs + fragment;
   }
 
   function detectType(value) {
@@ -659,6 +838,7 @@
     }
     emptyState.hidden = true;
     results.hidden = false;
+    fullUrlCard.hidden = !editMode;
 
     var uniqueKeys = [];
     entries.forEach(function (e) {
@@ -678,7 +858,11 @@
       json: jsonCount
     });
 
-    tableBody.innerHTML = buildRowsHtml(entries, 0);
+    if (editMode) {
+      renderEditTable();
+    } else {
+      tableBody.innerHTML = buildRowsHtml(entries, 0);
+    }
   }
 
   function renderStats(s) {
@@ -751,6 +935,64 @@
     }).join("");
   }
 
+  // --- editor mode: turn the table into editable rows + a live full-URL preview ---
+
+  function renderEditTable() {
+    var rowsHtml = editEntries.map(function (e, i) {
+      return (
+        '<tr data-row-index="' + i + '">' +
+          '<td><input type="text" class="edit-input edit-key" data-field="key" value="' + escapeHtml(e.key) + '"></td>' +
+          '<td><input type="text" class="edit-input edit-value" data-field="value" value="' + escapeHtml(e.value) + '"></td>' +
+          '<td><span class="type-badge">' + detectType(e.value) + '</span></td>' +
+          '<td class="copy-cell"><button class="copy-btn row-remove-btn" type="button" data-remove-row="' + i + '">✕</button></td>' +
+        '</tr>'
+      );
+    }).join("");
+
+    rowsHtml += '<tr><td class="add-row-cell" colspan="4"><button class="btn btn-ghost" type="button" id="addRowBtn">+ ' + escapeHtml(t("addParam")) + '</button></td></tr>';
+    tableBody.innerHTML = rowsHtml;
+  }
+
+  function updateFullUrlPreview() {
+    var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
+    fullUrlOutput.value = buildFullUrl(baseUrlInput.value.trim(), currentStyle, currentFragment, cleaned);
+  }
+
+  function enterEditMode() {
+    if (!currentEntries.length) return;
+    editMode = true;
+    editEntries = currentEntries.map(function (e) { return { key: e.key, value: e.value }; });
+    baseUrlInput.value = currentBase;
+    fullUrlCard.hidden = false;
+    editModeBtn.textContent = t("doneEditing");
+    track("edit_mode_enter");
+    renderEditTable();
+    updateFullUrlPreview();
+  }
+
+  function exitEditMode() {
+    editMode = false;
+    fullUrlCard.hidden = true;
+    editModeBtn.textContent = t("editParams");
+    var cleaned = editEntries.filter(function (e) { return e.key !== ""; });
+    currentBase = baseUrlInput.value.trim();
+    urlInput.value = buildFullUrl(currentBase, currentStyle, currentFragment, cleaned);
+    track("edit_mode_exit", { param_count: cleaned.length });
+    render(annotateOccurrences(cleaned));
+  }
+
+  editModeBtn.addEventListener("click", function () {
+    if (editMode) exitEditMode();
+    else enterEditMode();
+  });
+
+  baseUrlInput.addEventListener("input", updateFullUrlPreview);
+
+  copyFullUrlBtn.addEventListener("click", function () {
+    track("copy_full_url");
+    copyToClipboard(fullUrlOutput.value).then(function () { flashCopied(copyFullUrlBtn); });
+  });
+
   function fallbackCopy(text) {
     var ta = document.createElement("textarea");
     ta.value = text;
@@ -785,9 +1027,11 @@
   tableBody.addEventListener("click", function (ev) {
     var copyBtn = ev.target.closest("[data-copy-value]");
     if (copyBtn) {
+      track("copy_value");
       copyToClipboard(copyBtn.getAttribute("data-copy-value")).then(function () { flashCopied(copyBtn); });
       return;
     }
+
     var toggleBtn = ev.target.closest("[data-toggle-nested]");
     if (toggleBtn) {
       var block = document.getElementById(toggleBtn.getAttribute("data-toggle-nested"));
@@ -795,15 +1039,50 @@
       var willShow = block.hidden;
       block.hidden = !willShow;
       if (willShow) {
+        track("expand_nested");
         toggleBtn.textContent = t("nestedCollapse");
       } else {
         var n = block.querySelectorAll(":scope > table > tbody > tr").length;
         toggleBtn.textContent = t("nestedExpand").replace("{n}", n);
       }
+      return;
+    }
+
+    var removeBtn = ev.target.closest("[data-remove-row]");
+    if (removeBtn) {
+      var idx = Number(removeBtn.getAttribute("data-remove-row"));
+      editEntries.splice(idx, 1);
+      track("edit_remove_param");
+      renderEditTable();
+      updateFullUrlPreview();
+      return;
+    }
+
+    if (ev.target.closest("#addRowBtn")) {
+      editEntries.push({ key: "", value: "" });
+      track("edit_add_param");
+      renderEditTable();
+      var rows = tableBody.querySelectorAll("tr[data-row-index]");
+      var last = rows[rows.length - 1];
+      if (last) last.querySelector(".edit-key").focus();
+    }
+  });
+
+  tableBody.addEventListener("input", function (ev) {
+    var input = ev.target.closest(".edit-input");
+    if (!input) return;
+    var tr = input.closest("tr[data-row-index]");
+    if (!tr) return;
+    var idx = Number(tr.getAttribute("data-row-index"));
+    var field = input.getAttribute("data-field");
+    if (editEntries[idx]) {
+      editEntries[idx][field] = input.value;
+      updateFullUrlPreview();
     }
   });
 
   copyJsonBtn.addEventListener("click", function () {
+    track("copy_json");
     var obj = {};
     currentEntries.forEach(function (e) {
       if (e.key in obj) {
@@ -819,7 +1098,15 @@
   });
 
   function doParse() {
-    render(parseEntries(urlInput.value));
+    editMode = false;
+    editModeBtn.textContent = t("editParams");
+    var parts = splitBaseAndQuery(urlInput.value);
+    currentBase = parts.base;
+    currentStyle = parts.style;
+    currentFragment = parts.fragment;
+    var entries = parseQueryStringEntries(parts.query);
+    track("parse_url", { param_count: entries.length });
+    render(entries);
   }
 
   parseBtn.addEventListener("click", doParse);
@@ -828,13 +1115,92 @@
   });
   exampleBtn.addEventListener("click", function () {
     urlInput.value = EXAMPLE_URL;
+    track("load_example");
     doParse();
   });
   clearBtn.addEventListener("click", function () {
     urlInput.value = "";
+    track("clear");
     render([]);
     urlInput.focus();
   });
+
+  // --- compare mode: diff the query params of two URLs ---
+
+  function groupByKey(entries) {
+    var map = Object.create(null);
+    entries.forEach(function (e) {
+      if (!map[e.key]) map[e.key] = [];
+      map[e.key].push(e.value);
+    });
+    return map;
+  }
+
+  function buildDiffRows(entriesA, entriesB) {
+    var mapA = groupByKey(entriesA);
+    var mapB = groupByKey(entriesB);
+    var keys = [];
+    entriesA.concat(entriesB).forEach(function (e) {
+      if (keys.indexOf(e.key) === -1) keys.push(e.key);
+    });
+
+    return keys.map(function (key) {
+      var valuesA = mapA[key] || [];
+      var valuesB = mapB[key] || [];
+      var status;
+      if (valuesA.length && !valuesB.length) status = "onlyA";
+      else if (valuesB.length && !valuesA.length) status = "onlyB";
+      else if (JSON.stringify(valuesA.slice().sort()) === JSON.stringify(valuesB.slice().sort())) status = "same";
+      else status = "diff";
+      return { key: key, valuesA: valuesA, valuesB: valuesB, status: status };
+    });
+  }
+
+  function renderValueList(values) {
+    if (!values.length) return '<span class="val-empty">—</span>';
+    return values.map(renderValueCell).join("<br>");
+  }
+
+  function renderCompare() {
+    var entriesA = parseEntries(compareInputA.value);
+    var entriesB = parseEntries(compareInputB.value);
+    var rows = buildDiffRows(entriesA, entriesB);
+
+    var statusMeta = {
+      same:  { icon: "✓", cls: "status-same", label: t("statusSame") },
+      diff:  { icon: "≠", cls: "status-diff", label: t("statusDiff") },
+      onlyA: { icon: "A",      cls: "status-only", label: t("statusOnlyA") },
+      onlyB: { icon: "B",      cls: "status-only", label: t("statusOnlyB") }
+    };
+
+    compareTableBody.innerHTML = rows.map(function (r) {
+      var meta = statusMeta[r.status];
+      return (
+        '<tr>' +
+          '<td class="key-cell">' + escapeHtml(r.key) + '</td>' +
+          '<td class="val-cell">' + renderValueList(r.valuesA) + '</td>' +
+          '<td class="val-cell">' + renderValueList(r.valuesB) + '</td>' +
+          '<td><span class="status-badge ' + meta.cls + '">' + meta.icon + ' ' + escapeHtml(meta.label) + '</span></td>' +
+        '</tr>'
+      );
+    }).join("");
+
+    compareTable.hidden = rows.length === 0;
+  }
+
+  compareToggleBtn.addEventListener("click", function () {
+    var willShow = compareCard.hidden;
+    compareCard.hidden = !willShow;
+    compareToggleBtn.textContent = willShow ? t("compareToggleClose") : t("compareToggle");
+    if (willShow) track("compare_toggle_open");
+  });
+
+  compareBtn.addEventListener("click", function () {
+    track("compare_run");
+    renderCompare();
+  });
+  compareInputA.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { track("compare_run"); renderCompare(); } });
+  compareInputB.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { track("compare_run"); renderCompare(); } });
 
   // theme toggle
   var THEME_KEY = "qpv-theme";
@@ -854,6 +1220,7 @@
     var effectiveDark = current ? current === "dark" : prefersDark;
     var next = effectiveDark ? "light" : "dark";
     applyTheme(next);
+    track("theme_toggle", { theme: next });
     try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
   });
 
@@ -897,12 +1264,27 @@
     themeToggle.title = dict.themeToggleLabel;
     themeToggle.setAttribute("aria-label", dict.themeToggleLabel);
 
+    editModeBtn.textContent = editMode ? dict.doneEditing : dict.editParams;
+    fullUrlHeadingEl.textContent = dict.fullUrlHeading;
+    baseUrlInput.placeholder = dict.baseUrlPlaceholder;
+    copyFullUrlBtn.textContent = dict.copy;
+
+    compareToggleBtn.textContent = compareCard.hidden ? dict.compareToggle : dict.compareToggleClose;
+    compareHeadingEl.textContent = dict.compareHeading;
+    compareBtn.textContent = dict.compareBtn;
+
     document.querySelectorAll(".lang-switch a").forEach(function (a) {
       if (a.getAttribute("data-lang") === lang) a.setAttribute("aria-current", "true");
       else a.removeAttribute("aria-current");
     });
 
-    if (currentEntries.length) render(currentEntries);
+    if (editMode) {
+      renderEditTable();
+      updateFullUrlPreview();
+    } else if (currentEntries.length) {
+      render(currentEntries);
+    }
+    if (!compareTable.hidden) renderCompare();
   }
 
   function detectLangFromPath() {
@@ -917,6 +1299,7 @@
       var lang = a.getAttribute("data-lang");
       if (!lang || lang === currentLang) { ev.preventDefault(); return; }
       ev.preventDefault();
+      track("lang_switch", { lang: lang });
       applyLangToDom(lang);
       history.pushState({ lang: lang }, "", a.getAttribute("href"));
     });

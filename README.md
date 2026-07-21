@@ -6,8 +6,11 @@
 - 支持完整 URL、hash 路由（`#/path?a=1`）、裸 query string（`a=1&b=2`）
 - 自动识别重复 key、JSON 值、空值等类型
 - 值本身如果是一个嵌套的 URL 或 encode 过的 query string（如 `redirect=https%3A%2F%2F...%3Ftoken%3Dabc`），可以展开查看内层 key/value（最多 3 层）
+- 编辑模式：table 变成可编辑表单（增删改 key/value），Base URL + 完整 URL 实时预览并可一键复制
+- 对比模式：粘贴两个 URL，按 key 生成相同 / 不同 / 仅 A 有 / 仅 B 有的 diff 表
 - 支持亮/暗主题切换
 - 中文 / EN / 日本語切换是渐进增强：无 JS 时是普通链接跳转到对应语言的静态页；有 JS 时原地替换文案、不刷新页面，已输入的 URL 和解析结果不会丢失
+- 关键交互（解析、复制、编辑、对比、语言/主题切换等）都打了 GA4 埋点
 
 ## 目录结构
 
