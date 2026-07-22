@@ -19,7 +19,11 @@ const { JSDOM } = require("jsdom");
 
 const ROOT = path.join(__dirname, "..");
 const SITE = "https://app.lideguang.com/query-params-viewer/";
-const PAGES = { zh: "index.html", en: "en/index.html", ja: "ja/index.html" };
+const i18n = require("./i18n.js");
+const PAGES = {};
+for (const lang of Object.keys(i18n)) {
+  PAGES[lang] = lang === "zh" ? "index.html" : lang + "/index.html";
+}
 
 let passed = 0;
 const failures = [];
@@ -89,11 +93,26 @@ async function testBuildOutput() {
     })());
   }
 
-  const i18n = require("./i18n.js");
   const keys = Object.keys(i18n.zh);
-  for (const lang of ["en", "ja"]) {
+  for (const lang of Object.keys(i18n).filter((l) => l !== "zh")) {
     const missing = keys.filter((k) => !(k in i18n[lang]));
     ok(`[build] i18n ${lang} has all ${keys.length} keys`, missing.length === 0, "missing: " + missing);
+
+    // Every language must be reachable from every page, and the sitemap and
+    // hreflang set must list it -- a new language whose links are only wired
+    // up on some pages is the failure mode this catches.
+    for (const [from, file] of Object.entries(PAGES)) {
+      const html = fs.readFileSync(path.join(ROOT, file), "utf8");
+      ok(`[build] ${from} page links to ${lang}`, html.includes('data-lang="' + lang + '"'));
+      ok(`[build] ${from} page declares hreflang="${i18n[lang].htmlLang}"`,
+        html.includes('hreflang="' + i18n[lang].htmlLang + '"'));
+    }
+  }
+
+  const sitemap = fs.readFileSync(path.join(ROOT, "sitemap.xml"), "utf8");
+  for (const lang of Object.keys(i18n)) {
+    const url = SITE + (lang === "zh" ? "" : lang + "/");
+    ok(`[build] sitemap lists ${lang}`, sitemap.includes("<loc>" + url + "</loc>"));
   }
 }
 
@@ -358,14 +377,49 @@ async function testLanguagePathsDoNotAccumulate() {
     eq(`[lang] ${url} -> zh href`, hrefOf("zh"), "/query-params-viewer/");
     eq(`[lang] ${url} -> ja href`, hrefOf("ja"), "/query-params-viewer/ja/");
 
-    for (const lang of ["ja", "en", "ja", "zh"]) {
+    const segments = Object.keys(PAGES).filter((l) => l !== "zh").join("|");
+    for (const lang of ["ja", "ru", "en", "hi", "de", "ja", "zh"]) {
       p.qs('.lang-switch a[data-lang="' + lang + '"]').dispatchEvent(
         new p.window.MouseEvent("click", { bubbles: true, cancelable: true })
       );
     }
     ok(`[lang] ${url}: path never accumulates after repeated switches`,
-      !/\/(en|ja)\/(en|ja)\//.test(p.window.location.pathname), p.window.location.pathname);
+      !new RegExp(`/(${segments})/(${segments})/`).test(p.window.location.pathname), p.window.location.pathname);
   }
+}
+
+async function testLanguageMenu() {
+  const p = load(SITE, PAGES.zh);
+  const menu = p.$("langMenu");
+
+  // The disclosure must start closed and be a real <details>, so the links
+  // still open and close without any script running.
+  eq("[langmenu] tag is <details>", menu.tagName.toLowerCase(), "details");
+  eq("[langmenu] starts closed", menu.open, false);
+  eq("[langmenu] summary shows the current language", p.$("langCurrentLabel").textContent, "中文");
+  eq("[langmenu] every language is listed", p.window.document.querySelectorAll(".lang-switch a").length,
+    Object.keys(PAGES).length);
+
+  // Picking a language closes the menu and relabels the summary.
+  menu.open = true;
+  p.click(p.qs('.lang-switch a[data-lang="ja"]'));
+  eq("[langmenu] closes after picking a language", menu.open, false);
+  eq("[langmenu] summary follows the switch", p.$("langCurrentLabel").textContent, "日本語");
+  eq("[langmenu] summary label is translated", p.$("langMenuSummary").getAttribute("aria-label"),
+    i18n.ja.langMenuLabel);
+
+  // Re-picking the current language is a no-op that must still dismiss it.
+  menu.open = true;
+  p.click(p.qs('.lang-switch a[data-lang="ja"]'));
+  eq("[langmenu] closes even when the pick is a no-op", menu.open, false);
+
+  menu.open = true;
+  p.click(p.$("urlInput"));
+  eq("[langmenu] an outside click dismisses it", menu.open, false);
+
+  menu.open = true;
+  p.window.document.dispatchEvent(new p.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  eq("[langmenu] Escape dismisses it", menu.open, false);
 }
 
 (async function main() {
@@ -381,6 +435,7 @@ async function testLanguagePathsDoNotAccumulate() {
     testThemeCycle,
     testCompareRowTinting,
     testLanguagePathsDoNotAccumulate,
+    testLanguageMenu,
     testResponsiveRules
   ];
 

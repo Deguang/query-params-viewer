@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 "use strict";
 
-// Generates index.html (zh), en/index.html, ja/index.html from
-// scripts/template.html + scripts/i18n.js. Run: node scripts/build.js
+// Generates one index.html per language (zh at the root, the rest under their
+// own directory) plus sitemap.xml, from scripts/template.html +
+// scripts/i18n.js. Run: node scripts/build.js
 // The output files are plain static HTML — no build step is needed to
-// serve them, this script only exists to keep the three language
-// variants in sync from one shared template.
+// serve them, this script only exists to keep the language variants in
+// sync from one shared template.
+//
+// Adding a language: add its dictionary to i18n.js and its code to LANGS
+// below. Everything else (directory, canonical, hreflang, sitemap, the
+// language switcher, and the client-side path handling) follows from that.
 
 const fs = require("fs");
 const path = require("path");
@@ -15,13 +20,23 @@ const SITE_BASE = "https://app.lideguang.com/query-params-viewer/";
 const i18n = require("./i18n.js");
 const template = fs.readFileSync(path.join(__dirname, "template.html"), "utf8");
 
-const PAGES = {
-  zh: { dir: "", canonical: SITE_BASE },
-  en: { dir: "en", canonical: SITE_BASE + "en/" },
-  ja: { dir: "ja", canonical: SITE_BASE + "ja/" }
-};
+// Order here is the order shown in the language switcher.
+const LANGS = ["zh", "en", "ja", "ru", "de", "hi"];
+// The default language lives at the site root, not in a subdirectory.
+const DEFAULT_LANG = "zh";
 
-const LANG_LABELS = { zh: "中文", en: "EN", ja: "日本語" };
+// Each language names itself, so a reader who cannot read the current page's
+// language can still find their own. The menu has room for the full names.
+const LANG_NAMES = { zh: "中文", en: "English", ja: "日本語", ru: "Русский", de: "Deutsch", hi: "हिन्दी" };
+
+function dirOf(lang) {
+  return lang === DEFAULT_LANG ? "" : lang;
+}
+
+function canonicalOf(lang) {
+  const dir = dirOf(lang);
+  return SITE_BASE + (dir ? dir + "/" : "");
+}
 
 function escapeAttr(str) {
   return String(str)
@@ -37,28 +52,72 @@ function replaceAll(str, token, value) {
 
 function relativeHref(fromLang, toLang) {
   if (fromLang === toLang) return "./";
-  return fromLang === "zh" ? PAGES[toLang].dir + "/" : "../" + (PAGES[toLang].dir ? PAGES[toLang].dir + "/" : "");
+  const toDir = dirOf(toLang);
+  if (fromLang === DEFAULT_LANG) return toDir + "/";
+  return "../" + (toDir ? toDir + "/" : "");
 }
 
+// A <details> disclosure, not a <select> or a scripted popover: it opens and
+// closes with no JS at all, so the language links stay usable and crawlable on
+// a page whose scripts never ran.
 function buildLangSwitch(currentLang) {
-  const langs = ["zh", "en", "ja"];
-  const links = langs.map(function (lang) {
+  const label = escapeAttr(i18n[currentLang].langMenuLabel);
+  const links = LANGS.map(function (lang) {
     const current = lang === currentLang ? ' aria-current="true"' : "";
-    return '<a href="' + relativeHref(currentLang, lang) + '" data-lang="' + lang + '"' + current + ">" + LANG_LABELS[lang] + "</a>";
+    return '<a href="' + relativeHref(currentLang, lang) + '" data-lang="' + lang + '"' + current + ">" + LANG_NAMES[lang] + "</a>";
   });
-  return '<nav class="lang-switch" aria-label="Language">\n        ' +
-    links.join('\n        <span class="sep">·</span>\n        ') +
-    "\n      </nav>";
+  return '<details class="lang-menu" id="langMenu">\n' +
+    '        <summary id="langMenuSummary" title="' + label + '" aria-label="' + label + '"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg><span id="langCurrentLabel">' + LANG_NAMES[currentLang] + '</span><svg class="icon caret" aria-hidden="true"><use href="#i-chevron"/></svg></summary>\n' +
+    '        <nav class="lang-switch" aria-label="Language">\n          ' +
+    links.join("\n          ") +
+    "\n        </nav>\n      </details>";
+}
+
+// Every page declares the full set of translations, so the block is identical
+// across pages (Google wants each variant to list itself too).
+function buildHreflangLinks() {
+  const links = LANGS.map(function (lang) {
+    return '<link rel="alternate" hreflang="' + i18n[lang].htmlLang + '" href="' + canonicalOf(lang) + '">';
+  });
+  links.push('<link rel="alternate" hreflang="x-default" href="' + canonicalOf(DEFAULT_LANG) + '">');
+  return links.join("\n");
+}
+
+function buildSitemap() {
+  const alternates = LANGS.map(function (lang) {
+    return '    <xhtml:link rel="alternate" hreflang="' + i18n[lang].htmlLang + '" href="' + canonicalOf(lang) + '"/>';
+  }).concat('    <xhtml:link rel="alternate" hreflang="x-default" href="' + canonicalOf(DEFAULT_LANG) + '"/>').join("\n");
+
+  const entries = LANGS.map(function (lang) {
+    return [
+      "  <url>",
+      "    <loc>" + canonicalOf(lang) + "</loc>",
+      "    <changefreq>monthly</changefreq>",
+      "    <priority>" + (lang === DEFAULT_LANG ? "1.0" : "0.8") + "</priority>",
+      alternates,
+      "  </url>"
+    ].join("\n");
+  }).join("\n");
+
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n' +
+    '        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' +
+    entries + "\n</urlset>\n";
 }
 
 const CANONICALS = {};
-for (const lang of Object.keys(PAGES)) {
-  CANONICALS[lang] = PAGES[lang].canonical;
+// Directory each language is served from, relative to the site base — the
+// client-side switcher builds its hrefs from this.
+const LANG_DIRS = {};
+for (const lang of LANGS) {
+  CANONICALS[lang] = canonicalOf(lang);
+  LANG_DIRS[lang] = dirOf(lang) ? dirOf(lang) + "/" : "";
 }
 
-for (const lang of Object.keys(PAGES)) {
+const HREFLANG_LINKS = buildHreflangLinks();
+
+for (const lang of LANGS) {
   const dict = i18n[lang];
-  const page = PAGES[lang];
   let html = template;
 
   const tokens = {
@@ -68,8 +127,9 @@ for (const lang of Object.keys(PAGES)) {
     __OG_DESCRIPTION__: escapeAttr(dict.ogDescription),
     __KEYWORDS__: escapeAttr(dict.keywords),
     __OG_LOCALE__: dict.ogLocale,
-    __CANONICAL__: page.canonical,
-    __CANONICAL_JSON__: JSON.stringify(page.canonical),
+    __HREFLANG_LINKS__: HREFLANG_LINKS,
+    __CANONICAL__: canonicalOf(lang),
+    __CANONICAL_JSON__: JSON.stringify(canonicalOf(lang)),
     __JSONLD_DESCRIPTION_JSON__: JSON.stringify(dict.jsonldDescription),
     __TAGLINE__: dict.tagline,
     __INPUT_PLACEHOLDER__: escapeAttr(dict.inputPlaceholder),
@@ -96,6 +156,9 @@ for (const lang of Object.keys(PAGES)) {
     __FOOTER__: dict.footer,
     __LANG_SWITCH__: buildLangSwitch(lang),
     __LANG__: JSON.stringify(lang),
+    __DEFAULT_LANG__: JSON.stringify(DEFAULT_LANG),
+    __LANG_DIRS_JSON__: JSON.stringify(LANG_DIRS),
+    __LANG_NAMES_JSON__: JSON.stringify(LANG_NAMES),
     __CANONICALS_JSON__: JSON.stringify(CANONICALS),
     __I18N_ALL_JSON__: JSON.stringify(i18n)
   };
@@ -109,9 +172,13 @@ for (const lang of Object.keys(PAGES)) {
     throw new Error("Unreplaced token " + leftover[0] + " in " + lang + " page");
   }
 
-  const outDir = path.join(ROOT, page.dir);
+  const outDir = path.join(ROOT, dirOf(lang));
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, "index.html");
   fs.writeFileSync(outFile, html);
   console.log("wrote", path.relative(ROOT, outFile));
 }
+
+const sitemapFile = path.join(ROOT, "sitemap.xml");
+fs.writeFileSync(sitemapFile, buildSitemap());
+console.log("wrote", path.relative(ROOT, sitemapFile));

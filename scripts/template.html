@@ -22,10 +22,7 @@
 <meta name="theme-color" content="#14608f" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b1a26" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="__CANONICAL__">
-<link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/">
-<link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/">
-<link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/">
-<link rel="alternate" hreflang="x-default" href="https://app.lideguang.com/query-params-viewer/">
+__HREFLANG_LINKS__
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="__TITLE__">
@@ -205,24 +202,60 @@
     gap: 10px;
     flex: none;
   }
-  .lang-switch {
-    display: flex;
+  /* A row of languages stopped fitting in the header once there were more than
+     three, so they live in a disclosure menu. <details> rather than a JS
+     widget: it opens and closes natively, which keeps the switcher usable —
+     and its links crawlable — with scripting off. */
+  .lang-menu {
+    position: relative;
+    flex: none;
+  }
+  .lang-menu > summary {
+    display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 6px;
+    height: 36px;
+    padding: 0 9px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none; /* Firefox */
+  }
+  .lang-menu > summary::-webkit-details-marker { display: none; }
+  .lang-menu > summary:hover { color: var(--text-primary); border-color: var(--series-1); }
+  .lang-menu > summary .caret { width: 12px; height: 12px; color: var(--text-muted); }
+  .lang-menu[open] > summary .caret { transform: rotate(180deg); }
+  .lang-switch {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    padding: 4px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px var(--grid);
     font-size: 13px;
   }
   .lang-switch a {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-decoration: none;
-    padding: 4px 6px;
+    padding: 7px 10px;
     border-radius: 3px;
+    white-space: nowrap;
   }
-  .lang-switch a:hover { color: var(--text-primary); background: var(--surface-1); }
+  .lang-switch a:hover { color: var(--text-primary); background: var(--page); }
   .lang-switch a[aria-current="true"] {
     color: var(--text-primary);
     font-weight: 600;
   }
-  .lang-switch .sep { color: var(--border); }
   .theme-toggle {
     display: inline-flex;
     align-items: center;
@@ -696,6 +729,12 @@
   <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
   </symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/>
+  </symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m6 9 6 6 6-6"/>
+  </symbol>
 </defs></svg>
 <div class="app">
   <header>
@@ -850,6 +889,9 @@
   var copyUrlBtn = document.getElementById("copyUrlBtn");
   var themeToggle = document.getElementById("themeToggle");
   var themeToggleIcon = document.getElementById("themeToggleIcon");
+  var langMenu = document.getElementById("langMenu");
+  var langMenuSummary = document.getElementById("langMenuSummary");
+  var langCurrentLabel = document.getElementById("langCurrentLabel");
   var editModeBtn = document.getElementById("editModeBtn");
   var editModeLabel = document.getElementById("editModeLabel");
   var fullUrlCard = document.getElementById("fullUrlCard");
@@ -1697,29 +1739,37 @@
     restoreShareHints(shareHintSnapshot);
   }
 
-  function detectLangFromPath() {
-    var path = window.location.pathname;
-    if (/\/en\/?(?:index\.html)?$/.test(path)) return "en";
-    if (/\/ja\/?(?:index\.html)?$/.test(path)) return "ja";
-    return "zh";
-  }
-
   // Root-relative (not "../"-chained) hrefs: BASE_PATH is resolved once by
-  // stripping any /en//ja/ segments from the current path, so repeated
+  // stripping any language segment from the current path, so repeated
   // client-side switches always target base+lang directly instead of
   // compounding onto whatever path pushState last landed on.
-  var LANG_DIR = { zh: "", en: "en/", ja: "ja/" };
+  var LANG_DIR = __LANG_DIRS_JSON__;
+  var LANG_NAMES = __LANG_NAMES_JSON__;
+  var DEFAULT_LANG = __DEFAULT_LANG__;
+
+  // The directory names of every non-default language ("en|ja|ru|..."), which
+  // is what a path may end in.
+  var LANG_SEGMENTS = Object.keys(LANG_DIR)
+    .filter(function (lang) { return LANG_DIR[lang]; })
+    .map(function (lang) { return LANG_DIR[lang].replace("/", ""); })
+    .join("|");
+
+  function detectLangFromPath() {
+    var m = new RegExp("/(" + LANG_SEGMENTS + ")/?(?:index\\.html)?$").exec(window.location.pathname);
+    return m ? m[1] : DEFAULT_LANG;
+  }
 
   // Drops a trailing index.html first (the file:// and "serve the file
-  // directly" cases), then strips whole /en//ja/ segments — anchored on a
+  // directly" cases), then strips whole language segments — anchored on a
   // leading slash so an unrelated path segment that merely ends in those
   // letters (/zen/, /ninja/) survives intact.
   function computeBasePath() {
+    var langSegment = new RegExp("/(?:" + LANG_SEGMENTS + ")/?$");
     var stripped = window.location.pathname.replace(/index\.html$/, "");
     var prev;
     do {
       prev = stripped;
-      stripped = stripped.replace(/\/(?:en|ja)\/?$/, "/");
+      stripped = stripped.replace(langSegment, "/");
     } while (stripped !== prev);
     if (stripped.slice(-1) !== "/") stripped += "/";
     return stripped;
@@ -1734,6 +1784,9 @@
   }
 
   function refreshLangHrefs(lang) {
+    langCurrentLabel.textContent = LANG_NAMES[lang];
+    langMenuSummary.title = I18N_ALL[lang].langMenuLabel;
+    langMenuSummary.setAttribute("aria-label", I18N_ALL[lang].langMenuLabel);
     document.querySelectorAll(".lang-switch a").forEach(function (a) {
       var linkLang = a.getAttribute("data-lang");
       if (linkLang) a.setAttribute("href", langHref(linkLang));
@@ -1747,6 +1800,9 @@
   document.querySelectorAll(".lang-switch a").forEach(function (a) {
     a.addEventListener("click", function (ev) {
       var lang = a.getAttribute("data-lang");
+      // Picking a language always dismisses the menu, including the no-op
+      // click on the current one — otherwise it stays open over the page.
+      langMenu.open = false;
       if (!lang || lang === currentLang) { ev.preventDefault(); return; }
       ev.preventDefault();
       track("lang_switch", { lang: lang });
@@ -1754,6 +1810,18 @@
       applyLangToDom(lang);
       history.pushState({ lang: lang }, "", href);
     });
+  });
+
+  // <details> closes on its own summary but not on anything else, so give the
+  // menu the dismissal behaviour people expect from a dropdown.
+  document.addEventListener("click", function (ev) {
+    if (langMenu.open && !langMenu.contains(ev.target)) langMenu.open = false;
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape" && langMenu.open) {
+      langMenu.open = false;
+      langMenuSummary.focus();
+    }
   });
 
   window.addEventListener("popstate", function (ev) {
