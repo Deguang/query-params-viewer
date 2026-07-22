@@ -15,15 +15,19 @@
 
 const fs = require("fs");
 const path = require("path");
-const { JSDOM } = require("jsdom");
+const { JSDOM, VirtualConsole } = require("jsdom");
 
 const ROOT = path.join(__dirname, "..");
-const SITE = "https://app.lideguang.com/query-params-viewer/";
 const i18n = require("./i18n.js");
+const langs = require("./langs.js");
+const SITE = langs.SITE_BASE;
+const DEFAULT_LANG = langs.DEFAULT_LANG;
 const PAGES = {};
-for (const lang of Object.keys(i18n)) {
-  PAGES[lang] = lang === "zh" ? "index.html" : lang + "/index.html";
+for (const lang of langs.LANGS) {
+  PAGES[lang] = langs.dirOf(lang) ? langs.dirOf(lang) + "/index.html" : "index.html";
 }
+// The page served from the root, whatever language that currently is.
+const ROOT_PAGE = PAGES[DEFAULT_LANG];
 
 let passed = 0;
 const failures = [];
@@ -44,14 +48,34 @@ const tick = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // jsdom has no CompressionStream, but the browsers this feature targets do,
 // so inject Node's implementations to exercise the compressed path.
-function load(pageUrl, file) {
+//
+// opts.languages pins navigator.languages, which the root page reads to pick
+// a language: it defaults to the root page's own language so that page stays
+// put, and the auto-selection tests override it. opts.seed runs against the
+// window before any page script, for priming storage.
+function load(pageUrl, file, opts) {
+  const options = opts || {};
   const html = fs.readFileSync(path.join(ROOT, file || "index.html"), "utf8");
   const clip = { text: "" };
   const pageErrors = [];
+  // The root page navigates when it decides to switch language; jsdom cannot
+  // follow that, and says so loudly. The decision is asserted through the
+  // data-lang-redirect attribute instead, so drop just that message.
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on("jsdomError", (e) => {
+    if (!/Not implemented: navigation/.test(e.message)) console.error(e.message);
+  });
   const dom = new JSDOM(html, {
     runScripts: "dangerously",
     url: pageUrl,
+    virtualConsole,
     beforeParse(w) {
+      // Default to the root page's own language, so a test that is not about
+      // language selection does not trip the redirect in <head>.
+      const languages = options.languages || [i18n[DEFAULT_LANG].htmlLang];
+      Object.defineProperty(w.navigator, "languages", { value: languages, configurable: true });
+      Object.defineProperty(w.navigator, "language", { value: languages[0], configurable: true });
+      if (options.seed) options.seed(w);
       w.gtag = function () {};
       w.CompressionStream = CompressionStream;
       w.DecompressionStream = DecompressionStream;
@@ -93,8 +117,8 @@ async function testBuildOutput() {
     })());
   }
 
-  const keys = Object.keys(i18n.zh);
-  for (const lang of Object.keys(i18n).filter((l) => l !== "zh")) {
+  const keys = Object.keys(i18n[DEFAULT_LANG]);
+  for (const lang of langs.LANGS.filter((l) => l !== DEFAULT_LANG)) {
     const missing = keys.filter((k) => !(k in i18n[lang]));
     ok(`[build] i18n ${lang} has all ${keys.length} keys`, missing.length === 0, "missing: " + missing);
 
@@ -110,9 +134,20 @@ async function testBuildOutput() {
   }
 
   const sitemap = fs.readFileSync(path.join(ROOT, "sitemap.xml"), "utf8");
-  for (const lang of Object.keys(i18n)) {
-    const url = SITE + (lang === "zh" ? "" : lang + "/");
-    ok(`[build] sitemap lists ${lang}`, sitemap.includes("<loc>" + url + "</loc>"));
+  for (const lang of langs.LANGS) {
+    ok(`[build] sitemap lists ${lang}`, sitemap.includes("<loc>" + langs.canonicalOf(lang) + "</loc>"));
+  }
+
+  // Old URLs of a language that has since moved to the root must keep
+  // resolving, and must point search engines at the new address rather than
+  // competing with it.
+  for (const [lang, dir] of Object.entries(langs.LEGACY_ALIASES)) {
+    if (langs.dirOf(lang) === dir) continue;
+    const stub = fs.readFileSync(path.join(ROOT, dir, "index.html"), "utf8");
+    const target = langs.canonicalOf(lang);
+    ok(`[build] /${dir}/ canonicals to ${target}`, stub.includes('<link rel="canonical" href="' + target + '">'));
+    ok(`[build] /${dir}/ redirects without scripting`, stub.includes('http-equiv="refresh"') && stub.includes('<a href="' + target + '"'));
+    ok(`[build] /${dir}/ is not in the sitemap`, !sitemap.includes("<loc>" + SITE + dir + "/</loc>"));
   }
 }
 
@@ -131,6 +166,27 @@ async function testShareRoundTripParse() {
   eq("[share] parse: input restored", b.$("urlInput").value, a.$("urlInput").value);
   eq("[share] parse: results shown", b.$("results").hidden, false);
   eq("[share] parse: stays in parse view", b.$("compareView").hidden, true);
+
+  // Sharing from a translated page must still produce a language-less link,
+  // so the recipient's own language decides how it renders. Building it from
+  // the current language instead is the obvious-looking mistake.
+  const ja = load(SITE + "ja/", PAGES.ja);
+  ja.$("urlInput").value = "https://example.com/s?q=hi";
+  ja.click(ja.$("parseBtn"));
+  ja.click(ja.$("shareBtn"));
+  await tick(150);
+  ok("[share] a link shared from /ja/ carries no language segment",
+    ja.clip.text.startsWith(SITE + "#"), ja.clip.text);
+
+  // Same after an in-page switch, which moves currentLang without reloading.
+  const sw = load(SITE);
+  sw.click(sw.qs('.lang-switch a[data-lang="de"]'));
+  sw.$("urlInput").value = "https://example.com/s?q=hi";
+  sw.click(sw.$("parseBtn"));
+  sw.click(sw.$("shareBtn"));
+  await tick(150);
+  ok("[share] switching language in place does not leak into the link",
+    sw.clip.text.startsWith(SITE + "#"), sw.clip.text);
 }
 
 async function testShareRoundTripCompare() {
@@ -203,11 +259,11 @@ async function testLengthHintTiers() {
 
   // A language switch re-renders the page, which clears the hint; it must be
   // captured beforehand and restored in the new language.
-  const zhText = hint.textContent;
-  p.qs('.lang-switch a[data-lang="en"]').dispatchEvent(new p.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+  const beforeText = hint.textContent;
+  p.qs('.lang-switch a[data-lang="ja"]').dispatchEvent(new p.window.MouseEvent("click", { bubbles: true, cancelable: true }));
   await tick(100);
   ok("[hint] warning survives a language switch", !p.$("shareLenHint").hidden);
-  ok("[hint] warning is re-translated", p.$("shareLenHint").textContent !== zhText && p.$("shareLenHint").textContent.length > 0);
+  ok("[hint] warning is re-translated", p.$("shareLenHint").textContent !== beforeText && p.$("shareLenHint").textContent.length > 0);
 }
 
 async function testQueryParamsAreNotShareKeys() {
@@ -369,16 +425,21 @@ async function testResponsiveRules() {
 async function testLanguagePathsDoNotAccumulate() {
   // Switching language repeatedly used to stack /en/ja/en/ onto the path.
   for (const [file, url] of [
-    [PAGES.en, SITE + "en/"],
-    [PAGES.en, SITE + "en/index.html"]
+    [PAGES.ja, SITE + "ja/"],
+    [PAGES.ja, SITE + "ja/index.html"],
+    // A hyphenated directory is the case where a sloppier segment pattern
+    // ("zh" matching the front of "zh-hant", say) would show up.
+    [PAGES["zh-hant"], SITE + "zh-hant/"],
+    [PAGES.zh, SITE + "zh/"]
   ]) {
     const p = load(url, file);
     const hrefOf = (lang) => p.qs('.lang-switch a[data-lang="' + lang + '"]').getAttribute("href");
-    eq(`[lang] ${url} -> zh href`, hrefOf("zh"), "/query-params-viewer/");
-    eq(`[lang] ${url} -> ja href`, hrefOf("ja"), "/query-params-viewer/ja/");
+    eq(`[lang] ${url} -> default href`, hrefOf(DEFAULT_LANG), "/query-params-viewer/");
+    eq(`[lang] ${url} -> zh href`, hrefOf("zh"), "/query-params-viewer/zh/");
+    eq(`[lang] ${url} -> zh-hant href`, hrefOf("zh-hant"), "/query-params-viewer/zh-hant/");
 
-    const segments = Object.keys(PAGES).filter((l) => l !== "zh").join("|");
-    for (const lang of ["ja", "ru", "en", "hi", "de", "ja", "zh"]) {
+    const segments = langs.LANGS.filter((l) => l !== DEFAULT_LANG).join("|");
+    for (const lang of ["ja", "ru", "zh-hant", "en", "hi", "de", "zh", "ja", "en"]) {
       p.qs('.lang-switch a[data-lang="' + lang + '"]').dispatchEvent(
         new p.window.MouseEvent("click", { bubbles: true, cancelable: true })
       );
@@ -389,14 +450,15 @@ async function testLanguagePathsDoNotAccumulate() {
 }
 
 async function testLanguageMenu() {
-  const p = load(SITE, PAGES.zh);
+  const p = load(SITE, ROOT_PAGE);
   const menu = p.$("langMenu");
 
   // The disclosure must start closed and be a real <details>, so the links
   // still open and close without any script running.
   eq("[langmenu] tag is <details>", menu.tagName.toLowerCase(), "details");
   eq("[langmenu] starts closed", menu.open, false);
-  eq("[langmenu] summary shows the current language", p.$("langCurrentLabel").textContent, "中文");
+  eq("[langmenu] summary shows the current language", p.$("langCurrentLabel").textContent,
+    langs.LANG_NAMES[DEFAULT_LANG]);
   eq("[langmenu] every language is listed", p.window.document.querySelectorAll(".lang-switch a").length,
     Object.keys(PAGES).length);
 
@@ -422,6 +484,61 @@ async function testLanguageMenu() {
   eq("[langmenu] Escape dismisses it", menu.open, false);
 }
 
+async function testAutoLanguageSelection() {
+  // The root page redirects a first-time visitor to their own language. jsdom
+  // cannot perform the navigation, so the decision is read off the attribute
+  // the page records immediately before calling location.replace.
+  const decision = (languages, url, seed) =>
+    load(url || SITE, ROOT_PAGE, { languages, seed }).window.document.documentElement
+      .getAttribute("data-lang-redirect");
+
+  eq("[auto] de-AT -> /de/", decision(["de-AT", "en-US"]), "/query-params-viewer/de/");
+  eq("[auto] ja -> /ja/", decision(["ja"]), "/query-params-viewer/ja/");
+  eq("[auto] the first supported entry wins, not the first entry",
+    decision(["ko", "ru-RU", "de"]), "/query-params-viewer/ru/");
+
+  // The root page is the fallback, so an unsupported language stays put --
+  // this is also the Googlebot case, and why nothing redirects for a crawler.
+  eq("[auto] an unsupported language stays on the root page", decision(["pt-BR", "af"]), null);
+  eq("[auto] an English visitor stays on the root page", decision(["en-GB", "en"]), null);
+
+  // Chinese resolves on the script, not the primary subtag.
+  eq("[auto] zh-CN -> /zh/", decision(["zh-CN"]), "/query-params-viewer/zh/");
+  eq("[auto] zh-Hans -> /zh/", decision(["zh-Hans-SG"]), "/query-params-viewer/zh/");
+  eq("[auto] zh-TW -> /zh-hant/", decision(["zh-TW"]), "/query-params-viewer/zh-hant/");
+  eq("[auto] zh-HK -> /zh-hant/", decision(["zh-HK"]), "/query-params-viewer/zh-hant/");
+  eq("[auto] zh-Hant -> /zh-hant/", decision(["zh-Hant"]), "/query-params-viewer/zh-hant/");
+
+  // A share payload lives in the fragment; losing it would break the link.
+  eq("[auto] the query string and fragment survive the hop",
+    decision(["de"], SITE + "?a=1#s=payload"), "/query-params-viewer/de/?a=1#s=payload");
+
+  // An explicit pick outranks the browser, and outranks the once-per-session
+  // guard too -- it should apply on every visit to the root URL.
+  const seedLocal = (lang) => (w) => w.localStorage.setItem("qpv-lang", lang);
+  eq("[auto] a stored choice beats the browser languages",
+    decision(["de"], SITE, seedLocal("ja")), "/query-params-viewer/ja/");
+  eq("[auto] a stored choice for the default language cancels the hop",
+    decision(["de"], SITE, seedLocal(DEFAULT_LANG)), null);
+  eq("[auto] a stale stored language is ignored",
+    decision(["de"], SITE, seedLocal("xx")), "/query-params-viewer/de/");
+
+  // Second visit within a session: the visitor came back to the root URL on
+  // purpose, so leave them there.
+  eq("[auto] the automatic hop happens only once per session",
+    decision(["de"], SITE, (w) => w.sessionStorage.setItem("qpv-lang-auto", "1")), null);
+
+  // Pages under /<lang>/ are an explicit choice already.
+  const onJa = load(SITE + "ja/", PAGES.ja, { languages: ["de-AT"] });
+  eq("[auto] a non-default page never redirects",
+    onJa.window.document.documentElement.getAttribute("data-lang-redirect"), null);
+
+  // Choosing from the menu is what stores the preference read above.
+  const p = load(SITE, ROOT_PAGE, { languages: ["en-US"] });
+  p.click(p.qs('.lang-switch a[data-lang="ru"]'));
+  eq("[auto] the menu records the pick", p.window.localStorage.getItem("qpv-lang"), "ru");
+}
+
 (async function main() {
   const tests = [
     testBuildOutput,
@@ -436,6 +553,7 @@ async function testLanguageMenu() {
     testCompareRowTinting,
     testLanguagePathsDoNotAccumulate,
     testLanguageMenu,
+    testAutoLanguageSelection,
     testResponsiveRules
   ];
 

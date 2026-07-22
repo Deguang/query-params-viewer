@@ -4,6 +4,86 @@
 <html lang="__HTML_LANG__">
 <head>
 <meta charset="UTF-8">
+<script>
+/* Send a first-time visitor to the page matching their browser languages.
+   Runs here, in <head> before anything paints, so there is no flash of the
+   wrong language, and only on the default-language page: every other page
+   sits at an explicit /<lang>/ URL, which is already a deliberate choice
+   and must never be overridden.
+
+   Three rules keep this from fighting the visitor:
+     - an explicit pick in the language menu is remembered and always wins;
+     - the automatic hop happens at most once per session, so navigating
+       back to the root URL on purpose sticks;
+     - the query string and the fragment come along, because the fragment is
+       where a share payload lives.
+   With scripting off nothing happens and the root page stays as served. */
+(function () {
+  var LANG_DIR = __LANG_DIRS_JSON__;
+  var CURRENT_LANG = __LANG__;
+  var DEFAULT_LANG = __DEFAULT_LANG__;
+  var FALLBACK_LANG = __LANG_FALLBACK__;
+  var LANG_KEY = "qpv-lang";        // explicit choice, also written by the menu
+  var AUTO_KEY = "qpv-lang-auto";   // "already hopped once this session"
+
+  if (CURRENT_LANG !== DEFAULT_LANG) return;
+
+  function known(lang) {
+    return lang && Object.prototype.hasOwnProperty.call(LANG_DIR, lang) ? lang : null;
+  }
+
+  // "de-AT" -> de. Chinese needs the script subtag rather than the primary
+  // one: zh-Hant / zh-TW / zh-HK / zh-MO are traditional, everything else
+  // under zh is simplified.
+  function match(tag) {
+    var lower = String(tag || "").toLowerCase();
+    if (known(lower)) return lower;
+    var primary = lower.split("-")[0];
+    if (primary === "zh") {
+      if (lower.indexOf("hant") >= 0) return "zh-hant";
+      if (lower.indexOf("hans") >= 0) return "zh";
+      return /-(tw|hk|mo)(-|$)/.test(lower) ? "zh-hant" : "zh";
+    }
+    return known(primary);
+  }
+
+  function fromNavigator() {
+    var tags = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language];
+    for (var i = 0; i < tags.length; i++) {
+      var hit = match(tags[i]);
+      if (hit) return hit;
+    }
+    return FALLBACK_LANG;
+  }
+
+  // Storage throws rather than no-ops in some privacy modes; a visitor with
+  // it blocked should still get the redirect, just without the memory.
+  function read(store, key) {
+    try { return window[store].getItem(key); } catch (e) { return null; }
+  }
+  function write(store, key, value) {
+    try { window[store].setItem(key, value); } catch (e) { /* ignore */ }
+  }
+
+  var chosen = known(read("localStorage", LANG_KEY));
+  var target = chosen || fromNavigator();
+  if (target === CURRENT_LANG || !known(target)) return;
+  if (!chosen) {
+    if (read("sessionStorage", AUTO_KEY)) return;
+    write("sessionStorage", AUTO_KEY, "1");
+  }
+
+  var base = window.location.pathname.replace(/index\.html$/, "");
+  if (base.slice(-1) !== "/") base += "/";
+  var href = base + LANG_DIR[target] + window.location.search + window.location.hash;
+  // Recorded before navigating: the only observable trace of the decision,
+  // which is what the tests assert on and what makes a misfire debuggable.
+  document.documentElement.setAttribute("data-lang-redirect", href);
+  window.location.replace(href);
+})();
+</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HY52V0R49B"></script>
 <script>
@@ -867,6 +947,7 @@ __HREFLANG_LINKS__
   var I18N_ALL = __I18N_ALL_JSON__;
   var CANONICALS = __CANONICALS_JSON__;
   var currentLang = __LANG__;
+  var DEFAULT_LANG = __DEFAULT_LANG__;
 
   function t(key) {
     return I18N_ALL[currentLang][key];
@@ -1387,8 +1468,15 @@ __HREFLANG_LINKS__
   // a long payload cannot trip the proxy's request-line limit.
   var SHARE_HASH_RE = /^#(s|p)=/;
 
+  // Deliberately the default-language URL rather than the current one: a share
+  // link should render in the recipient's language (their stored pick, else
+  // their browser's), and only a link without a language segment leaves that
+  // decision to the auto-selection in <head>. The payload rides in the
+  // fragment, which survives the hop.
+  var SHARE_BASE = CANONICALS[DEFAULT_LANG];
+
   function buildPlainShareLink(payload) {
-    return CANONICALS[currentLang] + "#p=" + encodeURIComponent(JSON.stringify(payload));
+    return SHARE_BASE + "#p=" + encodeURIComponent(JSON.stringify(payload));
   }
 
   function finalizeShare(link, hintEl, btn, labelEl, view, compressed) {
@@ -1408,7 +1496,7 @@ __HREFLANG_LINKS__
       return;
     }
     compressToParam(JSON.stringify(payload)).then(function (z) {
-      var compressed = CANONICALS[currentLang] + "#s=" + z;
+      var compressed = SHARE_BASE + "#s=" + z;
       var win = compressed.length < plain.length;
       finalizeShare(win ? compressed : plain, hintEl, btn, labelEl, view, win);
     }).catch(function () {
@@ -1745,13 +1833,15 @@ __HREFLANG_LINKS__
   // compounding onto whatever path pushState last landed on.
   var LANG_DIR = __LANG_DIRS_JSON__;
   var LANG_NAMES = __LANG_NAMES_JSON__;
-  var DEFAULT_LANG = __DEFAULT_LANG__;
 
-  // The directory names of every non-default language ("en|ja|ru|..."), which
-  // is what a path may end in.
+  // The directory names of every non-default language ("zh|zh-hant|ja|..."),
+  // which is what a path may end in. Longest first so that "zh-hant" is not
+  // half-matched by "zh" — alternation would backtrack into the right answer
+  // here, but only because of what follows it, which is too subtle to lean on.
   var LANG_SEGMENTS = Object.keys(LANG_DIR)
     .filter(function (lang) { return LANG_DIR[lang]; })
     .map(function (lang) { return LANG_DIR[lang].replace("/", ""); })
+    .sort(function (a, b) { return b.length - a.length; })
     .join("|");
 
   function detectLangFromPath() {
@@ -1803,7 +1893,12 @@ __HREFLANG_LINKS__
       // Picking a language always dismisses the menu, including the no-op
       // click on the current one — otherwise it stays open over the page.
       langMenu.open = false;
-      if (!lang || lang === currentLang) { ev.preventDefault(); return; }
+      if (!lang) { ev.preventDefault(); return; }
+      // Remembered so the auto-selection in <head> defers to it on the next
+      // visit to the root URL. Worth storing even for the no-op click: it
+      // pins the language the visitor is already reading.
+      try { localStorage.setItem("qpv-lang", lang); } catch (e) { /* ignore */ }
+      if (lang === currentLang) { ev.preventDefault(); return; }
       ev.preventDefault();
       track("lang_switch", { lang: lang });
       var href = langHref(lang);

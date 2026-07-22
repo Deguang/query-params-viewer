@@ -5,8 +5,9 @@
     <loc>https://app.lideguang.com/query-params-viewer/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
@@ -14,11 +15,25 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://app.lideguang.com/query-params-viewer/"/>
   </url>
   <url>
-    <loc>https://app.lideguang.com/query-params-viewer/en/</loc>
+    <loc>https://app.lideguang.com/query-params-viewer/zh/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://app.lideguang.com/query-params-viewer/hi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://app.lideguang.com/query-params-viewer/"/>
+  </url>
+  <url>
+    <loc>https://app.lideguang.com/query-params-viewer/zh-hant/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
@@ -29,8 +44,9 @@
     <loc>https://app.lideguang.com/query-params-viewer/ja/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
@@ -41,8 +57,9 @@
     <loc>https://app.lideguang.com/query-params-viewer/ru/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
@@ -53,8 +70,9 @@
     <loc>https://app.lideguang.com/query-params-viewer/de/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
@@ -65,8 +83,9 @@
     <loc>https://app.lideguang.com/query-params-viewer/hi/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://app.lideguang.com/query-params-viewer/zh/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://app.lideguang.com/query-params-viewer/zh-hant/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://app.lideguang.com/query-params-viewer/ja/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://app.lideguang.com/query-params-viewer/ru/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://app.lideguang.com/query-params-viewer/de/"/>
