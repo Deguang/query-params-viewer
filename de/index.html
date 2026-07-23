@@ -284,12 +284,6 @@
     vertical-align: -0.18em; /* only applies outside the flex contexts above */
     flex: none;
   }
-  .icon-lg {
-    width: 40px;
-    height: 40px;
-    vertical-align: 0;
-    color: var(--text-muted);
-  }
   .theme-toggle .icon { width: 16px; height: 16px; vertical-align: -0.22em; }
   body {
     background-color: var(--page);
@@ -514,10 +508,61 @@
 
   #empty-state {
     text-align: center;
-    padding: 48px 16px;
+    padding: 32px 16px 40px;
     color: var(--text-secondary);
   }
-  #empty-state .big { font-size: 32px; margin-bottom: 8px; }
+
+  /* Empty-state skeleton: a ghost of the result the view produces. It reuses
+     the real .stats / .stat-tile / .card so the mock keeps the live layout's
+     shape (down to the blue tile accent). The bars are muted fills, not an
+     animated shimmer, so it reads as a preview rather than a loading state. */
+  .skeleton {
+    max-width: 680px;
+    margin: 0 auto 20px;
+    text-align: left;
+  }
+  .skeleton .stats { margin-bottom: 12px; }
+  .sk-bar {
+    display: block;
+    width: 72%;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--grid);
+  }
+  .sk-bar-empty { visibility: hidden; }
+  .stat-tile .sk-val { width: 44%; height: 20px; margin-bottom: 9px; background: var(--border); }
+  .stat-tile .sk-lbl { width: 72%; }
+  .sk-table { padding: 4px 16px; }
+  .sk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--grid);
+  }
+  .sk-row:last-child { border-bottom: 0; }
+  .sk-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex: none; }
+  .sk-dot-hidden { visibility: hidden; }
+  .sk-cell { display: flex; align-items: center; min-width: 0; }
+  .sk-c-key { width: 24%; flex: none; }
+  .sk-c-val, .sk-c-a, .sk-c-b { flex: 1; }
+  .sk-c-type { width: 56px; flex: none; justify-content: flex-end; }
+  .sk-type { width: 46px; height: 18px; border-radius: 4px; }
+  .sk-head .sk-bar { background: var(--grid-faint); height: 8px; }
+
+  /* Compare skeleton: same idea, but the four rows carry the diff tints and
+     status-pill colours (same / changed / only-A / only-B), previewing what
+     the compare view highlights. */
+  .sk-compare { max-width: none; margin: 0; }
+  .sk-compare .sk-row { padding-left: 8px; padding-right: 8px; box-shadow: inset 3px 0 0 transparent; }
+  #compareEmpty .sk-r-diff  { background: color-mix(in srgb, var(--warning)  10%, transparent); box-shadow: inset 3px 0 0 var(--warning); }
+  #compareEmpty .sk-r-onlyA { background: color-mix(in srgb, var(--critical) 10%, transparent); box-shadow: inset 3px 0 0 var(--critical); }
+  #compareEmpty .sk-r-onlyB { background: color-mix(in srgb, var(--series-1) 10%, transparent); box-shadow: inset 3px 0 0 var(--series-1); }
+  .sk-pill { width: 46px; height: 16px; border-radius: 4px; flex: none; border: 1px solid var(--border); }
+  .sk-p-same  { border-color: var(--success);  background: color-mix(in srgb, var(--success)  10%, transparent); }
+  .sk-p-diff  { border-color: var(--warning);  background: color-mix(in srgb, var(--warning)  10%, transparent); }
+  .sk-p-onlyA { border-color: var(--critical); background: color-mix(in srgb, var(--critical) 10%, transparent); }
+  .sk-p-onlyB { border-color: var(--series-1); background: color-mix(in srgb, var(--series-1) 10%, transparent); }
 
   .stats {
     display: grid;
@@ -983,7 +1028,43 @@
       </section>
 
       <section id="empty-state">
-        <div class="big"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-search"/></svg></div>
+        <!-- A greyed-out mock of the table this view will produce, so the panel
+             previews the output instead of sitting nearly blank. Decorative
+             (aria-hidden); the Example button is the real call to action. -->
+        <div class="skeleton" id="parseSkeleton" aria-hidden="true">
+          <div class="stats">
+            <div class="stat-tile"><span class="sk-bar sk-val"></span><span class="sk-bar sk-lbl"></span></div>
+            <div class="stat-tile"><span class="sk-bar sk-val"></span><span class="sk-bar sk-lbl"></span></div>
+            <div class="stat-tile"><span class="sk-bar sk-val"></span><span class="sk-bar sk-lbl"></span></div>
+            <div class="stat-tile"><span class="sk-bar sk-val"></span><span class="sk-bar sk-lbl"></span></div>
+          </div>
+          <div class="card sk-table">
+            <div class="sk-row sk-head">
+              <span class="sk-dot sk-dot-hidden"></span>
+              <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+              <span class="sk-cell sk-c-val"><span class="sk-bar" style="width:44%"></span></span>
+              <span class="sk-cell sk-c-type"><span class="sk-bar" style="width:38px"></span></span>
+            </div>
+            <div class="sk-row">
+              <span class="sk-dot"></span>
+              <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+              <span class="sk-cell sk-c-val"><span class="sk-bar" style="width:82%"></span></span>
+              <span class="sk-cell sk-c-type"><span class="sk-bar sk-type"></span></span>
+            </div>
+            <div class="sk-row">
+              <span class="sk-dot"></span>
+              <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+              <span class="sk-cell sk-c-val"><span class="sk-bar" style="width:38%"></span></span>
+              <span class="sk-cell sk-c-type"><span class="sk-bar sk-type"></span></span>
+            </div>
+            <div class="sk-row">
+              <span class="sk-dot"></span>
+              <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+              <span class="sk-cell sk-c-val"><span class="sk-bar" style="width:62%"></span></span>
+              <span class="sk-cell sk-c-type"><span class="sk-bar sk-type"></span></span>
+            </div>
+          </div>
+        </div>
         <div id="emptyText">Noch keine URL analysiert. Fügen Sie einen Link ein oder klicken Sie auf „Beispiel“.</div>
       </section>
 
@@ -1041,6 +1122,44 @@
           <button class="btn btn-ghost" id="compareShareBtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg> <span id="compareShareBtnLabel">Teilen</span></button>
         </div>
         <p class="hint" id="compareShareLenHint" hidden></p>
+      </section>
+
+      <!-- Ghost diff shown until a comparison runs: the four rows carry the
+           real diff tints and status-pill colours, so an empty compare view
+           still shows what the feature does. Hidden once results render. -->
+      <section class="card" id="compareEmpty" aria-hidden="true">
+        <div class="skeleton sk-compare">
+          <div class="sk-row sk-head">
+            <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+            <span class="sk-cell sk-c-a"><span class="sk-bar" style="width:40%"></span></span>
+            <span class="sk-cell sk-c-b"><span class="sk-bar" style="width:40%"></span></span>
+            <span class="sk-cell sk-c-type"><span class="sk-bar" style="width:42px"></span></span>
+          </div>
+          <div class="sk-row sk-r-same">
+            <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+            <span class="sk-cell sk-c-a"><span class="sk-bar" style="width:70%"></span></span>
+            <span class="sk-cell sk-c-b"><span class="sk-bar" style="width:70%"></span></span>
+            <span class="sk-cell sk-c-type"><span class="sk-pill sk-p-same"></span></span>
+          </div>
+          <div class="sk-row sk-r-diff">
+            <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+            <span class="sk-cell sk-c-a"><span class="sk-bar" style="width:58%"></span></span>
+            <span class="sk-cell sk-c-b"><span class="sk-bar" style="width:80%"></span></span>
+            <span class="sk-cell sk-c-type"><span class="sk-pill sk-p-diff"></span></span>
+          </div>
+          <div class="sk-row sk-r-onlyA">
+            <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+            <span class="sk-cell sk-c-a"><span class="sk-bar" style="width:66%"></span></span>
+            <span class="sk-cell sk-c-b"><span class="sk-bar sk-bar-empty"></span></span>
+            <span class="sk-cell sk-c-type"><span class="sk-pill sk-p-onlyA"></span></span>
+          </div>
+          <div class="sk-row sk-r-onlyB">
+            <span class="sk-cell sk-c-key"><span class="sk-bar"></span></span>
+            <span class="sk-cell sk-c-a"><span class="sk-bar sk-bar-empty"></span></span>
+            <span class="sk-cell sk-c-b"><span class="sk-bar" style="width:52%"></span></span>
+            <span class="sk-cell sk-c-type"><span class="sk-pill sk-p-onlyB"></span></span>
+          </div>
+        </div>
       </section>
 
       <section class="card" id="compareResultCard" hidden>
@@ -1111,6 +1230,8 @@
   var clearBtn = document.getElementById("clearBtn");
   var emptyState = document.getElementById("empty-state");
   var emptyTextEl = document.getElementById("emptyText");
+  var parseSkeleton = document.getElementById("parseSkeleton");
+  var compareEmpty = document.getElementById("compareEmpty");
   var taglineEl = document.getElementById("tagline");
   var hintEl = document.getElementById("hintText");
   var tableTitleEl = document.getElementById("tableTitleText");
@@ -1859,6 +1980,8 @@
     }).join("");
 
     compareResultCard.hidden = rows.length === 0;
+    // The ghost diff stands in only while there is nothing real to show.
+    compareEmpty.hidden = rows.length > 0;
   }
 
   function switchView(view) {
@@ -2160,6 +2283,9 @@
   function showShareError(key) {
     shareErrorKey = key;
     render([]);
+    // A ghost "success" table under an error message reads wrong, so drop it
+    // and let the message stand alone.
+    parseSkeleton.hidden = true;
     emptyTextEl.textContent = t(key);
     emptyTextEl.classList.add("hint-risk");
   }
@@ -2167,6 +2293,7 @@
   function resetShareError() {
     if (!shareErrorKey) return;
     shareErrorKey = null;
+    parseSkeleton.hidden = false;
     emptyTextEl.textContent = t("emptyText");
     emptyTextEl.classList.remove("hint-risk");
   }

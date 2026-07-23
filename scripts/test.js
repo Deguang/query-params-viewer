@@ -591,10 +591,41 @@ async function testContentAndStructuredData() {
     JSON.stringify(switched) === JSON.stringify(i18n.ja.faq.map((f) => f.q)), JSON.stringify(switched));
 }
 
+async function testEmptyStateSkeleton() {
+  const p = load(SITE);
+  await tick(50);
+  eq("[skeleton] empty state is shown on load", p.$("empty-state").hidden, false);
+  eq("[skeleton] parse skeleton is visible on load", p.$("parseSkeleton").hidden, false);
+
+  // Parsing replaces the empty state (skeleton included) with real results.
+  p.$("urlInput").value = "https://e.com/s?q=1";
+  p.click(p.$("parseBtn"));
+  eq("[skeleton] empty state gone once results show", p.$("empty-state").hidden, true);
+
+  // Compare view previews a ghost diff until a comparison runs.
+  const c = load(SITE);
+  c.click(c.$("tabCompareBtn"));
+  eq("[skeleton] compare skeleton visible before comparing", c.$("compareEmpty").hidden, false);
+  c.$("compareInputA").value = "https://e.com/a?x=1";
+  c.$("compareInputB").value = "https://e.com/b?x=2";
+  c.click(c.$("compareBtn"));
+  eq("[skeleton] compare skeleton hidden after comparing", c.$("compareEmpty").hidden, true);
+  eq("[skeleton] compare result shown after comparing", c.$("compareResultCard").hidden, false);
+
+  // A broken share link drops the ghost table and explains itself instead of
+  // showing a success mock under an error.
+  const b = load(SITE + "#s=!!!not-base64!!!");
+  await tick(200);
+  eq("[skeleton] broken link hides the skeleton", b.$("parseSkeleton").hidden, true);
+  ok("[skeleton] broken link still explains itself",
+    b.$("emptyText").textContent.length > 0 && b.$("empty-state").hidden === false);
+}
+
 (async function main() {
   const tests = [
     testBuildOutput,
     testContentAndStructuredData,
+    testEmptyStateSkeleton,
     testShareRoundTripParse,
     testShareRoundTripCompare,
     testShareClickOnIcon,
