@@ -5,16 +5,19 @@
 <head>
 <meta charset="UTF-8">
 <script>
-/* Send a first-time visitor to the page matching their browser languages.
-   Runs here, in <head> before anything paints, so there is no flash of the
-   wrong language, and only on the default-language page: every other page
-   sits at an explicit /<lang>/ URL, which is already a deliberate choice
-   and must never be overridden.
+/* Send a visitor whose entry point is the root URL to the page matching their
+   language. Runs here, in <head> before anything paints, so there is no flash
+   of the wrong language, and only redirects on the default-language page:
+   every other page sits at an explicit /<lang>/ URL, already a choice.
 
-   Three rules keep this from fighting the visitor:
-     - an explicit pick in the language menu is remembered and always wins;
-     - the automatic hop happens at most once per session, so navigating
-       back to the root URL on purpose sticks;
+   What keeps this from fighting the visitor:
+     - it only fires when the root URL is the session's *entry point*. Once any
+       page has been seen this session, arriving at the root — e.g. by deleting
+       the /<lang>/ segment from the address bar, or navigating back to it — is
+       itself a deliberate choice and is left alone;
+     - when the hop does fire, a pick from the language menu (localStorage)
+       decides which language, ahead of the browser languages. It decides which,
+       not whether — whether is the entry-point rule above;
      - the query string and the fragment come along, because the fragment is
        where a share payload lives.
    With scripting off nothing happens and the root page stays as served. */
@@ -24,7 +27,13 @@
   var DEFAULT_LANG = __DEFAULT_LANG__;
   var FALLBACK_LANG = __LANG_FALLBACK__;
   var LANG_KEY = "qpv-lang";        // explicit choice, also written by the menu
-  var AUTO_KEY = "qpv-lang-auto";   // "already hopped once this session"
+  var VISIT_KEY = "qpv-visited";    // "some page has been seen this session"
+
+  // Recorded on every page, before the non-root early return below, so it
+  // captures whether the root URL is where this session began. read/write are
+  // hoisted function declarations, hence usable here.
+  var firstOfSession = !read("sessionStorage", VISIT_KEY);
+  write("sessionStorage", VISIT_KEY, "1");
 
   if (CURRENT_LANG !== DEFAULT_LANG) return;
 
@@ -70,10 +79,9 @@
   var chosen = known(read("localStorage", LANG_KEY));
   var target = chosen || fromNavigator();
   if (target === CURRENT_LANG || !known(target)) return;
-  if (!chosen) {
-    if (read("sessionStorage", AUTO_KEY)) return;
-    write("sessionStorage", AUTO_KEY, "1");
-  }
+  // Not the session's first page: the visitor is on the root URL on purpose,
+  // so honour that rather than bouncing them to their language yet again.
+  if (!firstOfSession) return;
 
   var base = window.location.pathname.replace(/index\.html$/, "");
   if (base.slice(-1) !== "/") base += "/";

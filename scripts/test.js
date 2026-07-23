@@ -513,8 +513,9 @@ async function testAutoLanguageSelection() {
   eq("[auto] the query string and fragment survive the hop",
     decision(["de"], SITE + "?a=1#s=payload"), "/query-params-viewer/de/?a=1#s=payload");
 
-  // An explicit pick outranks the browser, and outranks the once-per-session
-  // guard too -- it should apply on every visit to the root URL.
+  // A stored pick decides which language, ahead of the browser languages, when
+  // the hop fires -- but only which, not whether (that is the entry-point rule
+  // exercised just below).
   const seedLocal = (lang) => (w) => w.localStorage.setItem("qpv-lang", lang);
   eq("[auto] a stored choice beats the browser languages",
     decision(["de"], SITE, seedLocal("ja")), "/query-params-viewer/ja/");
@@ -523,10 +524,15 @@ async function testAutoLanguageSelection() {
   eq("[auto] a stale stored language is ignored",
     decision(["de"], SITE, seedLocal("xx")), "/query-params-viewer/de/");
 
-  // Second visit within a session: the visitor came back to the root URL on
-  // purpose, so leave them there.
-  eq("[auto] the automatic hop happens only once per session",
-    decision(["de"], SITE, (w) => w.sessionStorage.setItem("qpv-lang-auto", "1")), null);
+  // The hop only fires when the root URL is the session's entry point. Once any
+  // page has been seen this session, coming back to the root -- e.g. by
+  // deleting the /<lang>/ segment -- is deliberate and is left alone, whether
+  // the target would have come from the browser or from a stored pick.
+  const seenThisSession = (w) => w.sessionStorage.setItem("qpv-visited", "1");
+  eq("[auto] no hop once a page has been seen this session",
+    decision(["de"], SITE, seenThisSession), null);
+  eq("[auto] a stored pick does not re-hop a deliberate return to the root",
+    decision(["de"], SITE, (w) => { w.localStorage.setItem("qpv-lang", "ja"); seenThisSession(w); }), null);
 
   // Pages under /<lang>/ are an explicit choice already.
   const onJa = load(SITE + "ja/", PAGES.ja, { languages: ["de-AT"] });
