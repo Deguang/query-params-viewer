@@ -2,7 +2,13 @@
 
 module.exports = {
   zh: {
-    htmlLang: "zh-CN",
+    // The script subtag, not zh-CN: what separates these two pages is the
+    // script, not the country, and it is the script the automatic language
+    // selection matches on. zh-CN would also claim only mainland readers,
+    // leaving Singapore and Malaysia to no page at all.
+    htmlLang: "zh-Hans",
+    // og:locale is a different vocabulary — Facebook wants language_TERRITORY,
+    // so the region belongs here.
     ogLocale: "zh_CN",
     title: "Query Params Viewer — 在线 URL Query Params 拆解工具",
     description: "免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。",
