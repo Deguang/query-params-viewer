@@ -539,9 +539,62 @@ async function testAutoLanguageSelection() {
   eq("[auto] the menu records the pick", p.window.localStorage.getItem("qpv-lang"), "ru");
 }
 
+async function testContentAndStructuredData() {
+  // llms.txt is generated from the roster and must list every canonical URL.
+  const llms = fs.readFileSync(path.join(ROOT, "llms.txt"), "utf8");
+  for (const lang of langs.LANGS) {
+    ok(`[content] llms.txt lists ${lang}`, llms.includes("(" + langs.canonicalOf(lang) + ")"));
+  }
+
+  for (const [lang, file] of Object.entries(PAGES)) {
+    const dict = i18n[lang];
+    const p = load(SITE + (langs.dirOf(lang) ? langs.dirOf(lang) + "/" : ""), file);
+
+    // The explanatory copy and FAQ ship in the static DOM, so a crawler or a
+    // JS-less reader sees them without anything running.
+    eq(`[content] ${lang}: about heading rendered`,
+      p.$("aboutHeading").textContent.trim(), dict.aboutHeading);
+    ok(`[content] ${lang}: about body carries real text`,
+      p.$("aboutBody").textContent.trim().length > 40);
+
+    const items = p.$("faqList").querySelectorAll("details.faq-item");
+    eq(`[content] ${lang}: one FAQ entry per dict item`, items.length, dict.faq.length);
+    const questions = [...items].map((d) => d.querySelector("summary").textContent.trim());
+    ok(`[content] ${lang}: FAQ questions match the dictionary`,
+      JSON.stringify(questions) === JSON.stringify(dict.faq.map((f) => f.q)),
+      JSON.stringify(questions));
+
+    // Structured data: an enriched WebApplication plus a FAQPage whose
+    // questions mirror what is visible, both built from the same dict so the
+    // markup can never drift from the page.
+    const graphs = [...p.window.document.querySelectorAll('script[type="application/ld+json"]')]
+      .map((s) => JSON.parse(s.textContent));
+    const app = graphs.find((g) => g["@type"] === "WebApplication");
+    const faqLd = graphs.find((g) => g["@type"] === "FAQPage");
+    ok(`[content] ${lang}: WebApplication declares inLanguage`, !!app && app.inLanguage === dict.htmlLang);
+    ok(`[content] ${lang}: WebApplication lists its features`,
+      !!app && Array.isArray(app.featureList) && app.featureList.length === dict.features.length);
+    ok(`[content] ${lang}: FAQPage mirrors the visible questions`,
+      !!faqLd && JSON.stringify(faqLd.mainEntity.map((q) => q.name)) ===
+        JSON.stringify(dict.faq.map((f) => f.q)));
+  }
+
+  // An in-page language switch re-renders the copy and FAQ from the same data,
+  // not just the tool chrome.
+  const sw = load(SITE, ROOT_PAGE);
+  sw.click(sw.qs('.lang-switch a[data-lang="ja"]'));
+  eq("[content] switch relabels the about heading",
+    sw.$("aboutHeading").textContent.trim(), i18n.ja.aboutHeading);
+  const switched = [...sw.$("faqList").querySelectorAll("details.faq-item summary")]
+    .map((s) => s.textContent.trim());
+  ok("[content] switch re-renders the FAQ in the new language",
+    JSON.stringify(switched) === JSON.stringify(i18n.ja.faq.map((f) => f.q)), JSON.stringify(switched));
+}
+
 (async function main() {
   const tests = [
     testBuildOutput,
+    testContentAndStructuredData,
     testShareRoundTripParse,
     testShareRoundTripCompare,
     testShareClickOnIcon,

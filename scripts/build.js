@@ -73,6 +73,60 @@ function buildHreflangLinks() {
   return links.join("\n");
 }
 
+// The FAQ, rendered as a list of native <details> disclosures. The same markup
+// is produced client-side by renderFaq() in the template, so switching language
+// in place reproduces it exactly. escapeAttr covers the same characters the
+// template's escapeHtml does, so the question text matches on both paths.
+function buildFaqHtml(dict) {
+  return dict.faq.map(function (item) {
+    return '<details class="faq-item"><summary>' + escapeAttr(item.q) +
+      '</summary><div class="faq-a">' + item.a + '</div></details>';
+  }).join("\n        ");
+}
+
+// FAQPage structured data, built from the very same faq entries that render on
+// the page, so the markup never drifts from what a reader sees. The answer
+// keeps its inline HTML — schema.org Answer.text permits it.
+function buildFaqJsonLd(dict) {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: dict.faq.map(function (item) {
+      return {
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a }
+      };
+    })
+  }, null, 2);
+}
+
+// An llms.txt (see llmstxt.org): a concise, link-first map of the site for AI
+// answer engines, derived from the same roster so it never goes stale.
+function buildLlmsTxt() {
+  const lines = [
+    "# Query Params Viewer",
+    "",
+    "> " + i18n[DEFAULT_LANG].jsonldDescription +
+      " Everything runs client-side in the browser: nothing is uploaded, and share links encode their state in the URL fragment (#), which is never sent to a server.",
+    "",
+    "## Pages"
+  ];
+  for (const lang of LANGS) {
+    lines.push("- [" + LANG_NAMES[lang] + "](" + canonicalOf(lang) + "): " + i18n[lang].title);
+  }
+  lines.push(
+    "",
+    "## Notes",
+    "- Each language is a self-contained static HTML page with no backend and no runtime dependencies.",
+    "- Accepts full URLs, hash routes (#/path?a=1) and bare query strings (a=1&b=2).",
+    "- Detects JSON, number, boolean, empty and duplicate values, and expands parameters that are themselves an encoded URL up to three levels deep.",
+    "- Also compares the query params of two URLs by key, and can edit and re-serialise them.",
+    ""
+  );
+  return lines.join("\n");
+}
+
 function buildSitemap() {
   const alternates = LANGS.map(function (lang) {
     return '    <xhtml:link rel="alternate" hreflang="' + i18n[lang].htmlLang + '" href="' + canonicalOf(lang) + '"/>';
@@ -120,6 +174,13 @@ for (const lang of LANGS) {
     __HREFLANG_LINKS__: HREFLANG_LINKS,
     __CANONICAL__: canonicalOf(lang),
     __CANONICAL_JSON__: JSON.stringify(canonicalOf(lang)),
+    __HTML_LANG_JSON__: JSON.stringify(dict.htmlLang),
+    __FEATURES_JSON__: JSON.stringify(dict.features),
+    __FAQ_JSONLD__: buildFaqJsonLd(dict),
+    __ABOUT_HEADING__: escapeAttr(dict.aboutHeading),
+    __ABOUT_HTML__: dict.aboutHtml,
+    __FAQ_HEADING__: escapeAttr(dict.faqHeading),
+    __FAQ_HTML__: buildFaqHtml(dict),
     __JSONLD_DESCRIPTION_JSON__: JSON.stringify(dict.jsonldDescription),
     __TAGLINE__: dict.tagline,
     __INPUT_PLACEHOLDER__: escapeAttr(dict.inputPlaceholder),
@@ -205,3 +266,7 @@ for (const [lang, dir] of Object.entries(LEGACY_ALIASES)) {
 const sitemapFile = path.join(ROOT, "sitemap.xml");
 fs.writeFileSync(sitemapFile, buildSitemap());
 console.log("wrote", path.relative(ROOT, sitemapFile));
+
+const llmsFile = path.join(ROOT, "llms.txt");
+fs.writeFileSync(llmsFile, buildLlmsTxt());
+console.log("wrote", path.relative(ROOT, llmsFile));

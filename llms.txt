@@ -1,0 +1,18 @@
+# Query Params Viewer
+
+> Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values. Everything runs client-side in the browser: nothing is uploaded, and share links encode their state in the URL fragment (#), which is never sent to a server.
+
+## Pages
+- [English](https://app.lideguang.com/query-params-viewer/): Query Params Viewer — Parse URL Query Strings
+- [简体中文](https://app.lideguang.com/query-params-viewer/zh/): Query Params Viewer — 在线 URL Query Params 拆解工具
+- [繁體中文](https://app.lideguang.com/query-params-viewer/zh-hant/): Query Params Viewer — 線上 URL Query Params 拆解工具
+- [日本語](https://app.lideguang.com/query-params-viewer/ja/): Query Params Viewer — URLクエリパラメータの解析ツール
+- [Русский](https://app.lideguang.com/query-params-viewer/ru/): Query Params Viewer — разбор query-параметров URL онлайн
+- [Deutsch](https://app.lideguang.com/query-params-viewer/de/): Query Params Viewer — URL-Query-Parameter analysieren
+- [हिन्दी](https://app.lideguang.com/query-params-viewer/hi/): Query Params Viewer — URL क्वेरी पैरामीटर देखें
+
+## Notes
+- Each language is a self-contained static HTML page with no backend and no runtime dependencies.
+- Accepts full URLs, hash routes (#/path?a=1) and bare query strings (a=1&b=2).
+- Detects JSON, number, boolean, empty and duplicate values, and expands parameters that are themselves an encoded URL up to three levels deep.
+- Also compares the query params of two URLs by key, and can edit and re-serialise them.

@@ -1,4 +1,37 @@
+# All crawlers are welcome, including AI / answer-engine crawlers. The wildcard
+# below already allows everything; the named blocks are explicit opt-ins for the
+# LLM bots (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, ...) so the intent
+# is on record and survives any future tightening of the wildcard.
+#
+# NOTE: this tool is served under the /query-params-viewer/ subpath of a shared
+# domain. Crawlers read robots.txt only from the domain root, so for these rules
+# to take effect they must be published (or merged) at
+# https://app.lideguang.com/robots.txt by whoever controls that root. See the
+# SEO section of README.md.
+
 User-agent: *
+Allow: /
+
+# AI / answer-engine crawlers (explicit opt-in)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://app.lideguang.com/query-params-viewer/sitemap.xml

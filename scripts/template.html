@@ -128,12 +128,18 @@ __HREFLANG_LINKS__
   "description": __JSONLD_DESCRIPTION_JSON__,
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
+  "inLanguage": __HTML_LANG_JSON__,
+  "featureList": __FEATURES_JSON__,
+  "isAccessibleForFree": true,
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
   }
 }
+</script>
+<script type="application/ld+json">
+__FAQ_JSONLD__
 </script>
 <style>
   :root {
@@ -731,6 +737,71 @@ __HREFLANG_LINKS__
   #compareTable tbody tr.row-onlyA td:first-child { box-shadow: inset 3px 0 0 var(--critical); }
   #compareTable tbody tr.row-onlyB td:first-child { box-shadow: inset 3px 0 0 var(--series-1); }
 
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.92em;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.05em 0.35em;
+    word-break: break-word;
+  }
+
+  /* Explanatory copy + FAQ. Kept visually quiet and set off by a rule above it
+     so it reads as reference material below the tool, not part of it. */
+  .about {
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .about-heading {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .about-body { margin: 0 0 28px; max-width: 68ch; }
+  .about-body p { margin: 0 0 12px; }
+  .about-body p:last-child { margin-bottom: 0; }
+  .about-body code, .faq code { background: var(--surface-1); }
+
+  .faq { display: flex; flex-direction: column; gap: 8px; }
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface-1);
+  }
+  .faq-item > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item > summary::-webkit-details-marker { display: none; }
+  .faq-item > summary::after {
+    content: "+";
+    flex: none;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+  }
+  .faq-item[open] > summary::after { content: "\2212"; }
+  .faq-item > summary:hover { color: var(--series-1); }
+  .faq-a {
+    padding: 0 14px 13px;
+    max-width: 68ch;
+  }
+  .faq-a code { background: var(--page); }
+
   footer {
     text-align: center;
     color: var(--text-muted);
@@ -927,6 +998,20 @@ __HREFLANG_LINKS__
     </div>
   </main>
 
+  <!-- Explanatory copy + FAQ. Present in the static HTML (so it is there for
+       crawlers, AI answer engines and no-JS readers) and re-rendered from the
+       same i18n data by applyLangToDom on an in-page language switch. The FAQ
+       is mirrored into the FAQPage JSON-LD in <head>, built from this same
+       source, so the structured data always matches what is on screen. -->
+  <section class="about" aria-labelledby="aboutHeading">
+    <h2 class="about-heading" id="aboutHeading">__ABOUT_HEADING__</h2>
+    <div class="about-body" id="aboutBody">__ABOUT_HTML__</div>
+    <h2 class="about-heading" id="faqHeading">__FAQ_HEADING__</h2>
+    <div class="faq" id="faqList">
+        __FAQ_HTML__
+    </div>
+  </section>
+
   <footer id="footerText">
     __FOOTER__
   </footer>
@@ -963,6 +1048,10 @@ __HREFLANG_LINKS__
   var hintEl = document.getElementById("hintText");
   var tableTitleEl = document.getElementById("tableTitleText");
   var footerEl = document.getElementById("footerText");
+  var aboutHeadingEl = document.getElementById("aboutHeading");
+  var aboutBodyEl = document.getElementById("aboutBody");
+  var faqHeadingEl = document.getElementById("faqHeading");
+  var faqListEl = document.getElementById("faqList");
   var results = document.getElementById("results");
   var statsEl = document.getElementById("stats");
   var tableBody = document.getElementById("tableBody");
@@ -1147,6 +1236,17 @@ __HREFLANG_LINKS__
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  // Rebuilds the FAQ list from a dictionary. The question is plain text so it
+  // is escaped; the answer is trusted HTML authored in i18n.js (it carries
+  // <code> samples), so it goes in verbatim. The markup mirrors what
+  // build.js emits into the static page, so a switch is seamless.
+  function renderFaq(dict) {
+    faqListEl.innerHTML = dict.faq.map(function (item) {
+      return '<details class="faq-item"><summary>' + escapeHtml(item.q) +
+        '</summary><div class="faq-a">' + item.a + '</div></details>';
+    }).join("");
   }
 
   function render(entries) {
@@ -1793,6 +1893,10 @@ __HREFLANG_LINKS__
     copyJsonBtn.textContent = dict.copyJsonBtn;
     copyUrlBtn.textContent = dict.copyUrlBtn;
     footerEl.textContent = dict.footer;
+    aboutHeadingEl.textContent = dict.aboutHeading;
+    aboutBodyEl.innerHTML = dict.aboutHtml;
+    faqHeadingEl.textContent = dict.faqHeading;
+    renderFaq(dict);
     renderThemeToggle();
 
     editModeLabel.textContent = editMode ? dict.doneEditing : dict.editParams;

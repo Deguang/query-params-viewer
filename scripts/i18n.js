@@ -60,6 +60,22 @@ module.exports = {
     shareLenRisk: "链接长度 {n} 字符，已超出部分浏览器能处理的 URL 长度上限，可能无法打开",
     shareUnsupported: "这是一个压缩过的分享链接，但当前浏览器不支持解压所需的 CompressionStream API。请改用较新版本的 Chrome / Edge / Firefox / Safari 打开。",
     shareLinkBroken: "这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。",
+    aboutHeading: "关于 Query Params Viewer",
+    aboutHtml: "URL 的 <em>query string</em> 是 <code>?</code> 后面的那一段——由 <code>&amp;</code> 连接的一串 <code>key=value</code>，例如 <code>?q=shoes&amp;page=2</code>。Query Params Viewer 会解码这串参数并逐条列成表格：对每个值做 URL 解码、标出重复 key、格式化 JSON，并展开那些本身就是一个 encode URL 的参数。全部在你的浏览器里完成，不上传任何数据。",
+    features: [
+      "解析完整 URL、hash 路由和裸 query string",
+      "识别 JSON、数字、布尔、空值和重复值",
+      "展开嵌套的 encode URL，最多三层",
+      "对比、编辑、分享参数——全在客户端完成"
+    ],
+    faqHeading: "常见问题",
+    faq: [
+      { q: "什么是 URL query 参数？", a: "它是 URL 中 <code>?</code> 后面的一个 <code>key=value</code> 对。多个参数用 <code>&amp;</code> 分隔，例如 <code>?q=shoes&amp;page=2&amp;sort=asc</code>。同一个 key 可以出现多次。" },
+      { q: "怎么解码一段 query string？", a: "把完整 URL、裸的 <code>a=1&amp;b=2</code>、或 <code>#/path?a=1</code> 这样的 hash 路由粘进输入框，点「解析」。每个值都会被 URL 解码——<code>%20</code> 变成空格，<code>%3D</code> 变成 <code>=</code>——并连同识别出的类型一起显示在表格里。" },
+      { q: "我的 URL 会被发到服务器吗？", a: "不会。解析、编辑、对比和生成分享链接全部在浏览器里运行，URL 不会离开你的设备。分享链接把状态放在 <code>#</code> 片段里，而片段永远不会被发送到服务器。" },
+      { q: "重复的 key 会怎么处理？", a: "每一次出现都会保留，各占一行，并标上 <code>1/2</code>、<code>2/2</code> 这样的角标。这与 <code>URLSearchParams</code> 和大多数服务器读取重复 key 的方式一致，于是你能看到简单解析器会悄悄丢掉的值。" },
+      { q: "能读出藏在参数里的 URL 吗？", a: "可以。当某个值本身就是一个 encode 过的 URL 或 query string——比如 <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——你可以把它展开，查看里层的 key 和 value，最多三层。" }
+    ],
     footer: "单文件 · 纯前端 · 无依赖"
   },
   // Key doubles as the directory name, so it is lowercase; htmlLang carries
@@ -117,6 +133,22 @@ module.exports = {
     shareLenRisk: "連結長度 {n} 字元，已超出部分瀏覽器能處理的 URL 長度上限，可能無法開啟",
     shareUnsupported: "這是一個壓縮過的分享連結，但目前瀏覽器不支援解壓縮所需的 CompressionStream API。請改用較新版本的 Chrome / Edge / Firefox / Safari 開啟。",
     shareLinkBroken: "這個分享連結已損毀或在傳輸中被截斷，無法還原內容。請聯絡分享者重新產生一個連結。",
+    aboutHeading: "關於 Query Params Viewer",
+    aboutHtml: "URL 的 <em>query string</em> 是 <code>?</code> 後面的那一段——由 <code>&amp;</code> 連接的一串 <code>key=value</code>，例如 <code>?q=shoes&amp;page=2</code>。Query Params Viewer 會解碼這串參數並逐筆列成表格：對每個值做 URL 解碼、標出重複 key、格式化 JSON，並展開那些本身就是一個 encode URL 的參數。全部在你的瀏覽器裡完成，不上傳任何資料。",
+    features: [
+      "解析完整 URL、hash 路由與純 query string",
+      "辨識 JSON、數字、布林、空值與重複值",
+      "展開巢狀的 encode URL，最多三層",
+      "比較、編輯、分享參數——全在用戶端完成"
+    ],
+    faqHeading: "常見問題",
+    faq: [
+      { q: "什麼是 URL query 參數？", a: "它是 URL 中 <code>?</code> 後面的一個 <code>key=value</code> 對。多個參數以 <code>&amp;</code> 分隔，例如 <code>?q=shoes&amp;page=2&amp;sort=asc</code>。同一個 key 可以出現多次。" },
+      { q: "如何解碼一段 query string？", a: "把完整 URL、純粹的 <code>a=1&amp;b=2</code>，或 <code>#/path?a=1</code> 這類 hash 路由貼進輸入框，按「解析」。每個值都會被 URL 解碼——<code>%20</code> 變成空格，<code>%3D</code> 變成 <code>=</code>——並連同辨識出的型別一起顯示在表格中。" },
+      { q: "我的 URL 會被送到伺服器嗎？", a: "不會。解析、編輯、比較與產生分享連結全都在瀏覽器裡執行，URL 不會離開你的裝置。分享連結把狀態放在 <code>#</code> 片段中，而片段永遠不會送到伺服器。" },
+      { q: "重複的 key 會怎麼處理？", a: "每一次出現都會保留，各佔一列，並標上 <code>1/2</code>、<code>2/2</code> 這樣的標記。這與 <code>URLSearchParams</code> 和多數伺服器讀取重複 key 的方式一致，讓你看見較簡略的解析器會默默丟掉的值。" },
+      { q: "能讀出藏在參數裡的 URL 嗎？", a: "可以。當某個值本身就是一個 encode 過的 URL 或 query string——例如 <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——你可以將它展開，查看內層的 key 與 value，最多三層。" }
+    ],
     footer: "單一檔案 · 純前端 · 無相依套件"
   },
   en: {
@@ -172,6 +204,22 @@ module.exports = {
     shareLenRisk: "{n} characters — this exceeds the URL length some browsers can handle and may fail to open",
     shareUnsupported: "This is a compressed share link, but this browser lacks the CompressionStream API needed to unpack it. Try a recent version of Chrome, Edge, Firefox or Safari.",
     shareLinkBroken: "This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.",
+    aboutHeading: "About Query Params Viewer",
+    aboutHtml: "A URL <em>query string</em> is the part after the <code>?</code> — a list of <code>key=value</code> pairs joined by <code>&amp;</code>, such as <code>?q=shoes&amp;page=2</code>. Query Params Viewer decodes that string and lays every parameter out in a table: it URL-decodes each value, flags duplicate keys, pretty-prints JSON, and expands parameters that are themselves an encoded URL. Everything runs in your browser — nothing is uploaded.",
+    features: [
+      "Parse full URLs, hash routes and bare query strings",
+      "Detect JSON, number, boolean, empty and duplicate values",
+      "Expand nested encoded URLs up to three levels deep",
+      "Compare, edit and share parameters — all client-side"
+    ],
+    faqHeading: "Frequently asked questions",
+    faq: [
+      { q: "What is a URL query parameter?", a: "It is a <code>key=value</code> pair in the part of a URL after the <code>?</code>. Multiple parameters are separated by <code>&amp;</code>, for example <code>?q=shoes&amp;page=2&amp;sort=asc</code>. The same key may appear more than once." },
+      { q: "How do I decode a query string?", a: "Paste a full URL, a bare <code>a=1&amp;b=2</code> string, or a <code>#/path?a=1</code> hash route into the box and press Parse. Each value is URL-decoded — <code>%20</code> becomes a space, <code>%3D</code> becomes <code>=</code> — and shown in a table with its detected type." },
+      { q: "Is my URL sent to a server?", a: "No. Parsing, editing, comparing and share-link generation all run in your browser; the URL never leaves your device. Share links carry their state in the <code>#</code> fragment, which browsers never send to the server." },
+      { q: "What happens with duplicate keys?", a: "Every occurrence is kept and shown on its own row, tagged like <code>1/2</code> and <code>2/2</code>. This matches how <code>URLSearchParams</code> and most servers read repeated keys, so you see values a simpler parser would silently drop." },
+      { q: "Can it read a URL nested inside a parameter?", a: "Yes. When a value is itself an encoded URL or query string — such as <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — you can expand it to inspect its inner keys and values, up to three levels deep." }
+    ],
     footer: "Single file · Pure frontend · No dependencies"
   },
   ja: {
@@ -227,6 +275,22 @@ module.exports = {
     shareLenRisk: "{n} 文字 — 一部のブラウザが扱える URL 長の上限を超えており、開けない可能性があります",
     shareUnsupported: "これは圧縮された共有リンクですが、このブラウザには展開に必要な CompressionStream API がありません。新しいバージョンの Chrome / Edge / Firefox / Safari でお試しください。",
     shareLinkBroken: "この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。",
+    aboutHeading: "Query Params Viewer について",
+    aboutHtml: "URL の <em>クエリ文字列</em> とは <code>?</code> 以降の部分——<code>&amp;</code> でつながれた <code>key=value</code> の並びで、たとえば <code>?q=shoes&amp;page=2</code> です。Query Params Viewer はこの文字列をデコードし、各パラメータを表に展開します：値を URL デコードし、重複 key を示し、JSON を整形し、値そのものが encode された URL であればそれも展開します。すべてブラウザ内で動作し、データは一切アップロードされません。",
+    features: [
+      "完全な URL・ハッシュルート・裸のクエリ文字列を解析",
+      "JSON・数値・真偽値・空値・重複値を判定",
+      "ネストされた encode URL を最大3階層まで展開",
+      "比較・編集・共有をすべてクライアント側で実行"
+    ],
+    faqHeading: "よくある質問",
+    faq: [
+      { q: "URL のクエリパラメータとは？", a: "URL の <code>?</code> 以降にある <code>key=value</code> のペアです。複数のパラメータは <code>&amp;</code> で区切られ、たとえば <code>?q=shoes&amp;page=2&amp;sort=asc</code> のようになります。同じ key が複数回現れることもあります。" },
+      { q: "クエリ文字列をデコードするには？", a: "完全な URL、裸の <code>a=1&amp;b=2</code>、または <code>#/path?a=1</code> のようなハッシュルートを入力欄に貼り付けて「解析」を押します。各値は URL デコードされ——<code>%20</code> は空白に、<code>%3D</code> は <code>=</code> に——判定された型とともに表に表示されます。" },
+      { q: "URL はサーバーに送信されますか？", a: "いいえ。解析・編集・比較・共有リンクの生成はすべてブラウザ内で行われ、URL が端末から出ることはありません。共有リンクは状態を <code>#</code> フラグメントに載せますが、フラグメントはサーバーに送信されません。" },
+      { q: "重複した key はどう扱われますか？", a: "出現ごとに保持され、それぞれ別の行として <code>1/2</code>・<code>2/2</code> のように示されます。これは <code>URLSearchParams</code> や多くのサーバーが重複 key を読む方法と同じで、単純なパーサーが黙って捨ててしまう値も見えます。" },
+      { q: "パラメータの中にネストされた URL も読めますか？", a: "はい。値そのものが encode された URL やクエリ文字列——たとえば <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——であれば、展開して内側の key と value を最大3階層まで確認できます。" }
+    ],
     footer: "単一ファイル・純粋なフロントエンド・依存関係なし"
   },
   ru: {
@@ -282,6 +346,22 @@ module.exports = {
     shareLenRisk: "{n} символов — это превышает длину URL, которую способны обработать некоторые браузеры, ссылка может не открыться",
     shareUnsupported: "Это сжатая ссылка для обмена, но в этом браузере нет API CompressionStream, необходимого для её распаковки. Откройте её в свежей версии Chrome / Edge / Firefox / Safari.",
     shareLinkBroken: "Эта ссылка повреждена или была обрезана при передаче, поэтому её содержимое не удалось восстановить. Попросите отправителя создать новую ссылку.",
+    aboutHeading: "О Query Params Viewer",
+    aboutHtml: "<em>Строка запроса</em> URL — это часть после <code>?</code>: список пар <code>key=value</code>, соединённых знаком <code>&amp;</code>, например <code>?q=shoes&amp;page=2</code>. Query Params Viewer декодирует эту строку и раскладывает каждый параметр в таблицу: выполняет URL-декодирование значений, помечает повторяющиеся ключи, форматирует JSON и раскрывает параметры, которые сами являются закодированным URL. Всё происходит в вашем браузере — ничего не загружается на сервер.",
+    features: [
+      "Разбор полных URL, hash-маршрутов и строк запроса",
+      "Определение JSON, чисел, логических, пустых и повторяющихся значений",
+      "Раскрытие вложенных закодированных URL до трёх уровней",
+      "Сравнение, редактирование и обмен — полностью в браузере"
+    ],
+    faqHeading: "Частые вопросы",
+    faq: [
+      { q: "Что такое query-параметр URL?", a: "Это пара <code>key=value</code> в части URL после <code>?</code>. Несколько параметров разделяются знаком <code>&amp;</code>, например <code>?q=shoes&amp;page=2&amp;sort=asc</code>. Один и тот же ключ может встречаться несколько раз." },
+      { q: "Как декодировать строку запроса?", a: "Вставьте полный URL, строку <code>a=1&amp;b=2</code> или hash-маршрут вида <code>#/path?a=1</code> в поле и нажмите «Разобрать». Каждое значение декодируется — <code>%20</code> становится пробелом, <code>%3D</code> становится <code>=</code> — и показывается в таблице вместе с определённым типом." },
+      { q: "Отправляется ли мой URL на сервер?", a: "Нет. Разбор, редактирование, сравнение и создание ссылок выполняются в браузере; URL не покидает ваше устройство. Ссылки для обмена хранят состояние во фрагменте <code>#</code>, который браузеры никогда не отправляют на сервер." },
+      { q: "Что происходит с повторяющимися ключами?", a: "Каждое вхождение сохраняется в отдельной строке с меткой вида <code>1/2</code> и <code>2/2</code>. Так же читают повторяющиеся ключи <code>URLSearchParams</code> и большинство серверов, поэтому вы видите значения, которые простой парсер молча отбросил бы." },
+      { q: "Может ли инструмент прочитать URL, вложенный в параметр?", a: "Да. Если значение само является закодированным URL или строкой запроса — например <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — его можно раскрыть и посмотреть вложенные ключи и значения, до трёх уровней в глубину." }
+    ],
     footer: "Один файл · Только фронтенд · Без зависимостей"
   },
   de: {
@@ -337,6 +417,22 @@ module.exports = {
     shareLenRisk: "{n} Zeichen — das überschreitet die URL-Länge, die manche Browser verarbeiten können, der Link lässt sich womöglich nicht öffnen",
     shareUnsupported: "Dies ist ein komprimierter Freigabe-Link, aber diesem Browser fehlt die CompressionStream-API zum Entpacken. Versuchen Sie es mit einer aktuellen Version von Chrome, Edge, Firefox oder Safari.",
     shareLinkBroken: "Dieser Freigabe-Link ist beschädigt oder wurde bei der Übertragung abgeschnitten, sein Inhalt konnte nicht wiederhergestellt werden. Bitten Sie den Absender um einen neuen Link.",
+    aboutHeading: "Über Query Params Viewer",
+    aboutHtml: "Der <em>Query-String</em> einer URL ist der Teil nach dem <code>?</code> — eine Liste von <code>key=value</code>-Paaren, verbunden mit <code>&amp;</code>, etwa <code>?q=shoes&amp;page=2</code>. Query Params Viewer dekodiert diese Zeichenkette und legt jeden Parameter in einer Tabelle ab: Werte werden URL-dekodiert, doppelte Schlüssel markiert, JSON formatiert und Parameter, die selbst eine kodierte URL sind, aufgeklappt. Alles läuft in Ihrem Browser — nichts wird hochgeladen.",
+    features: [
+      "Vollständige URLs, Hash-Routen und reine Query-Strings analysieren",
+      "JSON, Zahlen, Booleans, leere und doppelte Werte erkennen",
+      "Verschachtelte kodierte URLs bis zu drei Ebenen aufklappen",
+      "Vergleichen, Bearbeiten und Teilen — vollständig im Browser"
+    ],
+    faqHeading: "Häufige Fragen",
+    faq: [
+      { q: "Was ist ein URL-Query-Parameter?", a: "Es ist ein <code>key=value</code>-Paar im Teil der URL nach dem <code>?</code>. Mehrere Parameter werden mit <code>&amp;</code> getrennt, zum Beispiel <code>?q=shoes&amp;page=2&amp;sort=asc</code>. Derselbe Schlüssel kann mehrfach vorkommen." },
+      { q: "Wie dekodiere ich einen Query-String?", a: "Fügen Sie eine vollständige URL, ein reines <code>a=1&amp;b=2</code> oder eine Hash-Route wie <code>#/path?a=1</code> in das Feld ein und klicken Sie auf „Analysieren“. Jeder Wert wird URL-dekodiert — aus <code>%20</code> wird ein Leerzeichen, aus <code>%3D</code> wird <code>=</code> — und mit erkanntem Typ in der Tabelle angezeigt." },
+      { q: "Wird meine URL an einen Server gesendet?", a: "Nein. Analysieren, Bearbeiten, Vergleichen und das Erzeugen von Freigabe-Links laufen im Browser; die URL verlässt Ihr Gerät nicht. Freigabe-Links tragen ihren Zustand im <code>#</code>-Fragment, das Browser nie an den Server senden." },
+      { q: "Was passiert mit doppelten Schlüsseln?", a: "Jedes Vorkommen bleibt erhalten und steht in einer eigenen Zeile, gekennzeichnet wie <code>1/2</code> und <code>2/2</code>. Das entspricht der Art, wie <code>URLSearchParams</code> und die meisten Server wiederholte Schlüssel lesen — so sehen Sie Werte, die ein einfacher Parser stillschweigend verwerfen würde." },
+      { q: "Kann eine in einem Parameter verschachtelte URL gelesen werden?", a: "Ja. Wenn ein Wert selbst eine kodierte URL oder ein Query-String ist — etwa <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — können Sie ihn aufklappen und seine inneren Schlüssel und Werte bis zu drei Ebenen tief betrachten." }
+    ],
     footer: "Eine Datei · Reines Frontend · Ohne Abhängigkeiten"
   },
   hi: {
@@ -392,6 +488,22 @@ module.exports = {
     shareLenRisk: "{n} वर्ण — यह कुछ ब्राउज़रों की URL लंबाई सीमा से ज़्यादा है, लिंक शायद न खुले",
     shareUnsupported: "यह एक कंप्रेस्ड शेयर लिंक है, लेकिन इस ब्राउज़र में इसे खोलने के लिए ज़रूरी CompressionStream API नहीं है। Chrome / Edge / Firefox / Safari के नए संस्करण में खोलें।",
     shareLinkBroken: "यह शेयर लिंक खराब है या भेजते समय कट गया, इसलिए इसकी सामग्री वापस नहीं लाई जा सकी। भेजने वाले से नया लिंक बनाने को कहें।",
+    aboutHeading: "Query Params Viewer के बारे में",
+    aboutHtml: "किसी URL की <em>क्वेरी स्ट्रिंग</em> वह हिस्सा है जो <code>?</code> के बाद आता है — <code>&amp;</code> से जुड़े <code>key=value</code> जोड़ों की सूची, जैसे <code>?q=shoes&amp;page=2</code>। Query Params Viewer इस स्ट्रिंग को डिकोड करके हर पैरामीटर को एक तालिका में रखता है: हर मान को URL-डिकोड करता है, दोहराई गई key दर्शाता है, JSON को सुंदर ढंग से दिखाता है, और उन पैरामीटर को खोलता है जो खुद एक encode किया हुआ URL हैं। सब कुछ आपके ब्राउज़र में होता है — कुछ भी अपलोड नहीं होता।",
+    features: [
+      "पूरा URL, hash रूट और सिर्फ़ क्वेरी स्ट्रिंग पार्स करें",
+      "JSON, संख्या, बूलियन, खाली और दोहराए गए मान पहचानें",
+      "नेस्टेड encode किए URL तीन स्तर तक खोलें",
+      "तुलना, संपादन और शेयर — सब क्लाइंट-साइड"
+    ],
+    faqHeading: "अक्सर पूछे जाने वाले सवाल",
+    faq: [
+      { q: "URL क्वेरी पैरामीटर क्या है?", a: "यह URL के <code>?</code> के बाद वाले हिस्से में एक <code>key=value</code> जोड़ा है। कई पैरामीटर <code>&amp;</code> से अलग होते हैं, जैसे <code>?q=shoes&amp;page=2&amp;sort=asc</code>। एक ही key एक से ज़्यादा बार आ सकती है।" },
+      { q: "क्वेरी स्ट्रिंग को डिकोड कैसे करें?", a: "पूरा URL, सादा <code>a=1&amp;b=2</code>, या <code>#/path?a=1</code> जैसा hash रूट बॉक्स में पेस्ट करें और «पार्स करें» दबाएँ। हर मान URL-डिकोड होता है — <code>%20</code> स्पेस बन जाता है, <code>%3D</code> <code>=</code> बन जाता है — और पहचाने गए प्रकार के साथ तालिका में दिखता है।" },
+      { q: "क्या मेरा URL सर्वर पर भेजा जाता है?", a: "नहीं। पार्स करना, संपादन, तुलना और शेयर लिंक बनाना सब ब्राउज़र में चलता है; URL आपके डिवाइस से बाहर नहीं जाता। शेयर लिंक अपनी स्थिति <code>#</code> फ़्रैगमेंट में रखते हैं, जिसे ब्राउज़र कभी सर्वर को नहीं भेजते।" },
+      { q: "दोहराई गई key के साथ क्या होता है?", a: "हर बार आने वाली key अपनी अलग पंक्ति में रहती है, <code>1/2</code> और <code>2/2</code> जैसे चिह्न के साथ। यह वैसा ही है जैसे <code>URLSearchParams</code> और अधिकतर सर्वर दोहराई गई key पढ़ते हैं, इसलिए आपको वे मान भी दिखते हैं जिन्हें साधारण पार्सर चुपचाप गिरा देता है।" },
+      { q: "क्या यह किसी पैरामीटर के भीतर छिपे URL को पढ़ सकता है?", a: "हाँ। जब कोई मान खुद एक encode किया हुआ URL या क्वेरी स्ट्रिंग हो — जैसे <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — तो आप उसे खोलकर उसकी भीतरी key और value तीन स्तर तक देख सकते हैं।" }
+    ],
     footer: "एक फ़ाइल · सिर्फ़ फ्रंटएंड · कोई निर्भरता नहीं"
   }
 };
