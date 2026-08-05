@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-08-05　第二轮：GSC 首批数据 + 落地 P3/P4
+
+### 输入：用户转述的 GSC 数据（非本环境直接接入 API 核实）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 平均排名 | 26.8 | 用户粘贴的 GSC 效果报告摘要 |
+| "query params" 排名 | 53.0 | 同上 |
+| "query parameter" 排名 | 61.0 | 同上 |
+| 曝光 / 点击 | 31 / 1 | 同上 |
+
+这满足了第一轮「九、下一轮优化条件」第 4 条的触发门槛，但标注为「用户转述」而非「本环境验证」——本次会话没有连 GSC API，不清楚这几个数字的聚合口径（时间窗口、是否分国家/设备），不能当成可交叉核实的「已知事实」写死，只作为发起本轮的输入依据。
+
+### 本轮执行：P3、P4（仓库内，低风险，已完成）
+
+#### P3　`og:image`/`twitter:image` 从 SVG 换成 1200×630 PNG
+- **做了什么**：新增 `og-image.png`（1200×630），`scripts/template.html` 的 `og:image`/`twitter:image` 改指向它并补上 `og:image:width`/`og:image:height`；`twitter:card` 从 `summary` 升级为 `summary_large_image`。
+- **怎么生成的**：本环境没有任何 SVG→PNG 或截图工具（第一轮已确认）。在仓库外的 `/tmp` 临时目录 `npm install --no-save puppeteer`（不触碰本仓库 `package.json`/`package-lock.json`），用无头 Chromium 渲染 `scripts/og-image.html` 并截图成 `og-image.png`，用完即删除临时安装。源 HTML 保留在 `scripts/og-image.html`，文件头注释写了原样复现的命令，供以后改文案/配色时重新生成——它不进 `build.js` 的生成流程，是手工资源。
+- **设计依据**：配色取自 `template.html` 里 `:root` 的 `--page`/`--surface-1`/`--text-primary`/`--series-1`（"blueprint/cyanotype"主题），卡片内容直接复用本站差异化功能（重复 key 标注 `dup 1/2`、JSON 值识别）而不是纯 logo+标语，让分享预览图本身也是一次功能说明。
+- **怎么验证**：`npm test` 295 用例通过；生成的各语言 `index.html` 里 `og:image` 标签已指向 `og-image.png`（grep 确认）。**没有做**的验证：Facebook Sharing Debugger / Twitter Card Validator 这类第三方 unfurl 实测——这两个工具需要目标 URL 公网可达且不被 P0 记录里提到的 Cloudflare 挑战页拦截，建议部署后你本人跑一次。
+- **怎么回滚**：`git revert` 这次改 `scripts/template.html`、新增 `og-image.png`/`scripts/og-image.html` 的提交，重新 `npm run build`。
+
+#### P4　sitemap 补 `<lastmod>`
+- **做了什么**：`scripts/langs.js` 新增 `UPDATED_AT` 映射（每语言一个日期，手动维护，注释写明维护规则）；`scripts/build.js` 的 `buildSitemap()` 按语言输出 `<lastmod>`。
+- **初始值怎么定的**：没有编造成"构建当天"。查了 `git log -1 -- scripts/i18n.js`，最后一次改动是 `f4c8e84`（2026-07-23，一次性给全部 7 个语言同时加了 About/FAQ 内容），确认这是目前为止 7 个语言共同的最后一次真实内容改动，于是 `updatedAt` 统一填 `2026-07-23`，不是今天的日期。
+- **维护规则**：以后改某个语言在 `i18n.js` 里的文案时，同步手动把该语言的 `UPDATED_AT` 日期改掉；没改的语言不要跟着动——第一轮审计特意没做「每次 build 打今日戳」，就是怕这种全员误报「有更新」的信号长期拖累 Google 对本站 lastmod 的信任度，这次维持同一原则。
+- **怎么验证**：`npm test` 通过；`sitemap.xml` 里全部 7 个 `<url>` 都带了 `<lastmod>2026-07-23</lastmod>`（cat 确认）。
+- **怎么回滚**：`git revert` 对应改动，重新 `npm run build`。
+
+### 本轮未执行
+- **P1**（AI 爬虫是否受 Cloudflare 挑战页影响）、**P2**（域名根 `robots.txt`/`sitemap` 合并）——不在仓库代码范围内，等你确认 Cloudflare/域名根侧的操作权限。
+- **P5**（新增 FAQ 长尾内容）——你这轮贴的通用建议里提到的"JS 里怎么解析 query string""UTM 参数提取"等方向，和第一轮「关键词与页面机会清单」基本重合，还没拍板要不要写，等你确认后再落成 `i18n.js` 里的 `faq` 条目。
+- **反向链接、长尾关键词挖掘**——站外运营动作，不是仓库改动，本轮不涉及。
+- 你贴的分析里"新站点通常经历评估期""纯功能性页面竞争难度较高"这类判断是通用假设，不是这个站点的实测数据，后续决策不建议当"已知事实"用。
+
+### 下一轮触发条件
+沿用第一轮「九、下一轮优化条件」；额外补一条：等你能直接从 GSC 导出或接 API 核实这轮转述的 26.8 平均排名等数字（尤其是聚合口径），再把它们从"用户转述"升级为本台账的"已知事实"。
+
+---
+
 ## 2026-08-03　首轮全站审计（mode: 持续优化闭环）
 
 ### 输入口径（可追溯）

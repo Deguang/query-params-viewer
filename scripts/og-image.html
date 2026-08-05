@@ -1,0 +1,175 @@
+<!--
+  Source for og-image.png (1200x630), used as og:image/twitter:image in
+  template.html. Not part of the build pipeline — regenerate by hand when the
+  copy or brand colors change:
+
+    npm install --no-save puppeteer   # in a scratch dir, not this repo
+    node -e "
+      const puppeteer = require('puppeteer');
+      (async () => {
+        const browser = await puppeteer.launch({args: ['--no-sandbox']});
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
+        await page.goto('file://' + require('path').resolve('scripts/og-image.html'));
+        await page.screenshot({ path: 'og-image.png', clip: { x: 0, y: 0, width: 1200, height: 630 } });
+        await browser.close();
+      })();
+    "
+
+  Colors match the page's --page/--surface-1/--text-primary/--series-1
+  custom properties (template.html :root, "Blueprint / cyanotype" theme) so
+  the shared preview looks like the app it's advertising.
+-->
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f1f5f8;
+    background-image:
+      linear-gradient(rgba(18,50,74,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18,50,74,0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: #12202e;
+    position: relative;
+  }
+  .frame {
+    position: absolute;
+    inset: 34px;
+    background: #ffffff;
+    border: 1px solid rgba(18,50,74,0.16);
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(18,50,74,0.12);
+    padding: 42px 60px;
+    display: flex;
+    flex-direction: column;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .brand svg { display: block; }
+  .brand-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #12202e;
+  }
+  .tagline {
+    margin-top: 22px;
+    font-size: 37px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: #12202e;
+    max-width: 940px;
+  }
+  .tagline em {
+    font-style: normal;
+    color: #14608f;
+  }
+  .sub {
+    margin-top: 14px;
+    font-size: 19px;
+    color: #48586a;
+    max-width: 900px;
+    line-height: 1.45;
+  }
+  .table {
+    margin-top: auto;
+    display: flex;
+    border: 1px solid rgba(18,50,74,0.16);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 15px;
+  }
+  .col {
+    flex: 1;
+    border-right: 1px solid rgba(18,50,74,0.12);
+  }
+  .col:last-child { border-right: none; }
+  .cell {
+    padding: 8px 16px;
+    border-top: 1px solid rgba(18,50,74,0.1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+  }
+  .cell:first-child { border-top: none; }
+  .head {
+    background: #f1f5f8;
+    font-weight: 600;
+    color: #48586a;
+    font-family: system-ui, sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .key { color: #12202e; }
+  .val { color: #14608f; }
+  .badge {
+    display: inline-block;
+    font-family: system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 999px;
+    margin-left: 7px;
+    vertical-align: 1px;
+  }
+  .badge.dup { background: rgba(138,90,0,0.14); color: #8a5a00; }
+  .badge.json { background: rgba(31,122,77,0.14); color: #1f7a4d; }
+  .footer {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: #8494a3;
+  }
+  .footer .url { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="brand">
+      <svg width="44" height="44" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="0" y="0" width="16" height="16" rx="3.5" fill="#14608f"/><rect x="6" y="1" width="1" height="1" fill="#ffffff"/><rect x="3" y="2" width="1" height="1" fill="#ffffff"/><rect x="4" y="2" width="1" height="1" fill="#ffffff"/><rect x="5" y="2" width="1" height="1" fill="#ffffff"/><rect x="6" y="2" width="1" height="1" fill="#ffffff"/><rect x="7" y="2" width="1" height="1" fill="#ffffff"/><rect x="8" y="2" width="1" height="1" fill="#ffffff"/><rect x="9" y="2" width="1" height="1" fill="#ffffff"/><rect x="2" y="3" width="1" height="1" fill="#ffffff"/><rect x="3" y="3" width="1" height="1" fill="#ffffff"/><rect x="4" y="3" width="1" height="1" fill="#ffffff"/><rect x="8" y="3" width="1" height="1" fill="#ffffff"/><rect x="9" y="3" width="1" height="1" fill="#ffffff"/><rect x="10" y="3" width="1" height="1" fill="#ffffff"/><rect x="2" y="4" width="1" height="1" fill="#ffffff"/><rect x="3" y="4" width="1" height="1" fill="#ffffff"/><rect x="9" y="4" width="1" height="1" fill="#ffffff"/><rect x="10" y="4" width="1" height="1" fill="#ffffff"/><rect x="2" y="5" width="1" height="1" fill="#ffffff"/><rect x="10" y="5" width="1" height="1" fill="#ffffff"/><rect x="1" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="6" width="1" height="1" fill="#ffffff"/><rect x="10" y="6" width="1" height="1" fill="#ffffff"/><rect x="11" y="6" width="1" height="1" fill="#ffffff"/><rect x="2" y="7" width="1" height="1" fill="#ffffff"/><rect x="10" y="7" width="1" height="1" fill="#ffffff"/><rect x="2" y="8" width="1" height="1" fill="#ffffff"/><rect x="3" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#ffffff"/><rect x="10" y="8" width="1" height="1" fill="#ffffff"/><rect x="2" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="9" width="1" height="1" fill="#ffffff"/><rect x="4" y="9" width="1" height="1" fill="#ffffff"/><rect x="8" y="9" width="1" height="1" fill="#ffffff"/><rect x="9" y="9" width="1" height="1" fill="#ffffff"/><rect x="10" y="9" width="1" height="1" fill="#ffffff"/><rect x="3" y="10" width="1" height="1" fill="#ffffff"/><rect x="4" y="10" width="1" height="1" fill="#ffffff"/><rect x="5" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="10" width="1" height="1" fill="#ffffff"/><rect x="8" y="10" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="10" y="10" width="1" height="1" fill="#ffffff"/><rect x="11" y="10" width="1" height="1" fill="#ffffff"/><rect x="6" y="11" width="1" height="1" fill="#ffffff"/><rect x="10" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="11" width="1" height="1" fill="#ffffff"/><rect x="12" y="11" width="1" height="1" fill="#ffffff"/><rect x="11" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="12" width="1" height="1" fill="#ffffff"/><rect x="13" y="12" width="1" height="1" fill="#ffffff"/><rect x="12" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="13" width="1" height="1" fill="#ffffff"/><rect x="14" y="13" width="1" height="1" fill="#ffffff"/><rect x="13" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="14" width="1" height="1" fill="#ffffff"/><rect x="15" y="14" width="1" height="1" fill="#ffffff"/><rect x="14" y="15" width="1" height="1" fill="#ffffff"/><rect x="15" y="15" width="1" height="1" fill="#ffffff"/></svg>
+      <div class="brand-name">Query Params Viewer</div>
+    </div>
+
+    <div class="tagline">Turn any URL's <em>query string</em><br>into a clear key/value table</div>
+    <div class="sub">Decodes params, flags duplicate keys, detects JSON values, and expands encoded URLs nested inside them — free, client-side, nothing uploaded.</div>
+
+    <div class="table">
+      <div class="col" style="flex: 0.9;">
+        <div class="cell head">Key</div>
+        <div class="cell key">q</div>
+        <div class="cell key">page <span class="badge dup">dup 1/2</span></div>
+        <div class="cell key">page <span class="badge dup">dup 2/2</span></div>
+        <div class="cell key">filters <span class="badge json">JSON</span></div>
+      </div>
+      <div class="col" style="flex: 1.4;">
+        <div class="cell head">Value</div>
+        <div class="cell val">running shoes</div>
+        <div class="cell val">2</div>
+        <div class="cell val">3</div>
+        <div class="cell val">{"color":"red","inStock":true}</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Parse · Compare · Edit · Share</span>
+      <span class="url">app.lideguang.com/query-params-viewer</span>
+    </div>
+  </div>
+</body>
+</html>

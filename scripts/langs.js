@@ -41,6 +41,21 @@ const LANG_NAMES = {
   hi: "हिन्दी"
 };
 
+// The date each language's content (i18n.js dict) last actually changed —
+// hand-maintained rather than stamped at build time, so sitemap <lastmod>
+// reflects real edits instead of "rebuilt today" for every language on
+// every commit, which would teach crawlers to distrust it. Bump a language's
+// date only when you change its dict entry in i18n.js.
+const UPDATED_AT = {
+  en: "2026-07-23",
+  zh: "2026-07-23",
+  "zh-hant": "2026-07-23",
+  ja: "2026-07-23",
+  ru: "2026-07-23",
+  de: "2026-07-23",
+  hi: "2026-07-23"
+};
+
 function dirOf(lang) {
   return lang === DEFAULT_LANG ? "" : lang;
 }
@@ -57,6 +72,7 @@ module.exports = {
   FALLBACK_LANG,
   LEGACY_ALIASES,
   LANG_NAMES,
+  UPDATED_AT,
   dirOf,
   canonicalOf
 };

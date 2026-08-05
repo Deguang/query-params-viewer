@@ -3,6 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
@@ -16,6 +17,7 @@
   </url>
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/zh/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
@@ -29,6 +31,7 @@
   </url>
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/zh-hant/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
@@ -42,6 +45,7 @@
   </url>
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/ja/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
@@ -55,6 +59,7 @@
   </url>
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/ru/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
@@ -68,6 +73,7 @@
   </url>
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/de/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>
@@ -81,6 +87,7 @@
   </url>
   <url>
     <loc>https://app.lideguang.com/query-params-viewer/hi/</loc>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://app.lideguang.com/query-params-viewer/"/>

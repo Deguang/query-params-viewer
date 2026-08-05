@@ -23,6 +23,7 @@ const {
   FALLBACK_LANG,
   LEGACY_ALIASES,
   LANG_NAMES,
+  UPDATED_AT,
   dirOf,
   canonicalOf
 } = require("./langs.js");
@@ -136,6 +137,7 @@ function buildSitemap() {
     return [
       "  <url>",
       "    <loc>" + canonicalOf(lang) + "</loc>",
+      "    <lastmod>" + UPDATED_AT[lang] + "</lastmod>",
       "    <changefreq>monthly</changefreq>",
       "    <priority>" + (lang === DEFAULT_LANG ? "1.0" : "0.8") + "</priority>",
       alternates,
