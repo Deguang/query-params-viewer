@@ -597,6 +597,85 @@ async function testContentAndStructuredData() {
     JSON.stringify(switched) === JSON.stringify(i18n.ja.faq.map((f) => f.q)), JSON.stringify(switched));
 }
 
+// The MCP install line on the tab row. The copied string and the visible one
+// come from one build-time constant, so the risk is not that they disagree in
+// the dictionary but that the DOM drifts from the constant -- and that the
+// icon-only copy button repeats the old bug where the "copied" flash assigned
+// textContent and permanently deleted the inline <svg>.
+async function testMcpPill() {
+  const p = load(SITE);
+  const cmd = p.$("mcpCmd").textContent.trim();
+
+  ok("[mcp] the panel offers a runnable server command", /^npx /.test(cmd), cmd);
+  ok("[mcp] pointing at this repo", cmd.includes("github:Deguang/query-params-viewer"), cmd);
+  // MCP is a protocol, so the command on the page must not be one vendor's
+  // install helper -- per-client wiring belongs in the linked README.
+  ok("[mcp] and is not tied to a single client", !/\bclaude\b|\bcursor\b/i.test(cmd), cmd);
+
+  p.click(p.$("mcpCopyBtn"));
+  await tick(20);
+  eq("[mcp] copying yields exactly the visible command", p.clip.text, cmd);
+
+  // The flash must swap the glyph, never the button's contents.
+  const iconUse = p.$("mcpCopyIcon");
+  ok("[mcp] the copy button still has its icon after copying", !!iconUse);
+  eq("[mcp] the flash swaps in a check", iconUse.getAttribute("href"), "#i-check");
+  ok("[mcp] and marks the button copied", p.$("mcpCopyBtn").classList.contains("copied"));
+
+  await tick(1300);
+  eq("[mcp] the copy glyph comes back", p.$("mcpCopyIcon").getAttribute("href"), "#i-copy");
+  eq("[mcp] the button still holds one svg", p.$("mcpCopyBtn").querySelectorAll("svg").length, 1);
+
+  // A bare command explains nothing, so both the label and the command have to
+  // be on screen -- nothing behind a disclosure -- in every language, and in
+  // the static DOM so a JS-less reader sees them too.
+  for (const [lang, file] of Object.entries(PAGES)) {
+    const q = load(SITE + (langs.dirOf(lang) ? langs.dirOf(lang) + "/" : ""), file);
+    eq(`[mcp] ${lang}: the command is language-independent`, q.$("mcpCmd").textContent.trim(), cmd);
+    eq(`[mcp] ${lang}: the label is translated`, q.$("mcpLabelText").textContent, i18n[lang].mcpMenu);
+    eq(`[mcp] ${lang}: the tooltip explains what it is for`, q.$("mcpPill").title, i18n[lang].mcpNote);
+    ok(`[mcp] ${lang}: that explanation is more than a label`, i18n[lang].mcpNote.length > 60);
+    // Copying a command is no use without somewhere to paste it.
+    ok(`[mcp] ${lang}: the label links to the setup guide`,
+      q.$("mcpLabel").getAttribute("href").endsWith("/mcp-server"));
+  }
+
+  // Nothing may be collapsed: the whole point is that both are visible without
+  // a click, so a <details> creeping back in should fail here.
+  const vis = load(SITE);
+  eq("[mcp] the line is not inside a disclosure", vis.qs("details #mcpCmd"), null);
+  ok("[mcp] label and command share one row",
+    vis.$("mcpLabel").parentElement === vis.$("mcpCmd").parentElement);
+
+  // A phone reorders rather than removes: the tool takes the top of the screen
+  // and the MCP line moves below the views. Nothing about it may be hidden --
+  // a phone is still somewhere the server gets discovered.
+  const { mobile } = cssRules(vis.window);
+  const rulesFor = (sel) => mobile.filter((r) =>
+    r.selectorText && r.selectorText.split(",").map((s) => s.trim()).includes(sel));
+  const hidden = (sel) => rulesFor(sel).some((r) => r.style.display === "none");
+  eq("[mcp] mobile keeps the command", hidden(".mcp-pill code"), false);
+  eq("[mcp] mobile keeps the copy button", hidden(".copy-btn.mcp-copy"), false);
+  eq("[mcp] mobile keeps the label", hidden(".mcp-label"), false);
+
+  const orderOf = (sel) => rulesFor(sel).map((r) => r.style.order).filter(Boolean).pop();
+  ok("[mcp] the tabs come first on mobile", orderOf(".view-tabs") === "1", orderOf(".view-tabs"));
+  ok("[mcp] then the tool, then the MCP line",
+    Number(orderOf("#parseView")) < Number(orderOf(".mcp-pill")),
+    `${orderOf("#parseView")} vs ${orderOf(".mcp-pill")}`);
+  // The reorder only works if .tabs-row stops being a box of its own.
+  ok("[mcp] the tab row collapses so ordering can reach across it",
+    rulesFor(".tabs-row").some((r) => r.style.display === "contents"));
+
+  // Switching language in place must re-translate the label and tooltip too.
+  const sw = load(SITE);
+  sw.qs('.lang-switch a[data-lang="ja"]').dispatchEvent(
+    new sw.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+  eq("[mcp] switching language re-translates the label", sw.$("mcpLabelText").textContent, i18n.ja.mcpMenu);
+  eq("[mcp] and the tooltip", sw.$("mcpPill").title, i18n.ja.mcpNote);
+  eq("[mcp] but leaves the command alone", sw.$("mcpCmd").textContent.trim(), cmd);
+}
+
 async function testEmptyStateSkeleton() {
   const p = load(SITE);
   await tick(50);
@@ -644,7 +723,8 @@ async function testEmptyStateSkeleton() {
     testLanguagePathsDoNotAccumulate,
     testLanguageMenu,
     testAutoLanguageSelection,
-    testResponsiveRules
+    testResponsiveRules,
+    testMcpPill
   ];
 
   for (const t of tests) {

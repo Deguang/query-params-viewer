@@ -13,7 +13,7 @@ module.exports = {
     title: "Query Params Viewer — 在线 URL Query Params 拆解工具",
     description: "免费在线工具：粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。单文件、纯前端、无需安装。",
     ogDescription: "粘贴任意 URL，自动拆解 query params 为 key/value，识别 JSON、数字、布尔、重复 key，并自动展开值中嵌套的 encode 参数。",
-    keywords: "query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer",
+    keywords: "query params viewer, url parser, query string parser, url解析, 嵌套参数解析, 查询参数解析工具, url query string, key value viewer, mcp server, url 解析 mcp, model context protocol",
     jsonldDescription: "拆解 URL 中的 query params：支持完整 URL、hash 路由、裸 query string，自动识别重复 key、JSON 值、空值，并可展开值中嵌套的 encode 参数。",
     tagline: "拆解 URL 中的 query params，支持嵌套参数自动展开",
     inputPlaceholder: "粘贴完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2",
@@ -49,6 +49,9 @@ module.exports = {
     baseUrlPlaceholder: "Base URL（域名 + 路径）",
     tabParse: "解析",
     tabCompare: "对比",
+    mcpMenu: "接入 AI",
+    mcpNote: "本工具同时提供 MCP server。把下面这条命令填进任意支持 MCP 的客户端（Claude、Cursor、Cline 等），助手就能直接帮你拆解和对比 URL。它跑在你自己的机器上，URL 一样不会离开你的设备。",
+    mcpCopyLabel: "复制 MCP server 命令",
     compareHeading: "对比两个 URL",
     compareBtn: "对比",
     statusSame: "相同",
@@ -66,7 +69,8 @@ module.exports = {
       "解析完整 URL、hash 路由和裸 query string",
       "识别 JSON、数字、布尔、空值和重复值",
       "展开嵌套的 encode URL，最多三层",
-      "对比、编辑、分享参数——全在客户端完成"
+      "对比、编辑、分享参数——全在客户端完成",
+      "通过 MCP 供 AI 助手直接调用——parse_url 与 compare_urls"
     ],
     faqHeading: "常见问题",
     faq: [
@@ -74,7 +78,8 @@ module.exports = {
       { q: "怎么解码一段 query string？", a: "把完整 URL、裸的 <code>a=1&amp;b=2</code>、或 <code>#/path?a=1</code> 这样的 hash 路由粘进输入框，点「解析」。每个值都会被 URL 解码——<code>%20</code> 变成空格，<code>%3D</code> 变成 <code>=</code>——并连同识别出的类型一起显示在表格里。" },
       { q: "我的 URL 会被发到服务器吗？", a: "不会。解析、编辑、对比和生成分享链接全部在浏览器里运行，URL 不会离开你的设备。分享链接把状态放在 <code>#</code> 片段里，而片段永远不会被发送到服务器。" },
       { q: "重复的 key 会怎么处理？", a: "每一次出现都会保留，各占一行，并标上 <code>1/2</code>、<code>2/2</code> 这样的角标。这与 <code>URLSearchParams</code> 和大多数服务器读取重复 key 的方式一致，于是你能看到简单解析器会悄悄丢掉的值。" },
-      { q: "能读出藏在参数里的 URL 吗？", a: "可以。当某个值本身就是一个 encode 过的 URL 或 query string——比如 <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——你可以把它展开，查看里层的 key 和 value，最多三层。" }
+      { q: "能读出藏在参数里的 URL 吗？", a: "可以。当某个值本身就是一个 encode 过的 URL 或 query string——比如 <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——你可以把它展开，查看里层的 key 和 value，最多三层。" },
+      { q: "AI 助手能直接调用这个工具吗？", a: "可以。同一套解析逻辑还打包成了一个 MCP server，任何支持 MCP 的客户端（Claude、Cursor、Cline 等）里的助手都能直接帮你拆解或对比 URL，不需要有人打开这个页面。它提供 <code>parse_url</code> 和 <code>compare_urls</code> 两个工具，跑在你自己的机器上，URL 同样不会离开你的设备。配置方法见仓库的 <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server 目录</a>。" }
     ],
     footer: "单文件 · 纯前端 · 无依赖"
   },
@@ -86,7 +91,7 @@ module.exports = {
     title: "Query Params Viewer — 線上 URL Query Params 拆解工具",
     description: "免費線上工具：貼上任意 URL，自動將 query params 拆解成 key/value，辨識 JSON、數字、布林、重複 key，並自動展開值中巢狀的 encode 參數。單一檔案、純前端、免安裝。",
     ogDescription: "貼上任意 URL，自動將 query params 拆解成 key/value，辨識 JSON、數字、布林、重複 key，並自動展開值中巢狀的 encode 參數。",
-    keywords: "query params viewer, url parser, query string parser, url 解析, 巢狀參數解析, 查詢參數解析工具, url query string, key value viewer",
+    keywords: "query params viewer, url parser, query string parser, url 解析, 巢狀參數解析, 查詢參數解析工具, url query string, key value viewer, mcp server, url 解析 mcp, model context protocol",
     jsonldDescription: "拆解 URL 中的 query params：支援完整 URL、hash 路由、純 query string，自動辨識重複 key、JSON 值、空值，並可展開值中巢狀的 encode 參數。",
     tagline: "拆解 URL 中的 query params，巢狀參數自動展開",
     inputPlaceholder: "貼上完整 URL 或 query string，例如 https://example.com/search?q=hi&page=2",
@@ -122,6 +127,9 @@ module.exports = {
     baseUrlPlaceholder: "Base URL（網域 + 路徑）",
     tabParse: "解析",
     tabCompare: "比較",
+    mcpMenu: "接入 AI",
+    mcpNote: "本工具同時提供 MCP server。把下面這條指令填進任何支援 MCP 的客戶端（Claude、Cursor、Cline 等），助手就能直接幫你拆解與比較 URL。它跑在你自己的機器上，URL 一樣不會離開你的裝置。",
+    mcpCopyLabel: "複製 MCP server 指令",
     compareHeading: "比較兩個 URL",
     compareBtn: "比較",
     statusSame: "相同",
@@ -139,7 +147,8 @@ module.exports = {
       "解析完整 URL、hash 路由與純 query string",
       "辨識 JSON、數字、布林、空值與重複值",
       "展開巢狀的 encode URL，最多三層",
-      "比較、編輯、分享參數——全在用戶端完成"
+      "比較、編輯、分享參數——全在用戶端完成",
+      "透過 MCP 供 AI 助手直接呼叫——parse_url 與 compare_urls"
     ],
     faqHeading: "常見問題",
     faq: [
@@ -147,7 +156,8 @@ module.exports = {
       { q: "如何解碼一段 query string？", a: "把完整 URL、純粹的 <code>a=1&amp;b=2</code>，或 <code>#/path?a=1</code> 這類 hash 路由貼進輸入框，按「解析」。每個值都會被 URL 解碼——<code>%20</code> 變成空格，<code>%3D</code> 變成 <code>=</code>——並連同辨識出的型別一起顯示在表格中。" },
       { q: "我的 URL 會被送到伺服器嗎？", a: "不會。解析、編輯、比較與產生分享連結全都在瀏覽器裡執行，URL 不會離開你的裝置。分享連結把狀態放在 <code>#</code> 片段中，而片段永遠不會送到伺服器。" },
       { q: "重複的 key 會怎麼處理？", a: "每一次出現都會保留，各佔一列，並標上 <code>1/2</code>、<code>2/2</code> 這樣的標記。這與 <code>URLSearchParams</code> 和多數伺服器讀取重複 key 的方式一致，讓你看見較簡略的解析器會默默丟掉的值。" },
-      { q: "能讀出藏在參數裡的 URL 嗎？", a: "可以。當某個值本身就是一個 encode 過的 URL 或 query string——例如 <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——你可以將它展開，查看內層的 key 與 value，最多三層。" }
+      { q: "能讀出藏在參數裡的 URL 嗎？", a: "可以。當某個值本身就是一個 encode 過的 URL 或 query string——例如 <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——你可以將它展開，查看內層的 key 與 value，最多三層。" },
+      { q: "AI 助手能直接呼叫這個工具嗎？", a: "可以。同一套解析邏輯也打包成了一個 MCP server，任何支援 MCP 的客戶端（Claude、Cursor、Cline 等）裡的助手都能直接幫你拆解或比較 URL，不需要有人開啟這個頁面。它提供 <code>parse_url</code> 與 <code>compare_urls</code> 兩個工具，跑在你自己的機器上，URL 同樣不會離開你的裝置。設定方式見儲存庫的 <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server 目錄</a>。" }
     ],
     footer: "單一檔案 · 純前端 · 無相依套件"
   },
@@ -157,7 +167,7 @@ module.exports = {
     title: "Query Params Viewer — Parse URL Query Strings",
     description: "Free online tool: paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans and duplicate keys, and expand nested encoded params found inside values. Single file, no install.",
     ogDescription: "Paste any URL to break its query params into key/value pairs, detect JSON, numbers, booleans, duplicate keys, and nested encoded params.",
-    keywords: "query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params",
+    keywords: "query params viewer, url parser, query string parser, url query string, key value viewer, parse url parameters, nested query params, url parser mcp server, mcp server, model context protocol",
     jsonldDescription: "Parse URL query params: supports full URLs, hash routes, and bare query strings; auto-detects duplicate keys, JSON values, empty values, and nested encoded params inside values.",
     tagline: "Break down URL query params — nested encoded params expand automatically",
     inputPlaceholder: "Paste a full URL or query string, e.g. https://example.com/search?q=hi&page=2",
@@ -193,6 +203,9 @@ module.exports = {
     baseUrlPlaceholder: "Base URL (domain + path)",
     tabParse: "Parse",
     tabCompare: "Compare",
+    mcpMenu: "Use with AI",
+    mcpNote: "This tool also ships as an MCP server. Give the command below to any MCP-capable client — Claude, Cursor, Cline and others — and your assistant can parse and diff URLs for you directly. It runs on your own machine, so URLs stay on your device just as they do here.",
+    mcpCopyLabel: "Copy the MCP server command",
     compareHeading: "Compare Two URLs",
     compareBtn: "Compare",
     statusSame: "Same",
@@ -210,7 +223,8 @@ module.exports = {
       "Parse full URLs, hash routes and bare query strings",
       "Detect JSON, number, boolean, empty and duplicate values",
       "Expand nested encoded URLs up to three levels deep",
-      "Compare, edit and share parameters — all client-side"
+      "Compare, edit and share parameters — all client-side",
+      "Callable from an AI assistant over MCP — parse_url and compare_urls"
     ],
     faqHeading: "Frequently asked questions",
     faq: [
@@ -218,7 +232,8 @@ module.exports = {
       { q: "How do I decode a query string?", a: "Paste a full URL, a bare <code>a=1&amp;b=2</code> string, or a <code>#/path?a=1</code> hash route into the box and press Parse. Each value is URL-decoded — <code>%20</code> becomes a space, <code>%3D</code> becomes <code>=</code> — and shown in a table with its detected type." },
       { q: "Is my URL sent to a server?", a: "No. Parsing, editing, comparing and share-link generation all run in your browser; the URL never leaves your device. Share links carry their state in the <code>#</code> fragment, which browsers never send to the server." },
       { q: "What happens with duplicate keys?", a: "Every occurrence is kept and shown on its own row, tagged like <code>1/2</code> and <code>2/2</code>. This matches how <code>URLSearchParams</code> and most servers read repeated keys, so you see values a simpler parser would silently drop." },
-      { q: "Can it read a URL nested inside a parameter?", a: "Yes. When a value is itself an encoded URL or query string — such as <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — you can expand it to inspect its inner keys and values, up to three levels deep." }
+      { q: "Can it read a URL nested inside a parameter?", a: "Yes. When a value is itself an encoded URL or query string — such as <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — you can expand it to inspect its inner keys and values, up to three levels deep." },
+      { q: "Can an AI assistant use this tool?", a: "Yes. The same parser is also packaged as an MCP server, so an assistant in any MCP-capable client — Claude, Cursor, Cline and others — can break down or diff a URL for you without anyone opening this page. It offers two tools — <code>parse_url</code> and <code>compare_urls</code> — and runs on your own machine, so URLs stay on your device just as they do here. Setup instructions live in the <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server directory</a> of the repository." }
     ],
     footer: "Single file · Pure frontend · No dependencies"
   },
@@ -228,7 +243,7 @@ module.exports = {
     title: "Query Params Viewer — URLクエリパラメータの解析ツール",
     description: "無料オンラインツール：任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key を自動判定、値の中にネストされた encode パラメータも自動展開します。単一ファイル・インストール不要。",
     ogDescription: "任意の URL を貼り付けるだけでクエリパラメータを key/value に分解し、JSON・数値・真偽値・重複 key・ネストされた encode パラメータを自動判定します。",
-    keywords: "query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析",
+    keywords: "query params viewer, url parser, クエリパラメータ 解析, url クエリ文字列, key value viewer, ネスト パラメータ 解析, mcp server, mcp サーバー, model context protocol",
     jsonldDescription: "URL のクエリパラメータを解析します。完全な URL、ハッシュルーティング、裸のクエリ文字列に対応し、重複 key・JSON 値・空値・ネストされた encode パラメータを自動判定します。",
     tagline: "URL のクエリパラメータを分解、ネストされた encode パラメータも自動展開",
     inputPlaceholder: "完全な URL またはクエリ文字列を貼り付け（例: https://example.com/search?q=hi&page=2）",
@@ -264,6 +279,9 @@ module.exports = {
     baseUrlPlaceholder: "ベース URL（ドメイン + パス）",
     tabParse: "解析",
     tabCompare: "比較",
+    mcpMenu: "AI で使う",
+    mcpNote: "このツールは MCP サーバーとしても提供しています。下のコマンドを MCP 対応クライアント（Claude、Cursor、Cline など）に設定すれば、アシスタントが URL の解析や比較を直接行えます。あなたのマシン上で動作するため、URL がここと同じく端末から出ることはありません。",
+    mcpCopyLabel: "MCP サーバーのコマンドをコピー",
     compareHeading: "2つの URL を比較",
     compareBtn: "比較",
     statusSame: "同じ",
@@ -281,7 +299,8 @@ module.exports = {
       "完全な URL・ハッシュルート・裸のクエリ文字列を解析",
       "JSON・数値・真偽値・空値・重複値を判定",
       "ネストされた encode URL を最大3階層まで展開",
-      "比較・編集・共有をすべてクライアント側で実行"
+      "比較・編集・共有をすべてクライアント側で実行",
+      "MCP 経由で AI アシスタントから呼び出し——parse_url と compare_urls"
     ],
     faqHeading: "よくある質問",
     faq: [
@@ -289,7 +308,8 @@ module.exports = {
       { q: "クエリ文字列をデコードするには？", a: "完全な URL、裸の <code>a=1&amp;b=2</code>、または <code>#/path?a=1</code> のようなハッシュルートを入力欄に貼り付けて「解析」を押します。各値は URL デコードされ——<code>%20</code> は空白に、<code>%3D</code> は <code>=</code> に——判定された型とともに表に表示されます。" },
       { q: "URL はサーバーに送信されますか？", a: "いいえ。解析・編集・比較・共有リンクの生成はすべてブラウザ内で行われ、URL が端末から出ることはありません。共有リンクは状態を <code>#</code> フラグメントに載せますが、フラグメントはサーバーに送信されません。" },
       { q: "重複した key はどう扱われますか？", a: "出現ごとに保持され、それぞれ別の行として <code>1/2</code>・<code>2/2</code> のように示されます。これは <code>URLSearchParams</code> や多くのサーバーが重複 key を読む方法と同じで、単純なパーサーが黙って捨ててしまう値も見えます。" },
-      { q: "パラメータの中にネストされた URL も読めますか？", a: "はい。値そのものが encode された URL やクエリ文字列——たとえば <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——であれば、展開して内側の key と value を最大3階層まで確認できます。" }
+      { q: "パラメータの中にネストされた URL も読めますか？", a: "はい。値そのものが encode された URL やクエリ文字列——たとえば <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code>——であれば、展開して内側の key と value を最大3階層まで確認できます。" },
+      { q: "AI アシスタントからこのツールを呼び出せますか？", a: "はい。同じ解析ロジックを MCP サーバーとしても提供しているため、MCP 対応クライアント（Claude、Cursor、Cline など）のアシスタントがこのページを開かずに URL の分解や比較を行えます。<code>parse_url</code> と <code>compare_urls</code> の 2 つのツールがあり、あなた自身のマシン上で動作するので、URL が端末から出ることはここと同じくありません。設定方法はリポジトリの <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server ディレクトリ</a>にあります。" }
     ],
     footer: "単一ファイル・純粋なフロントエンド・依存関係なし"
   },
@@ -299,7 +319,7 @@ module.exports = {
     title: "Query Params Viewer — разбор query-параметров URL онлайн",
     description: "Бесплатный онлайн-инструмент: вставьте любой URL, чтобы разложить query-параметры на пары ключ/значение, определить JSON, числа, логические значения и повторяющиеся ключи, а также раскрыть вложенные закодированные параметры внутри значений. Один файл, без установки.",
     ogDescription: "Вставьте любой URL, чтобы разложить query-параметры на пары ключ/значение и определить JSON, числа, логические значения, повторяющиеся ключи и вложенные закодированные параметры.",
-    keywords: "query params viewer, url parser, разбор url, парсер query string, параметры url, ключ значение, вложенные параметры",
+    keywords: "query params viewer, url parser, разбор url, парсер query string, параметры url, ключ значение, вложенные параметры, mcp server, mcp сервер, model context protocol",
     jsonldDescription: "Разбор query-параметров URL: поддерживает полные URL, hash-маршруты и строку запроса без адреса, автоматически определяет повторяющиеся ключи, значения JSON, пустые значения и вложенные закодированные параметры внутри значений.",
     tagline: "Разбирает query-параметры URL, вложенные параметры раскрываются автоматически",
     inputPlaceholder: "Вставьте полный URL или строку запроса, например https://example.com/search?q=hi&page=2",
@@ -335,6 +355,9 @@ module.exports = {
     baseUrlPlaceholder: "Базовый URL (домен + путь)",
     tabParse: "Разбор",
     tabCompare: "Сравнение",
+    mcpMenu: "Для ИИ",
+    mcpNote: "Этот инструмент также доступен как MCP-сервер. Укажите команду ниже в любом клиенте с поддержкой MCP — Claude, Cursor, Cline и других — и ассистент сможет сам разбирать и сравнивать URL. Он работает на вашем компьютере, поэтому URL не покидает ваше устройство, как и здесь.",
+    mcpCopyLabel: "Скопировать команду MCP-сервера",
     compareHeading: "Сравнить два URL",
     compareBtn: "Сравнить",
     statusSame: "Совпадает",
@@ -352,7 +375,8 @@ module.exports = {
       "Разбор полных URL, hash-маршрутов и строк запроса",
       "Определение JSON, чисел, логических, пустых и повторяющихся значений",
       "Раскрытие вложенных закодированных URL до трёх уровней",
-      "Сравнение, редактирование и обмен — полностью в браузере"
+      "Сравнение, редактирование и обмен — полностью в браузере",
+      "Вызов из ИИ-ассистента по MCP — parse_url и compare_urls"
     ],
     faqHeading: "Частые вопросы",
     faq: [
@@ -360,7 +384,8 @@ module.exports = {
       { q: "Как декодировать строку запроса?", a: "Вставьте полный URL, строку <code>a=1&amp;b=2</code> или hash-маршрут вида <code>#/path?a=1</code> в поле и нажмите «Разобрать». Каждое значение декодируется — <code>%20</code> становится пробелом, <code>%3D</code> становится <code>=</code> — и показывается в таблице вместе с определённым типом." },
       { q: "Отправляется ли мой URL на сервер?", a: "Нет. Разбор, редактирование, сравнение и создание ссылок выполняются в браузере; URL не покидает ваше устройство. Ссылки для обмена хранят состояние во фрагменте <code>#</code>, который браузеры никогда не отправляют на сервер." },
       { q: "Что происходит с повторяющимися ключами?", a: "Каждое вхождение сохраняется в отдельной строке с меткой вида <code>1/2</code> и <code>2/2</code>. Так же читают повторяющиеся ключи <code>URLSearchParams</code> и большинство серверов, поэтому вы видите значения, которые простой парсер молча отбросил бы." },
-      { q: "Может ли инструмент прочитать URL, вложенный в параметр?", a: "Да. Если значение само является закодированным URL или строкой запроса — например <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — его можно раскрыть и посмотреть вложенные ключи и значения, до трёх уровней в глубину." }
+      { q: "Может ли инструмент прочитать URL, вложенный в параметр?", a: "Да. Если значение само является закодированным URL или строкой запроса — например <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — его можно раскрыть и посмотреть вложенные ключи и значения, до трёх уровней в глубину." },
+      { q: "Может ли ИИ-ассистент вызвать этот инструмент?", a: "Да. Тот же разбор упакован в MCP-сервер, поэтому ассистент в любом клиенте с поддержкой MCP — Claude, Cursor, Cline и других — может разобрать или сравнить URL за вас, не открывая эту страницу. Он предоставляет два инструмента — <code>parse_url</code> и <code>compare_urls</code> — и работает на вашем компьютере, так что URL не покидает ваше устройство, как и здесь. Инструкции по настройке — в каталоге <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server</a> репозитория." }
     ],
     footer: "Один файл · Только фронтенд · Без зависимостей"
   },
@@ -370,7 +395,7 @@ module.exports = {
     title: "Query Params Viewer — URL-Query-Parameter analysieren",
     description: "Kostenloses Online-Tool: beliebige URL einfügen, um ihre Query-Parameter in Schlüssel/Wert-Paare zu zerlegen, JSON, Zahlen, Booleans und doppelte Schlüssel zu erkennen und verschachtelte kodierte Parameter innerhalb von Werten aufzuklappen. Eine einzige Datei, keine Installation.",
     ogDescription: "Beliebige URL einfügen, um Query-Parameter in Schlüssel/Wert-Paare zu zerlegen und JSON, Zahlen, Booleans, doppelte Schlüssel sowie verschachtelte kodierte Parameter zu erkennen.",
-    keywords: "query params viewer, url parser, query string parser, url parameter auslesen, url analysieren, schlüssel wert, verschachtelte parameter",
+    keywords: "query params viewer, url parser, query string parser, url parameter auslesen, url analysieren, schlüssel wert, verschachtelte parameter, mcp server, model context protocol",
     jsonldDescription: "URL-Query-Parameter analysieren: unterstützt vollständige URLs, Hash-Routen und reine Query-Strings, erkennt doppelte Schlüssel, JSON-Werte, leere Werte und verschachtelte kodierte Parameter innerhalb von Werten.",
     tagline: "URL-Query-Parameter zerlegen — verschachtelte kodierte Parameter klappen automatisch auf",
     inputPlaceholder: "Vollständige URL oder Query-String einfügen, z. B. https://example.com/search?q=hi&page=2",
@@ -406,6 +431,9 @@ module.exports = {
     baseUrlPlaceholder: "Basis-URL (Domain + Pfad)",
     tabParse: "Analysieren",
     tabCompare: "Vergleichen",
+    mcpMenu: "Mit KI nutzen",
+    mcpNote: "Dieses Werkzeug gibt es auch als MCP-Server. Tragen Sie den Befehl unten in einen beliebigen MCP-fähigen Client ein — Claude, Cursor, Cline und andere — und Ihr Assistent kann URLs direkt zerlegen und vergleichen. Er läuft auf Ihrem eigenen Rechner, die URL verlässt Ihr Gerät also ebenso wenig wie hier.",
+    mcpCopyLabel: "Befehl für den MCP-Server kopieren",
     compareHeading: "Zwei URLs vergleichen",
     compareBtn: "Vergleichen",
     statusSame: "Gleich",
@@ -423,7 +451,8 @@ module.exports = {
       "Vollständige URLs, Hash-Routen und reine Query-Strings analysieren",
       "JSON, Zahlen, Booleans, leere und doppelte Werte erkennen",
       "Verschachtelte kodierte URLs bis zu drei Ebenen aufklappen",
-      "Vergleichen, Bearbeiten und Teilen — vollständig im Browser"
+      "Vergleichen, Bearbeiten und Teilen — vollständig im Browser",
+      "Aufruf aus dem KI-Assistenten über MCP — parse_url und compare_urls"
     ],
     faqHeading: "Häufige Fragen",
     faq: [
@@ -431,7 +460,8 @@ module.exports = {
       { q: "Wie dekodiere ich einen Query-String?", a: "Fügen Sie eine vollständige URL, ein reines <code>a=1&amp;b=2</code> oder eine Hash-Route wie <code>#/path?a=1</code> in das Feld ein und klicken Sie auf „Analysieren“. Jeder Wert wird URL-dekodiert — aus <code>%20</code> wird ein Leerzeichen, aus <code>%3D</code> wird <code>=</code> — und mit erkanntem Typ in der Tabelle angezeigt." },
       { q: "Wird meine URL an einen Server gesendet?", a: "Nein. Analysieren, Bearbeiten, Vergleichen und das Erzeugen von Freigabe-Links laufen im Browser; die URL verlässt Ihr Gerät nicht. Freigabe-Links tragen ihren Zustand im <code>#</code>-Fragment, das Browser nie an den Server senden." },
       { q: "Was passiert mit doppelten Schlüsseln?", a: "Jedes Vorkommen bleibt erhalten und steht in einer eigenen Zeile, gekennzeichnet wie <code>1/2</code> und <code>2/2</code>. Das entspricht der Art, wie <code>URLSearchParams</code> und die meisten Server wiederholte Schlüssel lesen — so sehen Sie Werte, die ein einfacher Parser stillschweigend verwerfen würde." },
-      { q: "Kann eine in einem Parameter verschachtelte URL gelesen werden?", a: "Ja. Wenn ein Wert selbst eine kodierte URL oder ein Query-String ist — etwa <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — können Sie ihn aufklappen und seine inneren Schlüssel und Werte bis zu drei Ebenen tief betrachten." }
+      { q: "Kann eine in einem Parameter verschachtelte URL gelesen werden?", a: "Ja. Wenn ein Wert selbst eine kodierte URL oder ein Query-String ist — etwa <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — können Sie ihn aufklappen und seine inneren Schlüssel und Werte bis zu drei Ebenen tief betrachten." },
+      { q: "Kann ein KI-Assistent dieses Werkzeug nutzen?", a: "Ja. Derselbe Parser ist auch als MCP-Server verfügbar, sodass ein Assistent in einem beliebigen MCP-fähigen Client — Claude, Cursor, Cline und andere — eine URL für Sie zerlegen oder vergleichen kann, ohne dass jemand diese Seite öffnet. Er stellt zwei Werkzeuge bereit — <code>parse_url</code> und <code>compare_urls</code> — und läuft auf Ihrem eigenen Rechner; die URL verlässt Ihr Gerät also ebenso wenig wie hier. Die Einrichtung ist im Verzeichnis <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server</a> des Repositorys beschrieben." }
     ],
     footer: "Eine Datei · Reines Frontend · Ohne Abhängigkeiten"
   },
@@ -441,7 +471,7 @@ module.exports = {
     title: "Query Params Viewer — URL क्वेरी पैरामीटर देखें",
     description: "मुफ़्त ऑनलाइन टूल: कोई भी URL पेस्ट करें और उसके क्वेरी पैरामीटर key/value जोड़ों में बाँटें, JSON, संख्या, बूलियन और दोहराई गई key पहचानें, और मानों के भीतर छिपे नेस्टेड एन्कोडेड पैरामीटर खोलकर देखें। एक ही फ़ाइल, इंस्टॉल की ज़रूरत नहीं।",
     ogDescription: "कोई भी URL पेस्ट करें और उसके क्वेरी पैरामीटर key/value में बाँटें — JSON, संख्या, बूलियन, दोहराई गई key और नेस्टेड एन्कोडेड पैरामीटर अपने आप पहचाने जाते हैं।",
-    keywords: "query params viewer, url parser, query string parser, url पैरामीटर, क्वेरी पैरामीटर, key value viewer, नेस्टेड पैरामीटर",
+    keywords: "query params viewer, url parser, query string parser, url पैरामीटर, क्वेरी पैरामीटर, key value viewer, नेस्टेड पैरामीटर, mcp server, model context protocol",
     jsonldDescription: "URL के क्वेरी पैरामीटर पढ़ें: पूरा URL, hash रूट और सिर्फ़ क्वेरी स्ट्रिंग — तीनों चलते हैं; दोहराई गई key, JSON मान, खाली मान और मानों के भीतर नेस्टेड एन्कोडेड पैरामीटर अपने आप पहचाने जाते हैं।",
     tagline: "URL के क्वेरी पैरामीटर अलग-अलग दिखाएँ — नेस्टेड एन्कोडेड पैरामीटर अपने आप खुलते हैं",
     inputPlaceholder: "पूरा URL या क्वेरी स्ट्रिंग पेस्ट करें, जैसे https://example.com/search?q=hi&page=2",
@@ -477,6 +507,9 @@ module.exports = {
     baseUrlPlaceholder: "Base URL (डोमेन + पाथ)",
     tabParse: "पार्स",
     tabCompare: "तुलना",
+    mcpMenu: "AI के साथ",
+    mcpNote: "यह टूल एक MCP सर्वर के रूप में भी उपलब्ध है। नीचे दी गई कमांड किसी भी MCP-सक्षम क्लाइंट — Claude, Cursor, Cline आदि — में डालें और आपका असिस्टेंट सीधे आपके लिए URL पार्स और तुलना कर सकेगा। यह आपकी अपनी मशीन पर चलता है, इसलिए URL आपके डिवाइस से बाहर नहीं जाता — ठीक जैसे यहाँ।",
+    mcpCopyLabel: "MCP सर्वर कमांड कॉपी करें",
     compareHeading: "दो URL की तुलना करें",
     compareBtn: "तुलना करें",
     statusSame: "समान",
@@ -494,7 +527,8 @@ module.exports = {
       "पूरा URL, hash रूट और सिर्फ़ क्वेरी स्ट्रिंग पार्स करें",
       "JSON, संख्या, बूलियन, खाली और दोहराए गए मान पहचानें",
       "नेस्टेड encode किए URL तीन स्तर तक खोलें",
-      "तुलना, संपादन और शेयर — सब क्लाइंट-साइड"
+      "तुलना, संपादन और शेयर — सब क्लाइंट-साइड",
+      "MCP के ज़रिए AI असिस्टेंट से कॉल करें — parse_url और compare_urls"
     ],
     faqHeading: "अक्सर पूछे जाने वाले सवाल",
     faq: [
@@ -502,7 +536,8 @@ module.exports = {
       { q: "क्वेरी स्ट्रिंग को डिकोड कैसे करें?", a: "पूरा URL, सादा <code>a=1&amp;b=2</code>, या <code>#/path?a=1</code> जैसा hash रूट बॉक्स में पेस्ट करें और «पार्स करें» दबाएँ। हर मान URL-डिकोड होता है — <code>%20</code> स्पेस बन जाता है, <code>%3D</code> <code>=</code> बन जाता है — और पहचाने गए प्रकार के साथ तालिका में दिखता है।" },
       { q: "क्या मेरा URL सर्वर पर भेजा जाता है?", a: "नहीं। पार्स करना, संपादन, तुलना और शेयर लिंक बनाना सब ब्राउज़र में चलता है; URL आपके डिवाइस से बाहर नहीं जाता। शेयर लिंक अपनी स्थिति <code>#</code> फ़्रैगमेंट में रखते हैं, जिसे ब्राउज़र कभी सर्वर को नहीं भेजते।" },
       { q: "दोहराई गई key के साथ क्या होता है?", a: "हर बार आने वाली key अपनी अलग पंक्ति में रहती है, <code>1/2</code> और <code>2/2</code> जैसे चिह्न के साथ। यह वैसा ही है जैसे <code>URLSearchParams</code> और अधिकतर सर्वर दोहराई गई key पढ़ते हैं, इसलिए आपको वे मान भी दिखते हैं जिन्हें साधारण पार्सर चुपचाप गिरा देता है।" },
-      { q: "क्या यह किसी पैरामीटर के भीतर छिपे URL को पढ़ सकता है?", a: "हाँ। जब कोई मान खुद एक encode किया हुआ URL या क्वेरी स्ट्रिंग हो — जैसे <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — तो आप उसे खोलकर उसकी भीतरी key और value तीन स्तर तक देख सकते हैं।" }
+      { q: "क्या यह किसी पैरामीटर के भीतर छिपे URL को पढ़ सकता है?", a: "हाँ। जब कोई मान खुद एक encode किया हुआ URL या क्वेरी स्ट्रिंग हो — जैसे <code>redirect=https%3A%2F%2F…%3Ftoken%3Dabc</code> — तो आप उसे खोलकर उसकी भीतरी key और value तीन स्तर तक देख सकते हैं।" },
+      { q: "क्या कोई AI असिस्टेंट इस टूल का उपयोग कर सकता है?", a: "हाँ। यही पार्सर एक MCP सर्वर के रूप में भी उपलब्ध है, इसलिए किसी भी MCP-सक्षम क्लाइंट (Claude, Cursor, Cline आदि) का असिस्टेंट इस पेज को खोले बिना आपके लिए URL को तोड़ या उसकी तुलना कर सकता है। यह <code>parse_url</code> और <code>compare_urls</code> दो टूल देता है और आपकी अपनी मशीन पर चलता है, इसलिए URL आपके डिवाइस से बाहर नहीं जाता — ठीक जैसे यहाँ। सेटअप की जानकारी रिपॉज़िटरी की <a href=\"https://github.com/Deguang/query-params-viewer/tree/main/mcp-server\" target=\"_blank\" rel=\"noopener\">mcp-server डायरेक्टरी</a> में है।" }
     ],
     footer: "एक फ़ाइल · सिर्फ़ फ्रंटएंड · कोई निर्भरता नहीं"
   }

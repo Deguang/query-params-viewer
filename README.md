@@ -48,9 +48,14 @@ scripts/            Build scripts that generate the pages — don't edit the gen
   langs.js          Language roster: which languages exist, which one lives at the root, the fallback language, each language's self-name in the menu
   template.html     Shared HTML/CSS/JS template; translated copy is inserted via __TOKEN__ placeholders
   i18n.js           Per-language translated copy + TDK (title/description/keywords)
-  build.js          Reads langs.js + template.html + i18n.js and generates each language's index.html plus sitemap.xml
+  core.js           URL parsing/diffing primitives, shared by the pages and the MCP server (see "MCP server" below)
+  build.js          Reads langs.js + template.html + i18n.js + core.js and generates each language's index.html plus sitemap.xml
   test.js           Regression suite that drives the generated output with jsdom
-package.json        Build/test scripts only; jsdom is a devDependency and never ships
+mcp-server/         MCP server exposing the same parser to AI assistants (see "MCP server" below)
+  lib.js            Shapes core.js's output into the JSON the tools return
+  index.js          Registers the two tools and speaks MCP over stdio
+  test.js           Tests for lib.js
+package.json        Build/test scripts, the MCP server's dependencies, and jsdom as a devDependency that never ships
 ```
 
 Each language's `index.html` and `sitemap.xml` are **generated output** (each HTML file has a comment at the top saying so),
@@ -72,8 +77,8 @@ use the dictionary's `htmlLang` (`zh-Hant`) — the two are deliberately kept se
 ## Tests
 
 ```
-npm install    # only installs jsdom, test-only
-npm test       # builds first, then runs scripts/test.js
+npm install    # jsdom (test-only) plus the MCP server's dependencies
+npm test       # builds first, then runs scripts/test.js and mcp-server/test.js
 ```
 
 The tests drive the **generated HTML in jsdom** rather than doing text matching against the template. That's because the
@@ -115,6 +120,29 @@ Open `index.html` directly in a browser, or deploy to GitHub Pages:
 
 You can also append params straight to the site URL, e.g.
 `https://app.lideguang.com/query-params-viewer/?foo=bar&baz=1`, and the page will parse and display them automatically.
+
+## MCP server
+
+The same parser is also available to AI assistants as an [MCP](https://modelcontextprotocol.io) server, so an assistant
+can break down or diff a URL directly instead of a human pasting it into the page. The server command is:
+
+```bash
+npx -y github:Deguang/query-params-viewer
+```
+
+MCP is a protocol, not one vendor's feature, so any MCP-capable client can run it — Claude, Cursor, Cline and the rest
+all take the same `command` / `args` pair. Per-client setup and the tools' full output shape:
+[`mcp-server/README.md`](mcp-server/README.md).
+
+It exposes two tools — `parse_url` and `compare_urls` — and speaks stdio, meaning the assistant spawns it as a local
+child process. **GitHub Pages can only host static files, so there is no hosted endpoint to call**: this repo is the
+distribution channel, and the server itself runs on the user's own machine. That keeps the privacy property the web
+page has (URLs never leave the device) and costs nothing to operate. A remotely callable HTTP API would need a compute
+platform Pages cannot provide.
+
+Both consumers share one implementation: `scripts/core.js` holds the parsing and diffing primitives, `scripts/build.js`
+inlines it into the static pages (so they still ship dependency-free), and `mcp-server/lib.js` requires it as a module.
+Behaviour changes belong in `core.js`, presentation stays in `scripts/template.html`.
 
 ## Automatic language selection
 

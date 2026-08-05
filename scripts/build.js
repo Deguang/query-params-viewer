@@ -29,6 +29,48 @@ const {
 } = require("./langs.js");
 const template = fs.readFileSync(path.join(__dirname, "template.html"), "utf8");
 
+// scripts/core.js is the single source of truth for the URL-parsing and
+// diffing primitives: the pages get them inlined here, the MCP server in
+// mcp-server/ requires the same file as a module. Only the region between the
+// markers is inlined, so the module.exports tail never reaches the browser.
+const CORE_START = "// >>> shared with the page";
+const CORE_END = "// <<< shared with the page";
+
+function readCoreJs() {
+  const src = fs.readFileSync(path.join(__dirname, "core.js"), "utf8");
+  const start = src.indexOf(CORE_START);
+  const end = src.indexOf(CORE_END);
+  if (start === -1 || end === -1 || end < start) {
+    throw new Error("scripts/core.js is missing its shared-region markers");
+  }
+  // Skip to the end of the marker's own line — it carries a trailing comment.
+  const bodyStart = src.indexOf("\n", start);
+  const body = src.slice(bodyStart + 1, end).trim();
+  // Re-indent to sit inside template.html's IIFE, which is two spaces deep.
+  return body
+    .split("\n")
+    .map(function (line) { return line ? "  " + line : line; })
+    .join("\n");
+}
+
+// The command the tab-row panel offers. This is the server itself rather than
+// one vendor's install helper: MCP is a protocol and every client ultimately
+// asks for a command to run, so `claude mcp add ...` and the rest belong in
+// mcp-server/README.md, not on the page. Defined once and fanned out into the
+// visible text, the JS constant the copy button reads, and llms.txt, so the
+// three can never disagree about what to run.
+const MCP_CMD = "npx -y github:Deguang/query-params-viewer";
+const MCP_DOCS_URL = "https://github.com/Deguang/query-params-viewer/tree/main/mcp-server";
+
+// Renders the command with its leading program name picked out, the way a
+// terminal would -- purely cosmetic, so it is built from MCP_CMD rather than
+// hand-written alongside it.
+function buildMcpCmdHtml() {
+  const space = MCP_CMD.indexOf(" ");
+  return '<span class="cmd">' + escapeAttr(MCP_CMD.slice(0, space)) + "</span>" +
+    escapeAttr(MCP_CMD.slice(space));
+}
+
 function escapeAttr(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -123,6 +165,12 @@ function buildLlmsTxt() {
     "- Accepts full URLs, hash routes (#/path?a=1) and bare query strings (a=1&b=2).",
     "- Detects JSON, number, boolean, empty and duplicate values, and expands parameters that are themselves an encoded URL up to three levels deep.",
     "- Also compares the query params of two URLs by key, and can edit and re-serialise them.",
+    "",
+    "## For AI assistants",
+    "- The same parser ships as an MCP server, so an assistant can call it directly instead of reading this page: " + MCP_DOCS_URL,
+    "- Any MCP client can run it; the server command is: " + MCP_CMD,
+    "- Tools: `parse_url` (break a URL into typed params, flagging duplicates and expanding nested URLs) and `compare_urls` (diff two URLs key by key as same/diff/onlyA/onlyB).",
+    "- It runs locally over stdio on the user's own machine and makes no network calls.",
     ""
   );
   return lines.join("\n");
@@ -161,12 +209,14 @@ for (const lang of LANGS) {
 }
 
 const HREFLANG_LINKS = buildHreflangLinks();
+const CORE_JS = readCoreJs();
 
 for (const lang of LANGS) {
   const dict = i18n[lang];
   let html = template;
 
   const tokens = {
+    __CORE_JS__: CORE_JS,
     __HTML_LANG__: dict.htmlLang,
     __TITLE__: escapeAttr(dict.title),
     __DESCRIPTION__: escapeAttr(dict.description),
@@ -201,6 +251,12 @@ for (const lang of LANGS) {
     __BASE_URL_LABEL__: escapeAttr(dict.baseUrlLabel),
     __FULL_URL_PREVIEW_LABEL__: escapeAttr(dict.fullUrlPreviewLabel),
     __BASE_URL_PLACEHOLDER__: escapeAttr(dict.baseUrlPlaceholder),
+    __MCP_CMD_HTML__: buildMcpCmdHtml(),
+    __MCP_CMD_JSON__: JSON.stringify(MCP_CMD),
+    __MCP_DOCS_URL__: MCP_DOCS_URL,
+    __MCP_MENU__: escapeAttr(dict.mcpMenu),
+    __MCP_NOTE__: escapeAttr(dict.mcpNote),
+    __MCP_COPY_LABEL__: escapeAttr(dict.mcpCopyLabel),
     __TAB_PARSE__: dict.tabParse,
     __TAB_COMPARE__: dict.tabCompare,
     __COMPARE_HEADING__: dict.compareHeading,

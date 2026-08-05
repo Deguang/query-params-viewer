@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-08-05　第三轮：新增 MCP server 能力，并把它接进现有 SEO/GEO 面
+
+### 起因
+本轮不是从 GSC 数据发起的，是产品侧新增了一项能力：同一套解析逻辑抽到 `scripts/core.js`，另开 `mcp-server/` 以 MCP 协议暴露 `parse_url` / `compare_urls` 两个工具，让 AI 助手不必打开页面就能调用。能力变了，对应的检索面要跟上，否则新增的「MCP / AI 助手调用 URL 解析」这类意图完全没有落点。
+
+### 本轮执行（仓库内，低风险，已完成）
+
+#### 一、FAQ 新增「AI 助手能直接调用这个工具吗？」——7 个语言
+- **做了什么**：`scripts/i18n.js` 每个语言的 `faq` 数组各加一条，说明 MCP server、点名两个工具、强调本地运行不上传，并链到仓库 `mcp-server/` 目录。
+- **为什么是 FAQ 而不是别处**：这是本站唯一会同时进入①可见正文②`FAQPage` 结构化数据的内容位。第一轮台账里 P5 记的就是"差异化能力没有对应长尾内容"，这条正好是同一手法用在新能力上。对 AI 答案引擎（GEO）而言，一问一答是最容易被整段引用的形态。
+- **措辞口径**：初稿写的是"Claude 这类助手"，后改成"任何支持 MCP 的客户端（Claude、Cursor、Cline 等）"——MCP 是协议不是某一家的功能，绑死单一品牌既不准确，也白白丢掉其他客户端的检索意图。
+
+#### 二、`featureList` 增加一条 MCP 能力——7 个语言
+- **做了什么**：`i18n.js` 各语言 `features` 数组从 4 条加到 5 条，新增"通过 MCP 供 AI 助手直接调用——parse_url 与 compare_urls"。
+- **为什么**：`features` 直接进 `WebApplication` 结构化数据的 `featureList`，是机器可读的能力声明，比 meta keywords 实在。
+
+#### 三、`llms.txt` 增加「For AI assistants」段落
+- **做了什么**：`buildLlmsTxt()` 追加一节，写明 MCP server 地址、server 命令、两个工具各自做什么、本地运行不联网。
+- **为什么**：`llms.txt` 本来就是面向答案引擎的入口文件，而"这个站点能被你直接调用"恰恰是答案引擎最该知道的一件事。
+
+#### 四、meta `keywords` 补 MCP 词——7 个语言
+- **做了什么**：各语言 `keywords` 末尾追加 `mcp server` / `model context protocol` 及本地化变体。
+- **预期效果要打折看**：Google 自 2009 年起明确不使用 meta keywords 做排名，这条基本只对少数其他引擎和站内自查有意义。之所以还是补上，是因为本项目已经在维护这个字段，让它与 `features`/FAQ 口径一致，成本近乎为零；**不要**把它当成本轮的主要指望。
+
+#### 五、`UPDATED_AT` 全部 7 个语言从 `2026-07-23` 改为 `2026-08-05`
+- **为什么这次可以全改**：第二轮 P4 定的规则是"改哪个语言的文案就改哪个语言的日期，没改的不要跟着动"。本轮 FAQ、`features`、`keywords` 三处改动是 7 个语言同时落的真实内容变更，所以 7 条一起更新符合该规则，不是"每次 build 打今日戳"的那种误报。
+
+### 本轮刻意没做
+- **没有改 `title` / `description` / `ogDescription`**：这三处是主查询（"query params viewer""url 解析"等）的核心承载位，字数有限。把 MCP 塞进去会稀释主意图，而 MCP 相关流量目前是零基线、纯增量猜测，不值得拿已经在爬升的主词位置去换。等 GSC 里真的出现 MCP 相关 query 再考虑。
+- **没有为 MCP 单开落地页**：站点目前是"一个工具 = 一组语言页"的结构，为一个尚无搜索数据的场景新增页面会摊薄站内权重。`mcp-server/README.md` 在 GitHub 上本身就是可被索引的落地内容，先用它接住。
+- **P1 / P2 仍未动**：与前两轮同因，不在仓库权限范围内。
+
+### 怎么验证
+- `npm test`：350 页面用例 + 53 MCP server 用例通过。其中已有用例会校验「每个语言的 FAQ 条数与字典一致」「FAQPage 结构化数据与可见问答一致」「每个语言 i18n key 齐全」「`llms.txt` 列出全部语言 canonical」，所以上面 7 个语言的批量改动如果漏了任何一个语言都会红。
+- `sitemap.xml` 已 grep 确认 7 条 `<lastmod>2026-08-05</lastmod>`。
+- **没有做**的验证：MCP 相关词的实际排名/曝光——这是零基线新词，至少要等一个索引周期后看 GSC，本轮无法自证。
+
+### 怎么回滚
+`git revert` 本轮提交后重新 `npm run build`。若只想回退 SEO 面而保留 MCP 能力，单独还原 `i18n.js` 的 `faq`/`features`/`keywords` 三处与 `langs.js` 的 `UPDATED_AT` 即可，与 `core.js`/`mcp-server/` 无耦合。
+
+### 下一轮触发条件
+沿用前两轮；额外补一条：GSC 中若出现 `mcp`、`model context protocol` 或"AI 调用 URL 解析"一类 query 产生曝光，再评估是否把 MCP 写进 `description`，或为其单开落地页。
+
+---
+
 ## 2026-08-05　第二轮：GSC 首批数据 + 落地 P3/P4
 
 ### 输入：用户转述的 GSC 数据（非本环境直接接入 API 核实）

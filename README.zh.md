@@ -48,9 +48,14 @@ scripts/           构建脚本，页面由此生成，不要直接改生成出�
   langs.js         语言清单：有哪些语言、谁在根路径、兜底语言、菜单里各语言的自称
   template.html    共享的 HTML/CSS/JS 模板，翻译文案用 __TOKEN__ 占位
   i18n.js          各语言的翻译文案 + TDK（title/description/keywords）
-  build.js         读取 langs.js + template.html + i18n.js，生成各语言 index.html 和 sitemap.xml
+  core.js          URL 解析/对比的核心逻辑，页面和 MCP server 共用（见下方「MCP server」）
+  build.js         读取 langs.js + template.html + i18n.js + core.js，生成各语言 index.html 和 sitemap.xml
   test.js          回归测试，用 jsdom 跑生成产物
-package.json       只有构建/测试脚本；jsdom 是 devDependency，不进产物
+mcp-server/        把同一套解析能力开放给 AI 助手的 MCP server（见下方「MCP server」）
+  lib.js           把 core.js 的结果整理成工具返回的 JSON
+  index.js         注册两个工具，并通过 stdio 走 MCP 协议
+  test.js          lib.js 的测试
+package.json       构建/测试脚本、MCP server 的依赖；jsdom 是 devDependency，不进产物
 ```
 
 各语言的 `index.html` 和 `sitemap.xml` 都是**生成产物**（HTML 文件顶部有注释标注），
@@ -71,8 +76,8 @@ node scripts/build.js
 ## 测试
 
 ```
-npm install    # 只装 jsdom，仅测试用
-npm test       # 先构建，再跑 scripts/test.js
+npm install    # jsdom（仅测试用）加上 MCP server 的依赖
+npm test       # 先构建，再跑 scripts/test.js 和 mcp-server/test.js
 ```
 
 测试直接在 jsdom 里**驱动生成好的 HTML**，而不是对模板做文本匹配。这么做是因为踩过的坑
@@ -107,6 +112,28 @@ jsdom 也不能真的跳转，所以自动选择的判定结果会在跳转前�
 
 也可以直接把带参数的链接拼到站点地址后面，例如
 `https://app.lideguang.com/query-params-viewer/?foo=bar&baz=1`，页面会自动解析并展示。
+
+## MCP server
+
+同一套解析能力还以 [MCP](https://modelcontextprotocol.io) server 的形式开放给 AI 助手，
+这样助手可以直接拆解或对比 URL，而不需要有人把链接粘进页面。server 命令是：
+
+```bash
+npx -y github:Deguang/query-params-viewer
+```
+
+MCP 是协议而不是某一家的功能，所以任何支持 MCP 的客户端都能跑它——Claude、Cursor、Cline 等
+用的都是同一组 `command` / `args`。各客户端的配置方式和工具的完整输出结构见
+[`mcp-server/README.md`](mcp-server/README.md)。
+
+它提供 `parse_url` 和 `compare_urls` 两个工具，走 stdio，也就是由助手把它作为本地子进程拉起来。
+**GitHub Pages 只能托管静态文件，所以并不存在一个可远程调用的服务端点**：本仓库只是分发渠道，
+server 本身跑在使用者自己的机器上。这既保住了页面原有的隐私特性（URL 不离开设备），也没有任何运维成本。
+真要做成任何人都能远程调用的 HTTP API，就得引入 Pages 提供不了的计算平台。
+
+两个使用方共享同一份实现：`scripts/core.js` 放解析和对比的核心逻辑，`scripts/build.js` 把它内联进静态页面
+（所以页面依然零运行时依赖），`mcp-server/lib.js` 则直接 require 它。
+改行为改 `core.js`，改展示留在 `scripts/template.html`。
 
 ## 语言自动选择
 

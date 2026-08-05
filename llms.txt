@@ -16,3 +16,9 @@
 - Accepts full URLs, hash routes (#/path?a=1) and bare query strings (a=1&b=2).
 - Detects JSON, number, boolean, empty and duplicate values, and expands parameters that are themselves an encoded URL up to three levels deep.
 - Also compares the query params of two URLs by key, and can edit and re-serialise them.
+
+## For AI assistants
+- The same parser ships as an MCP server, so an assistant can call it directly instead of reading this page: https://github.com/Deguang/query-params-viewer/tree/main/mcp-server
+- Any MCP client can run it; the server command is: npx -y github:Deguang/query-params-viewer
+- Tools: `parse_url` (break a URL into typed params, flagging duplicates and expanding nested URLs) and `compare_urls` (diff two URLs key by key as same/diff/onlyA/onlyB).
+- It runs locally over stdio on the user's own machine and makes no network calls.

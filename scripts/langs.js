@@ -47,13 +47,13 @@ const LANG_NAMES = {
 // every commit, which would teach crawlers to distrust it. Bump a language's
 // date only when you change its dict entry in i18n.js.
 const UPDATED_AT = {
-  en: "2026-07-23",
-  zh: "2026-07-23",
-  "zh-hant": "2026-07-23",
-  ja: "2026-07-23",
-  ru: "2026-07-23",
-  de: "2026-07-23",
-  hi: "2026-07-23"
+  en: "2026-08-05",
+  zh: "2026-08-05",
+  "zh-hant": "2026-08-05",
+  ja: "2026-08-05",
+  ru: "2026-08-05",
+  de: "2026-08-05",
+  hi: "2026-08-05"
 };
 
 function dirOf(lang) {

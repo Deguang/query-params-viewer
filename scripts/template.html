@@ -362,15 +362,83 @@ __FAQ_JSONLD__
   }
   .theme-toggle:hover { color: var(--text-primary); border-color: var(--series-1); }
 
+  .tabs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
   .view-tabs {
     display: inline-flex;
     gap: 2px;
-    margin-bottom: 16px;
     padding: 4px;
     background: var(--page);
     border: 1px solid var(--border);
     border-radius: 8px;
   }
+  /* The MCP line: label, command and copy button in one field. min-width:0 on
+     the flex item plus the same on the <code> is what actually lets the text
+     clip instead of forcing the row wider than the page. */
+  .mcp-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: 36px;
+    padding: 0 4px 0 10px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .mcp-pill:hover { border-color: var(--series-1); }
+  /* The label says what the command is for, and links to the setup guide --
+     copying a command is no use if you do not know where it goes. */
+  .mcp-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    padding-right: 8px;
+    border-right: 1px solid var(--border);
+    color: var(--series-1);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .mcp-label:hover { text-decoration: underline; }
+  /* The pill is the field, so the command inside it drops the chip treatment
+     the global `code` rule gives inline snippets elsewhere on the page. */
+  .mcp-pill code {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .mcp-pill code .cmd { color: var(--text-secondary); font-weight: 600; }
+  /* Borderless: the pill around it is already an outline, and a second one
+     would read as two separate controls. */
+  .copy-btn.mcp-copy {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+  }
+  .copy-btn.mcp-copy:hover { background: var(--page); color: var(--text-primary); }
   .view-tab {
     display: inline-flex;
     align-items: center;
@@ -877,8 +945,38 @@ __FAQ_JSONLD__
     header h1 { font-size: 18px; }
     .header-actions { margin-left: auto; }
 
+    /* The tabs take the whole width here, so the MCP trigger drops below them
+       rather than fighting for the same row. */
+    .tabs-row { flex-wrap: wrap; row-gap: 10px; }
     .view-tabs { display: flex; width: 100%; }
     .view-tab { flex: 1; justify-content: center; padding: 10px 8px; }
+    /* A phone gives the tool the top of the screen, so the MCP line moves below
+       the results -- where it reads as "and you can also drive this from an
+       assistant" instead of competing with the input. It is not dropped: a
+       phone is a plausible place to *discover* the server even when you will
+       wire it up later at a desk. display:contents lifts the tabs and the line
+       out of .tabs-row so order can interleave them with the views, which is
+       why .view-tabs carries the row's old margin. */
+    main { display: flex; flex-direction: column; }
+    .tabs-row { display: contents; }
+    .view-tabs { order: 1; margin-bottom: 16px; }
+    #parseView, #compareView { order: 2; }
+    .mcp-pill { order: 3; margin-top: 16px; }
+
+    /* Two lines rather than one, so the command shows in full instead of
+       clipping: label on top, command and copy button beneath it. */
+    .mcp-pill {
+      width: 100%;
+      height: auto;
+      flex-wrap: wrap;
+      row-gap: 6px;
+      padding: 8px 4px 8px 10px;
+    }
+    .mcp-label {
+      flex: 1 1 100%;
+      padding-right: 0;
+      border-right: none;
+    }
 
     /* One input per line -- two URL fields side by side at this width leaves
        neither readable -- with the buttons sharing the row below them. */
@@ -932,6 +1030,7 @@ __FAQ_JSONLD__
   <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
   </symbol>
+  
   <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
   </symbol>
@@ -940,6 +1039,15 @@ __FAQ_JSONLD__
   </symbol>
   <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="m6 9 6 6 6-6"/>
+  </symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="M18 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8Z"/>
+  </symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m20 6-11 11-5-5"/>
   </symbol>
 </defs></svg>
 <div class="app">
@@ -958,9 +1066,27 @@ __FAQ_JSONLD__
   </header>
 
   <main>
-    <div class="view-tabs" role="tablist">
-      <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span id="tabParseLabel">__TAB_PARSE__</span></button>
-      <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare"><svg class="icon" aria-hidden="true"><use href="#i-compare"/></svg><span id="tabCompareLabel">__TAB_COMPARE__</span></button>
+    <div class="tabs-row">
+      <div class="view-tabs" role="tablist">
+        <button class="view-tab" id="tabParseBtn" type="button" role="tab" aria-selected="true" data-view="parse"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span id="tabParseLabel">__TAB_PARSE__</span></button>
+        <button class="view-tab" id="tabCompareBtn" type="button" role="tab" aria-selected="false" data-view="compare"><svg class="icon" aria-hidden="true"><use href="#i-compare"/></svg><span id="tabCompareLabel">__TAB_COMPARE__</span></button>
+      </div>
+
+      <!-- The MCP server, offered where it costs no vertical space: a labelled,
+           copyable one-liner on the tab row rather than a banner above the
+           tool. Nothing is collapsed -- a bare command would say nothing about
+           what it is for, so the label carries the purpose and doubles as the
+           link to the per-client setup guide, with the fuller explanation on
+           the tooltip and in the FAQ below.
+
+           The command is the server itself, not one vendor's install helper:
+           MCP is a protocol, and every client takes some form of "run this
+           binary". Per-client wiring lives in the linked README. -->
+      <div class="mcp-pill" id="mcpPill" title="__MCP_NOTE__">
+        <a class="mcp-label" id="mcpLabel" href="__MCP_DOCS_URL__" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-sparkle"/></svg><span id="mcpLabelText">__MCP_MENU__</span></a>
+        <code id="mcpCmd">__MCP_CMD_HTML__</code>
+        <button class="copy-btn mcp-copy" id="mcpCopyBtn" type="button" title="__COPY__" aria-label="__MCP_COPY_LABEL__"><svg class="icon" aria-hidden="true"><use id="mcpCopyIcon" href="#i-copy"/></svg></button>
+      </div>
     </div>
 
     <div id="parseView">
@@ -1150,9 +1276,16 @@ __FAQ_JSONLD__
 (function () {
   "use strict";
 
+  // The pure URL-parsing and diffing primitives, inlined verbatim from
+  // scripts/core.js by scripts/build.js so the MCP server in mcp-server/ can
+  // reuse the exact same code. See the note at the top of that file.
+__CORE_JS__
+
   var CAT_SLOTS = 8;
-  var MAX_NEST_DEPTH = 3;
   var nestedIdCounter = 0;
+  // The install one-liner shown in the tab row. Same string the pill renders,
+  // injected once so the copied text can never drift from the visible text.
+  var MCP_CMD = __MCP_CMD_JSON__;
 
   function track(name, params) {
     if (typeof gtag === "function") gtag("event", name, params || {});
@@ -1193,6 +1326,10 @@ __FAQ_JSONLD__
   var langMenu = document.getElementById("langMenu");
   var langMenuSummary = document.getElementById("langMenuSummary");
   var langCurrentLabel = document.getElementById("langCurrentLabel");
+  var mcpPill = document.getElementById("mcpPill");
+  var mcpLabelText = document.getElementById("mcpLabelText");
+  var mcpCopyBtn = document.getElementById("mcpCopyBtn");
+  var mcpCopyIcon = document.getElementById("mcpCopyIcon");
   var editModeBtn = document.getElementById("editModeBtn");
   var editModeLabel = document.getElementById("editModeLabel");
   var fullUrlCard = document.getElementById("fullUrlCard");
@@ -1232,77 +1369,6 @@ __FAQ_JSONLD__
   var editEntries = [];
   var shareErrorKey = null;
 
-  // Splits a full URL / hash route / bare query string into its base and
-  // query parts, mirroring the three input shapes this tool accepts, so the
-  // parts can be re-joined later (editor mode) without losing the original
-  // shape.
-  function splitBaseAndQuery(raw) {
-    var s = raw.trim();
-    if (!s) return { base: "", query: "", fragment: "", style: "none" };
-
-    var hashIdx = s.indexOf("#");
-    if (hashIdx !== -1) {
-      var hashPart = s.slice(hashIdx + 1);
-      var hQ = hashPart.indexOf("?");
-      if (hQ !== -1) {
-        return {
-          base: s.slice(0, hashIdx + 1) + hashPart.slice(0, hQ),
-          query: hashPart.slice(hQ + 1),
-          fragment: "",
-          style: "hash"
-        };
-      }
-    }
-
-    var qIdx = s.indexOf("?");
-    if (qIdx !== -1) {
-      var afterQ = s.slice(qIdx + 1);
-      var hIdx2 = afterQ.indexOf("#");
-      return {
-        base: s.slice(0, qIdx),
-        query: hIdx2 !== -1 ? afterQ.slice(0, hIdx2) : afterQ,
-        fragment: hIdx2 !== -1 ? afterQ.slice(hIdx2) : "",
-        style: "query"
-      };
-    }
-
-    if (s.indexOf("=") !== -1) {
-      return { base: "", query: s, fragment: "", style: "bare" };
-    }
-
-    return { base: s, query: "", fragment: "", style: "none" };
-  }
-
-  function extractQueryString(raw) {
-    return splitBaseAndQuery(raw).query;
-  }
-
-  function annotateOccurrences(entries) {
-    var counts = Object.create(null);
-    entries.forEach(function (e) { counts[e.key] = (counts[e.key] || 0) + 1; });
-    var running = Object.create(null);
-    entries.forEach(function (e) {
-      running[e.key] = (running[e.key] || 0) + 1;
-      e.occurrence = running[e.key];
-      e.total = counts[e.key];
-    });
-    return entries;
-  }
-
-  function parseQueryStringEntries(qs) {
-    if (!qs) return [];
-    var params = new URLSearchParams(qs);
-    var entries = [];
-    params.forEach(function (value, key) {
-      entries.push({ key: key, value: value });
-    });
-    return annotateOccurrences(entries);
-  }
-
-  function parseEntries(raw) {
-    return parseQueryStringEntries(extractQueryString(raw));
-  }
-
   function buildFullUrl(base, style, fragment, entries) {
     var params = new URLSearchParams();
     entries.forEach(function (e) { params.append(e.key, e.value); });
@@ -1310,51 +1376,6 @@ __FAQ_JSONLD__
     if (!base && style === "bare") return qs;
     if (!qs) return base + fragment;
     return base + "?" + qs + fragment;
-  }
-
-  function detectType(value) {
-    if (value === "") return "empty";
-    if (value === "true" || value === "false") return "boolean";
-    if (/^-?\d+(\.\d+)?$/.test(value)) return "number";
-    try {
-      var parsed = JSON.parse(value);
-      if (parsed !== null && typeof parsed === "object") return "json";
-    } catch (e) { /* not json */ }
-    return "string";
-  }
-
-  function isQueryStringLike(qs) {
-    if (!qs) return false;
-    var pairs = qs.split("&");
-    return pairs.length > 0 && pairs.every(function (p) {
-      var eq = p.indexOf("=");
-      if (eq <= 0) return false;
-      return /^[A-Za-z0-9_.[\]-]+$/.test(p.slice(0, eq));
-    });
-  }
-
-  // Detects a value that is itself a URL (with its own "?a=b&c=d") or a bare
-  // "a=1&b=2" query string, so it can be parsed and shown as a nested table.
-  function detectNested(value, depth) {
-    if (depth >= MAX_NEST_DEPTH || !value) return null;
-
-    var candidate = value;
-    try {
-      var decodedOnce = decodeURIComponent(value);
-      if (decodedOnce !== value) candidate = decodedOnce;
-    } catch (e) { /* leave as-is on invalid escape sequences */ }
-
-    var qIdx = candidate.indexOf("?");
-    if (qIdx !== -1 && /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(candidate)) {
-      var qs = candidate.slice(qIdx + 1).split("#")[0];
-      if (isQueryStringLike(qs)) return qs;
-    }
-
-    if (candidate.indexOf("&") !== -1 && isQueryStringLike(candidate)) {
-      return candidate;
-    }
-
-    return null;
   }
 
   function keyColorVar(index) {
@@ -1593,6 +1614,23 @@ __FAQ_JSONLD__
       btn.classList.remove("copied");
     }, 1200);
   }
+
+  // The MCP button has no text at all -- it is an icon -- so it cannot go
+  // through the generic [data-copy-value] path, whose flash assigns
+  // textContent and would delete the <svg>. Swap the glyph instead.
+  function flashCopiedIcon(btn, iconUse) {
+    iconUse.setAttribute("href", "#i-check");
+    btn.classList.add("copied");
+    setTimeout(function () {
+      iconUse.setAttribute("href", "#i-copy");
+      btn.classList.remove("copied");
+    }, 1200);
+  }
+
+  mcpCopyBtn.addEventListener("click", function () {
+    track("mcp_cmd_copy");
+    copyToClipboard(MCP_CMD).then(function () { flashCopiedIcon(mcpCopyBtn, mcpCopyIcon); });
+  });
 
   // --- share links: encode the current parse/compare state as a query
   // param on this tool's own URL, so opening the link reproduces it.
@@ -1861,35 +1899,6 @@ __FAQ_JSONLD__
 
   // --- compare mode: diff the query params of two URLs ---
 
-  function groupByKey(entries) {
-    var map = Object.create(null);
-    entries.forEach(function (e) {
-      if (!map[e.key]) map[e.key] = [];
-      map[e.key].push(e.value);
-    });
-    return map;
-  }
-
-  function buildDiffRows(entriesA, entriesB) {
-    var mapA = groupByKey(entriesA);
-    var mapB = groupByKey(entriesB);
-    var keys = [];
-    entriesA.concat(entriesB).forEach(function (e) {
-      if (keys.indexOf(e.key) === -1) keys.push(e.key);
-    });
-
-    return keys.map(function (key) {
-      var valuesA = mapA[key] || [];
-      var valuesB = mapB[key] || [];
-      var status;
-      if (valuesA.length && !valuesB.length) status = "onlyA";
-      else if (valuesB.length && !valuesA.length) status = "onlyB";
-      else if (JSON.stringify(valuesA.slice().sort()) === JSON.stringify(valuesB.slice().sort())) status = "same";
-      else status = "diff";
-      return { key: key, valuesA: valuesA, valuesB: valuesB, status: status };
-    });
-  }
-
   function renderValueList(values) {
     if (!values.length) return '<span class="val-empty">—</span>';
     return values.map(renderValueCell).join("<br>");
@@ -2038,6 +2047,11 @@ __FAQ_JSONLD__
     fullUrlPreviewLabelEl.textContent = dict.fullUrlPreviewLabel;
     baseUrlInput.placeholder = dict.baseUrlPlaceholder;
     copyFullUrlBtn.textContent = dict.copy;
+
+    mcpLabelText.textContent = dict.mcpMenu;
+    mcpPill.title = dict.mcpNote;
+    mcpCopyBtn.title = dict.copy;
+    mcpCopyBtn.setAttribute("aria-label", dict.mcpCopyLabel);
 
     tabParseLabel.textContent = dict.tabParse;
     tabCompareLabel.textContent = dict.tabCompare;
