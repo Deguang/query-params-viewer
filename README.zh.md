@@ -4,6 +4,9 @@
 
 拆解 URL 中的 query params 并可视化展示，支持 English / 简体中文 / 繁體中文 / 日本語 / Русский / Deutsch / हिन्दी。
 
+![Query Params Viewer 把一个 URL 拆解成 key/value 表格](screenshots/parse-light.png#gh-light-mode-only)
+![Query Params Viewer 把一个 URL 拆解成 key/value 表格](screenshots/parse-dark.png#gh-dark-mode-only)
+
 - 每个语言页面都是自包含的单个 HTML（无外部依赖、纯前端，Google Analytics 除外）
 - 支持完整 URL、hash 路由（`#/path?a=1`）、裸 query string（`a=1&b=2`）
 - 自动识别重复 key、JSON 值、空值等类型
@@ -21,6 +24,9 @@
   `FAQPage` 结构化数据，供搜索引擎和 AI 答案引擎摘录，详见下方「面向 AI 的优化（GEO）」
 - 关键交互（解析、复制、编辑、对比、语言/主题切换等）都打了 GA4 埋点
 
+![对比两个 URL 的 query params，按相同 / 不同 / 仅 A 有 / 仅 B 有着色](screenshots/compare-light.png#gh-light-mode-only)
+![对比两个 URL 的 query params，按相同 / 不同 / 仅 A 有 / 仅 B 有着色](screenshots/compare-dark.png#gh-dark-mode-only)
+
 ## 目录结构
 
 ```
@@ -36,6 +42,8 @@ sitemap.xml        站点地图（生成产物）
 llms.txt           面向 AI 答案引擎的站点摘要（生成产物，见下方「面向 AI 的优化（GEO）」）
 robots.txt         放行所有爬虫（含 AI 爬虫），并声明 sitemap
 favicon.svg        图标（所有语言页面共用）
+og-image.png       社交分享预览图（og:image/twitter:image），源文件见 scripts/og-image.html
+screenshots/       本 README 用到的截图
 scripts/           构建脚本，页面由此生成，不要直接改生成出来的 index.html
   langs.js         语言清单：有哪些语言、谁在根路径、兜底语言、菜单里各语言的自称
   template.html    共享的 HTML/CSS/JS 模板，翻译文案用 __TOKEN__ 占位

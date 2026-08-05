@@ -4,6 +4,9 @@ English | [简体中文](README.zh.md)
 
 Parses and visualizes the query params of a URL. Available in English / 简体中文 / 繁體中文 / 日本語 / Русский / Deutsch / हिन्दी.
 
+![Query Params Viewer parsing a URL into a key/value table](screenshots/parse-light.png#gh-light-mode-only)
+![Query Params Viewer parsing a URL into a key/value table](screenshots/parse-dark.png#gh-dark-mode-only)
+
 - Every language page is a self-contained single HTML file (no external dependencies, pure front-end, aside from Google Analytics)
 - Accepts a full URL, a hash route (`#/path?a=1`), or a bare query string (`a=1&b=2`)
 - Automatically detects duplicate keys, JSON values, empty values and other types
@@ -21,6 +24,9 @@ Parses and visualizes the query params of a URL. Available in English / 简体�
   `FAQPage` structured data for search engines and AI answer engines to cite — see "Optimizing for AI (GEO)" below
 - Key interactions (parse, copy, edit, compare, language/theme switch, etc.) are instrumented with GA4 events
 
+![Comparing the query params of two URLs, colored by same / different / A only / B only](screenshots/compare-light.png#gh-light-mode-only)
+![Comparing the query params of two URLs, colored by same / different / A only / B only](screenshots/compare-dark.png#gh-dark-mode-only)
+
 ## Directory structure
 
 ```
@@ -36,6 +42,8 @@ sitemap.xml         Sitemap (generated)
 llms.txt            Site summary for AI answer engines (generated, see "Optimizing for AI (GEO)" below)
 robots.txt          Allows all crawlers (including AI crawlers) and declares the sitemap
 favicon.svg         Icon shared by every language page
+og-image.png        Social preview image (og:image/twitter:image), see scripts/og-image.html
+screenshots/         Screenshots used in this README
 scripts/            Build scripts that generate the pages — don't edit the generated index.html files directly
   langs.js          Language roster: which languages exist, which one lives at the root, the fallback language, each language's self-name in the menu
   template.html     Shared HTML/CSS/JS template; translated copy is inserted via __TOKEN__ placeholders
