@@ -1343,9 +1343,8 @@
     </div>
   </section>
 
-  <footer id="footerText">
-    Single file · Pure frontend · No dependencies
-  </footer>
+  <deguang-footer></deguang-footer>
+  <script src="https://app.lideguang.com/deguang-footer.js" type="module" async></script>
 </div>
 
 <script>
@@ -1532,7 +1531,6 @@
   var taglineEl = document.getElementById("tagline");
   var hintEl = document.getElementById("hintText");
   var tableTitleEl = document.getElementById("tableTitleText");
-  var footerEl = document.getElementById("footerText");
   var aboutHeadingEl = document.getElementById("aboutHeading");
   var aboutBodyEl = document.getElementById("aboutBody");
   var faqHeadingEl = document.getElementById("faqHeading");
@@ -2255,7 +2253,6 @@
     tableTitleEl.textContent = dict.tableTitle;
     copyJsonBtn.textContent = dict.copyJsonBtn;
     copyUrlBtn.textContent = dict.copyUrlBtn;
-    footerEl.textContent = dict.footer;
     aboutHeadingEl.textContent = dict.aboutHeading;
     aboutBodyEl.innerHTML = dict.aboutHtml;
     faqHeadingEl.textContent = dict.faqHeading;
