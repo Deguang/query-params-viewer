@@ -1,0 +1,18 @@
+What is a URL query parameter?
+It is a key=value pair in the part of a URL after the ?. Multiple parameters are separated by &, for example ?q=shoes&page=2&sort=asc. The same key may appear more than once.
+How do I decode a query string?
+Paste a full URL, a bare a=1&b=2 string, or a #/path?a=1 hash route into the box and press Parse. Each value is URL-decoded — %20 becomes a space, %3D becomes = — and shown in a table with its detected type.
+Is my URL sent to a server?
+No. Parsing, editing, comparing and share-link generation all run in your browser; the URL never leaves your device. Share links carry their state in the # fragment, which browsers never send to the server.
+What happens with duplicate keys?
+Every occurrence is kept and shown on its own row, tagged like 1/2 and 2/2. This matches how URLSearchParams and most servers read repeated keys, so you see values a simpler parser would silently drop.
+Can it read a URL nested inside a parameter?
+Yes. When a value is itself an encoded URL or query string — such as redirect=https%3A%2F%2F…%3Ftoken%3Dabc — you can expand it to inspect its inner keys and values, up to three levels deep.
+Can an AI assistant use this tool?
+Yes. The same parser is also packaged as an MCP server, so an assistant in any MCP-capable client — Claude, Cursor, Cline and others — can break down or diff a URL for you without anyone opening this page. It offers two tools — 
+parse_url
+ and 
+compare_urls
+ — and runs on your own machine, so URLs stay on your device just as they do here. Setup instructions live in the 
+mcp-server directory
+ of the repository.

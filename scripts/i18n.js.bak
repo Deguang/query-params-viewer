@@ -65,32 +65,7 @@ module.exports = {
     shareLinkBroken: "这个分享链接已损坏或在传输中被截断，无法还原内容。请让分享者重新生成一个链接。",
     aboutHeading: "关于 Query Params Viewer",
     aboutHtml: "URL 的 <em>query string</em> 是 <code>?</code> 后面的那一段——由 <code>&amp;</code> 连接的一串 <code>key=value</code>，例如 <code>?q=shoes&amp;page=2</code>。Query Params Viewer 会解码这串参数并逐条列成表格：对每个值做 URL 解码、标出重复 key、格式化 JSON，并展开那些本身就是一个 encode URL 的参数。全部在你的浏览器里完成，不上传任何数据。",
-    features: [
-      "解析完整 URL、hash 路由和裸 query string",
-      "识别 JSON、数字、布尔、空值和重复值",
-      "展开嵌套的 encode URL，最多三层",
-      "对比、编辑、分享参数——全在客户端完成",
-      "通过 MCP 供 AI 助手直接调用——parse_url 与 compare_urls"
-    ],
-    useCasesHeading: "典型使用场景",
-    useCases: [
-          {
-                "title": "营销 UTM 分析",
-                "desc": "快速拆解并校验广告投放的长链接（如 utm_source, utm_campaign 等），确保追踪参数准确无误。"
-          },
-          {
-                "title": "OAuth 回调调试",
-                "desc": "在调试微信、Google 等第三方登录时，一键展开嵌套的 redirect_uri 和 state 参数，看清内层结构。"
-          },
-          {
-                "title": "数据埋点校验",
-                "desc": "查看和格式化分析工具（如 GA、Pixel）通过超长 Query String 发送的 JSON 格式追踪数据（Payloads）。"
-          },
-          {
-                "title": "API 接口比对",
-                "desc": "利用“对比 (Compare)”功能排查重构前后的接口请求差异，逐行高亮修改过、新增或丢失的参数。"
-          }
-    ],
+    undefined
     faqHeading: "常见问题",
     faq: [
       { q: "什么是 URL query 参数？", a: "它是 URL 中 <code>?</code> 后面的一个 <code>key=value</code> 对。多个参数用 <code>&amp;</code> 分隔，例如 <code>?q=shoes&amp;page=2&amp;sort=asc</code>。同一个 key 可以出现多次。" },
@@ -162,32 +137,7 @@ module.exports = {
     shareLinkBroken: "這個分享連結已損毀或在傳輸中被截斷，無法還原內容。請聯絡分享者重新產生一個連結。",
     aboutHeading: "關於 Query Params Viewer",
     aboutHtml: "URL 的 <em>query string</em> 是 <code>?</code> 後面的那一段——由 <code>&amp;</code> 連接的一串 <code>key=value</code>，例如 <code>?q=shoes&amp;page=2</code>。Query Params Viewer 會解碼這串參數並逐筆列成表格：對每個值做 URL 解碼、標出重複 key、格式化 JSON，並展開那些本身就是一個 encode URL 的參數。全部在你的瀏覽器裡完成，不上傳任何資料。",
-    features: [
-      "解析完整 URL、hash 路由與純 query string",
-      "辨識 JSON、數字、布林、空值與重複值",
-      "展開巢狀的 encode URL，最多三層",
-      "比較、編輯、分享參數——全在用戶端完成",
-      "透過 MCP 供 AI 助手直接呼叫——parse_url 與 compare_urls"
-    ],
-    useCasesHeading: "典型使用情境",
-    useCases: [
-          {
-                "title": "行銷 UTM 分析",
-                "desc": "快速拆解並驗證廣告投放的長連結（如 utm_source, utm_campaign 等），確保追蹤參數正確無誤。"
-          },
-          {
-                "title": "OAuth 回呼除錯",
-                "desc": "在除錯第三方登入時，一鍵展開巢狀的 redirect_uri 與 state 參數，看清內層結構。"
-          },
-          {
-                "title": "數據追蹤驗證",
-                "desc": "查看和格式化分析工具透過超長 Query String 發送的 JSON 格式追蹤資料（Payloads）。"
-          },
-          {
-                "title": "API 介面比對",
-                "desc": "利用「比較 (Compare)」功能排查重構前後的 API 請求差異，逐行標示修改過、新增或遺失的參數。"
-          }
-    ],
+    undefined
     faqHeading: "常見問題",
     faq: [
       { q: "什麼是 URL query 參數？", a: "它是 URL 中 <code>?</code> 後面的一個 <code>key=value</code> 對。多個參數以 <code>&amp;</code> 分隔，例如 <code>?q=shoes&amp;page=2&amp;sort=asc</code>。同一個 key 可以出現多次。" },
@@ -257,32 +207,7 @@ module.exports = {
     shareLinkBroken: "This share link is corrupted or was truncated in transit, so its contents could not be restored. Ask the sender to generate a new link.",
     aboutHeading: "About Query Params Viewer",
     aboutHtml: "A URL <em>query string</em> is the part after the <code>?</code> — a list of <code>key=value</code> pairs joined by <code>&amp;</code>, such as <code>?q=shoes&amp;page=2</code>. Query Params Viewer decodes that string and lays every parameter out in a table: it URL-decodes each value, flags duplicate keys, pretty-prints JSON, and expands parameters that are themselves an encoded URL. Everything runs in your browser — nothing is uploaded.",
-    features: [
-      "Parse full URLs, hash routes and bare query strings",
-      "Detect JSON, number, boolean, empty and duplicate values",
-      "Expand nested encoded URLs up to three levels deep",
-      "Compare, edit and share parameters — all client-side",
-      "Callable from an AI assistant over MCP — parse_url and compare_urls"
-    ],
-    useCasesHeading: "Typical Use Cases",
-    useCases: [
-          {
-                "title": "UTM Campaign Analysis",
-                "desc": "Quickly break down and verify marketing campaign URLs (e.g., utm_source, utm_campaign) to ensure tracking parameters are correct."
-          },
-          {
-                "title": "OAuth Redirect Debugging",
-                "desc": "Easily expand nested redirect_uri and state parameters when debugging third-party logins."
-          },
-          {
-                "title": "Analytics Payload Inspection",
-                "desc": "Inspect and format JSON tracking payloads sent via lengthy query strings by analytics tools like Google Analytics or Meta Pixel."
-          },
-          {
-                "title": "API Regression Testing",
-                "desc": "Use the Compare feature to troubleshoot API request differences before and after refactoring by highlighting modified, added, or missing parameters."
-          }
-    ],
+    undefined
     faqHeading: "Frequently asked questions",
     faq: [
       { q: "What is a URL query parameter?", a: "It is a <code>key=value</code> pair in the part of a URL after the <code>?</code>. Multiple parameters are separated by <code>&amp;</code>, for example <code>?q=shoes&amp;page=2&amp;sort=asc</code>. The same key may appear more than once." },
@@ -352,32 +277,7 @@ module.exports = {
     shareLinkBroken: "この共有リンクは破損しているか、転送中に切り詰められたため、内容を復元できませんでした。共有元に再生成を依頼してください。",
     aboutHeading: "Query Params Viewer について",
     aboutHtml: "URL の <em>クエリ文字列</em> とは <code>?</code> 以降の部分——<code>&amp;</code> でつながれた <code>key=value</code> の並びで、たとえば <code>?q=shoes&amp;page=2</code> です。Query Params Viewer はこの文字列をデコードし、各パラメータを表に展開します：値を URL デコードし、重複 key を示し、JSON を整形し、値そのものが encode された URL であればそれも展開します。すべてブラウザ内で動作し、データは一切アップロードされません。",
-    features: [
-      "完全な URL・ハッシュルート・裸のクエリ文字列を解析",
-      "JSON・数値・真偽値・空値・重複値を判定",
-      "ネストされた encode URL を最大3階層まで展開",
-      "比較・編集・共有をすべてクライアント側で実行",
-      "MCP 経由で AI アシスタントから呼び出し——parse_url と compare_urls"
-    ],
-    useCasesHeading: "主なユースケース",
-    useCases: [
-          {
-                "title": "UTM パラメータ解析",
-                "desc": "マーケティングキャンペーンの URL（utm_source、utm_campaign など）をすばやく分解して検証し、トラッキングパラメータが正しいことを確認します。"
-          },
-          {
-                "title": "OAuth リダイレクトのデバッグ",
-                "desc": "サードパーティログインをデバッグする際、ネストされた redirect_uri や state パラメータをワンクリックで展開して内部構造を確認できます。"
-          },
-          {
-                "title": "アナリティクスのデータ検証",
-                "desc": "GA などの分析ツールが長いクエリ文字列を介して送信する JSON 形式のトラッキングデータを展開して整形します。"
-          },
-          {
-                "title": "API リグレッションテスト",
-                "desc": "「比較 (Compare)」機能を使用して、リファクタリング前後の API リクエストの違い（変更、追加、削除されたパラメータ）をハイライトしてトラブルシューティングします。"
-          }
-    ],
+    undefined
     faqHeading: "よくある質問",
     faq: [
       { q: "URL のクエリパラメータとは？", a: "URL の <code>?</code> 以降にある <code>key=value</code> のペアです。複数のパラメータは <code>&amp;</code> で区切られ、たとえば <code>?q=shoes&amp;page=2&amp;sort=asc</code> のようになります。同じ key が複数回現れることもあります。" },
@@ -447,32 +347,7 @@ module.exports = {
     shareLinkBroken: "Эта ссылка повреждена или была обрезана при передаче, поэтому её содержимое не удалось восстановить. Попросите отправителя создать новую ссылку.",
     aboutHeading: "О Query Params Viewer",
     aboutHtml: "<em>Строка запроса</em> URL — это часть после <code>?</code>: список пар <code>key=value</code>, соединённых знаком <code>&amp;</code>, например <code>?q=shoes&amp;page=2</code>. Query Params Viewer декодирует эту строку и раскладывает каждый параметр в таблицу: выполняет URL-декодирование значений, помечает повторяющиеся ключи, форматирует JSON и раскрывает параметры, которые сами являются закодированным URL. Всё происходит в вашем браузере — ничего не загружается на сервер.",
-    features: [
-      "Разбор полных URL, hash-маршрутов и строк запроса",
-      "Определение JSON, чисел, логических, пустых и повторяющихся значений",
-      "Раскрытие вложенных закодированных URL до трёх уровней",
-      "Сравнение, редактирование и обмен — полностью в браузере",
-      "Вызов из ИИ-ассистента по MCP — parse_url и compare_urls"
-    ],
-    useCasesHeading: "Типичные случаи использования",
-    useCases: [
-          {
-                "title": "Анализ UTM-меток",
-                "desc": "Быстро разбирайте и проверяйте URL-адреса маркетинговых кампаний (например, utm_source, utm_campaign), чтобы убедиться в правильности параметров отслеживания."
-          },
-          {
-                "title": "Отладка перенаправлений OAuth",
-                "desc": "Легко разворачивайте вложенные параметры redirect_uri и state при отладке сторонних входов."
-          },
-          {
-                "title": "Проверка данных аналитики",
-                "desc": "Форматируйте данные отслеживания в формате JSON, передаваемые через длинные строки запросов аналитическими инструментами."
-          },
-          {
-                "title": "Регрессионное тестирование API",
-                "desc": "Используйте функцию сравнения (Compare) для устранения различий в запросах API до и после рефакторинга."
-          }
-    ],
+    undefined
     faqHeading: "Частые вопросы",
     faq: [
       { q: "Что такое query-параметр URL?", a: "Это пара <code>key=value</code> в части URL после <code>?</code>. Несколько параметров разделяются знаком <code>&amp;</code>, например <code>?q=shoes&amp;page=2&amp;sort=asc</code>. Один и тот же ключ может встречаться несколько раз." },
@@ -542,32 +417,7 @@ module.exports = {
     shareLinkBroken: "Dieser Freigabe-Link ist beschädigt oder wurde bei der Übertragung abgeschnitten, sein Inhalt konnte nicht wiederhergestellt werden. Bitten Sie den Absender um einen neuen Link.",
     aboutHeading: "Über Query Params Viewer",
     aboutHtml: "Der <em>Query-String</em> einer URL ist der Teil nach dem <code>?</code> — eine Liste von <code>key=value</code>-Paaren, verbunden mit <code>&amp;</code>, etwa <code>?q=shoes&amp;page=2</code>. Query Params Viewer dekodiert diese Zeichenkette und legt jeden Parameter in einer Tabelle ab: Werte werden URL-dekodiert, doppelte Schlüssel markiert, JSON formatiert und Parameter, die selbst eine kodierte URL sind, aufgeklappt. Alles läuft in Ihrem Browser — nichts wird hochgeladen.",
-    features: [
-      "Vollständige URLs, Hash-Routen und reine Query-Strings analysieren",
-      "JSON, Zahlen, Booleans, leere und doppelte Werte erkennen",
-      "Verschachtelte kodierte URLs bis zu drei Ebenen aufklappen",
-      "Vergleichen, Bearbeiten und Teilen — vollständig im Browser",
-      "Aufruf aus dem KI-Assistenten über MCP — parse_url und compare_urls"
-    ],
-    useCasesHeading: "Typische Anwendungsfälle",
-    useCases: [
-          {
-                "title": "UTM-Kampagnenanalyse",
-                "desc": "Zerlegen und überprüfen Sie schnell Marketing-URLs (z. B. utm_source, utm_campaign), um sicherzustellen, dass die Tracking-Parameter korrekt sind."
-          },
-          {
-                "title": "OAuth-Redirect-Debugging",
-                "desc": "Erweitern Sie verschachtelte redirect_uri- und state-Parameter beim Debuggen von Drittanbieter-Logins ganz einfach mit einem Klick."
-          },
-          {
-                "title": "Überprüfung von Analyse-Daten",
-                "desc": "Untersuchen und formatieren Sie JSON-Tracking-Payloads, die über lange Query-Strings von Analyse-Tools gesendet werden."
-          },
-          {
-                "title": "API-Regressionstests",
-                "desc": "Verwenden Sie die Vergleichsfunktion (Compare), um API-Anfrageunterschiede vor und nach einem Refactoring zu analysieren."
-          }
-    ],
+    undefined
     faqHeading: "Häufige Fragen",
     faq: [
       { q: "Was ist ein URL-Query-Parameter?", a: "Es ist ein <code>key=value</code>-Paar im Teil der URL nach dem <code>?</code>. Mehrere Parameter werden mit <code>&amp;</code> getrennt, zum Beispiel <code>?q=shoes&amp;page=2&amp;sort=asc</code>. Derselbe Schlüssel kann mehrfach vorkommen." },
@@ -637,32 +487,7 @@ module.exports = {
     shareLinkBroken: "यह शेयर लिंक खराब है या भेजते समय कट गया, इसलिए इसकी सामग्री वापस नहीं लाई जा सकी। भेजने वाले से नया लिंक बनाने को कहें।",
     aboutHeading: "Query Params Viewer के बारे में",
     aboutHtml: "किसी URL की <em>क्वेरी स्ट्रिंग</em> वह हिस्सा है जो <code>?</code> के बाद आता है — <code>&amp;</code> से जुड़े <code>key=value</code> जोड़ों की सूची, जैसे <code>?q=shoes&amp;page=2</code>। Query Params Viewer इस स्ट्रिंग को डिकोड करके हर पैरामीटर को एक तालिका में रखता है: हर मान को URL-डिकोड करता है, दोहराई गई key दर्शाता है, JSON को सुंदर ढंग से दिखाता है, और उन पैरामीटर को खोलता है जो खुद एक encode किया हुआ URL हैं। सब कुछ आपके ब्राउज़र में होता है — कुछ भी अपलोड नहीं होता।",
-    features: [
-      "पूरा URL, hash रूट और सिर्फ़ क्वेरी स्ट्रिंग पार्स करें",
-      "JSON, संख्या, बूलियन, खाली और दोहराए गए मान पहचानें",
-      "नेस्टेड encode किए URL तीन स्तर तक खोलें",
-      "तुलना, संपादन और शेयर — सब क्लाइंट-साइड",
-      "MCP के ज़रिए AI असिस्टेंट से कॉल करें — parse_url और compare_urls"
-    ],
-    useCasesHeading: "सामान्य उपयोग के मामले",
-    useCases: [
-          {
-                "title": "UTM अभियान विश्लेषण",
-                "desc": "मार्केटिंग अभियान URL (जैसे, utm_source, utm_campaign) को जल्दी से तोड़ें और सत्यापित करें ताकि ट्रैकिंग पैरामीटर सही हों।"
-          },
-          {
-                "title": "OAuth रीडायरेक्ट डिबगिंग",
-                "desc": "थर्ड-पार्टी लॉगिन डिबग करते समय नेस्टेड redirect_uri और state पैरामीटर को आसानी से विस्तारित करें।"
-          },
-          {
-                "title": "एनालिटिक्स डेटा निरीक्षण",
-                "desc": "एनालिटिक्स टूल द्वारा लंबी क्वेरी स्ट्रिंग के माध्यम से भेजे गए JSON ट्रैकिंग डेटा का निरीक्षण और स्वरूपण करें।"
-          },
-          {
-                "title": "API रिग्रेशन टेस्टिंग",
-                "desc": "रीफैक्टरिंग से पहले और बाद में API अनुरोध में अंतर का निवारण करने के लिए तुलना (Compare) सुविधा का उपयोग करें।"
-          }
-    ],
+    undefined
     faqHeading: "अक्सर पूछे जाने वाले सवाल",
     faq: [
       { q: "URL क्वेरी पैरामीटर क्या है?", a: "यह URL के <code>?</code> के बाद वाले हिस्से में एक <code>key=value</code> जोड़ा है। कई पैरामीटर <code>&amp;</code> से अलग होते हैं, जैसे <code>?q=shoes&amp;page=2&amp;sort=asc</code>। एक ही key एक से ज़्यादा बार आ सकती है।" },

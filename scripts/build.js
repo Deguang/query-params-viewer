@@ -27,7 +27,28 @@ const {
   dirOf,
   canonicalOf
 } = require("./langs.js");
-const template = fs.readFileSync(path.join(__dirname, "template.html"), "utf8");
+const templatePath = path.join(__dirname, "template.html");
+let template = fs.readFileSync(templatePath, "utf8");
+
+try {
+  const { execSync } = require("child_process");
+  let footerSnippet = execSync('curl -sS https://app.lideguang.com/footer-snippet.html', { encoding: 'utf8' });
+  // Clean up CF rocket loader and relative paths
+  footerSnippet = footerSnippet
+    .replace(/<script[^>]*rocket-loader[^>]*><\/script>/gi, '')
+    .replace(/<script>\(function\(\)\{function c\(\).*?<\/script>/s, '')
+    .replace(/src="\.\/deguang-footer\.js"/g, 'src="https://app.lideguang.com/deguang-footer.js"')
+    .replace(/type="[a-f0-9]+-module"/gi, 'type="module"');
+    
+  if (footerSnippet.includes("<deguang-footer>")) {
+    template = template.replace(
+      /<deguang-footer><\/deguang-footer>\s*<script src="https:\/\/app\.lideguang\.com\/deguang-footer\.js" type="module" async><\/script>/i,
+      footerSnippet
+    );
+  }
+} catch (e) {
+  console.warn("Failed to fetch hybrid footer:", e.message);
+}
 
 // scripts/core.js is the single source of truth for the URL-parsing and
 // diffing primitives: the pages get them inlined here, the MCP server in
@@ -120,6 +141,22 @@ function buildHreflangLinks() {
 // is produced client-side by renderFaq() in the template, so switching language
 // in place reproduces it exactly. escapeAttr covers the same characters the
 // template's escapeHtml does, so the question text matches on both paths.
+
+function buildUseCasesHtml(dict) {
+  if (!dict.useCases) return "";
+  return dict.useCases.map(function (item) {
+    return '<div class="usecase-item"><h4>' + escapeAttr(item.title) + '</h4><p>' + escapeAttr(item.desc) + '</p></div>';
+  }).join("\n        ");
+}
+
+
+function buildUseCasesHtml(dict) {
+  if (!dict.useCases) return "";
+  return dict.useCases.map(function (item) {
+    return '<div class="usecase-item"><h4>' + escapeAttr(item.title) + '</h4><p>' + escapeAttr(item.desc) + '</p></div>';
+  }).join("\n        ");
+}
+
 function buildFaqHtml(dict) {
   return dict.faq.map(function (item) {
     return '<details class="faq-item"><summary>' + escapeAttr(item.q) +
@@ -231,6 +268,10 @@ for (const lang of LANGS) {
     __FAQ_JSONLD__: buildFaqJsonLd(dict),
     __ABOUT_HEADING__: escapeAttr(dict.aboutHeading),
     __ABOUT_HTML__: dict.aboutHtml,
+    __USE_CASES_HEADING__: escapeAttr(dict.useCasesHeading),
+    __USE_CASES_HTML__: buildUseCasesHtml(dict),
+    __USE_CASES_HEADING__: escapeAttr(dict.useCasesHeading),
+    __USE_CASES_HTML__: buildUseCasesHtml(dict),
     __FAQ_HEADING__: escapeAttr(dict.faqHeading),
     __FAQ_HTML__: buildFaqHtml(dict),
     __JSONLD_DESCRIPTION_JSON__: JSON.stringify(dict.jsonldDescription),

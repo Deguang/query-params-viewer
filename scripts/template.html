@@ -924,6 +924,58 @@ __FAQ_JSONLD__
     max-width: 68ch;
   }
   .faq-a code { background: var(--page); }
+  .usecases-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (min-width: 640px) {
+    .usecases-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .usecase-item {
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .usecase-item h4 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .usecase-item p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .usecases-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (min-width: 640px) {
+    .usecases-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .usecase-item {
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .usecase-item h4 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .usecase-item p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
 
   footer {
     text-align: center;
@@ -1261,6 +1313,14 @@ __FAQ_JSONLD__
   <section class="about" aria-labelledby="aboutHeading">
     <h2 class="about-heading" id="aboutHeading">__ABOUT_HEADING__</h2>
     <div class="about-body" id="aboutBody">__ABOUT_HTML__</div>
+    
+  <section class="section-about" aria-labelledby="useCasesHeading">
+    <h2 class="about-heading" id="useCasesHeading">__USE_CASES_HEADING__</h2>
+    <div class="usecases-grid">
+        __USE_CASES_HTML__
+    </div>
+  </section>
+
     <h2 class="about-heading" id="faqHeading">__FAQ_HEADING__</h2>
     <div class="faq" id="faqList">
         __FAQ_HTML__
@@ -1460,6 +1520,21 @@ __CORE_JS__
       try {
         var pretty = JSON.stringify(JSON.parse(value), null, 2);
         return '<pre>' + escapeHtml(pretty) + '</pre>';
+      } catch (e) { /* fall through */ }
+    }
+    if (type === "base64-json") {
+      try {
+        var decoded = atob(value.replace(/-/g, '+').replace(/_/g, '/'));
+        var pretty = JSON.stringify(JSON.parse(decoded), null, 2);
+        return '<div style="font-size:11px;color:var(--text-light);word-break:break-all;margin-bottom:4px;">' + escapeHtml(value) + '</div><pre>/* Base64 Decoded */\n' + escapeHtml(pretty) + '</pre>';
+      } catch (e) { /* fall through */ }
+    }
+    if (type === "jwt") {
+      try {
+        var parts = value.split('.');
+        var header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+        var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        return '<div style="font-size:11px;color:var(--text-light);word-break:break-all;margin-bottom:4px;">' + escapeHtml(value) + '</div><pre>/* JWT Header */\n' + escapeHtml(JSON.stringify(header, null, 2)) + '\n\n/* JWT Payload */\n' + escapeHtml(JSON.stringify(payload, null, 2)) + '</pre>';
       } catch (e) { /* fall through */ }
     }
     return escapeHtml(value);
