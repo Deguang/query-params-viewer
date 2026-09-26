@@ -1056,6 +1056,17 @@ __FAQ_JSONLD__
     #compareTable thead th, #compareTable tbody td { padding-left: 6px; padding-right: 6px; }
     .val-cell pre { font-size: 11px; padding: 5px 6px; }
   }
+
+  .sortable-col {
+    cursor: pointer;
+    user-select: none;
+  }
+  .sortable-col:hover {
+    color: var(--text);
+  }
+  .sortable-col:hover svg {
+    opacity: 1 !important;
+  }
 </style>
 </head>
 <body>
@@ -1224,7 +1235,7 @@ __FAQ_JSONLD__
             <table id="paramsTable">
               <thead>
                 <tr>
-                  <th>Key</th>
+                  <th id="sortKeyBtn" class="sortable-col" title="__SORT_BTN__">Key <svg class="icon" aria-hidden="true" style="width:12px;height:12px;vertical-align:middle;margin-left:4px;" viewBox="0 0 24 24"><path id="sortUp" fill="currentColor" opacity="0.4" d="M7 10l5-5 5 5z"/><path id="sortDown" fill="currentColor" opacity="0.4" d="M7 14l5 5 5-5z"/></svg></th>
                   <th>Value</th>
                   <th>Type</th>
                   <th></th>
@@ -1379,6 +1390,41 @@ __CORE_JS__
   var tableBody = document.getElementById("tableBody");
   var copyJsonBtn = document.getElementById("copyJsonBtn");
   var copyUrlBtn = document.getElementById("copyUrlBtn");
+  var sortState = 0; // 0=unsorted, 1=asc, 2=desc
+  var sortBtn = document.getElementById("sortKeyBtn");
+  var sortUp = document.getElementById("sortUp");
+  var sortDown = document.getElementById("sortDown");
+
+  function resetSortState() {
+    sortState = 0;
+    if (sortUp) sortUp.style.opacity = "0.4";
+    if (sortDown) sortDown.style.opacity = "0.4";
+  }
+
+  sortBtn.addEventListener("click", function () {
+    if (editMode) return;
+    if (!currentEntries || !currentEntries.length) return;
+    
+    sortState = (sortState + 1) % 3;
+    
+    if (sortState === 0) {
+      doParse();
+      return;
+    }
+    
+    if (sortState === 1) {
+      sortUp.style.opacity = "1";
+      sortDown.style.opacity = "0.4";
+      var sorted = currentEntries.slice().sort(function(a, b) { return a.key.localeCompare(b.key); });
+      render(sorted);
+    } else if (sortState === 2) {
+      sortUp.style.opacity = "0.4";
+      sortDown.style.opacity = "1";
+      var sorted = currentEntries.slice().sort(function(a, b) { return b.key.localeCompare(a.key); });
+      render(sorted);
+    }
+  });
+
   var themeToggle = document.getElementById("themeToggle");
   var themeToggleIcon = document.getElementById("themeToggleIcon");
   var langMenu = document.getElementById("langMenu");
@@ -1629,6 +1675,7 @@ __CORE_JS__
     currentBase = baseUrlInput.value.trim();
     urlInput.value = buildFullUrl(currentBase, currentStyle, currentFragment, cleaned);
     track("edit_mode_exit", { param_count: cleaned.length });
+    resetSortState();
     render(annotateOccurrences(cleaned));
   }
 
@@ -1941,6 +1988,7 @@ __CORE_JS__
   });
 
   function doParse() {
+    resetSortState();
     editMode = false;
     resetShareError();
     editModeLabel.textContent = t("editParams");
@@ -1966,6 +2014,7 @@ __CORE_JS__
     urlInput.value = "";
     track("clear");
     resetShareError();
+    resetSortState();
     render([]);
     urlInput.focus();
   });
